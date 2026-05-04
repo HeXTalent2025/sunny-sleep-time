@@ -1,0 +1,1447 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sunny Stories ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Sunny Stories Brand Palette */
+  --ocean:#38a2c2; --ocean-deep:#306ca4; --ocean-bright:#40dbe1;
+  --terracotta:#d86e59;
+  --pastel-pink:#ffbbce; --pastel-purple:#d9bbff; --pastel-blue:#bbdeff;
+  --pastel-green:#daffbb; --pastel-yellow:#ffeebb;
+  --bg-primary:#ffffff; --bg-soft:#f5fbfd; --bg-section:#eef6fa;
+  --text-dark:#1a2e3a; --text-soft:#4a6070;
+  /* Legacy aliases kept so existing CSS rules still work */
+  --sun:#38a2c2; --sun-lt:#40dbe1;
+  --coral:#d86e59; --coral-lt:#f7b8ad;
+  --peach:#40dbe1;
+  --ocean-dk:#306ca4; --ocean-lt:#bbdeff;
+  --twilight:#d9bbff; --twilight-lt:#d9bbff;
+  --leaf:#daffbb; --leaf-lt:#b8edaa;
+  --night:#eef6fa; --midnight:#f5fbfd; --dusk:#eef6fa;
+  --white:#ffffff;
+  --glass:rgba(56,162,194,0.08); --glass-border:rgba(56,162,194,0.18);
+  --text:#1a2e3a; --text-mid:#4a6070; --text-low:#7a9aaa;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* BACKGROUND */
+.sky-bg{position:fixed;inset:0;z-index:0;background:linear-gradient(160deg,#f0f8fc 0%,#e8f4f9 30%,#f5fbfd 65%,#eef6fa 100%);}
+#starfield{position:fixed;inset:0;z-index:0;pointer-events:none;}
+/* Floating light bubbles instead of stars */
+.star{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(64,219,225,0.4),rgba(56,162,194,0.1));animation:twinkle var(--d,5s) ease-in-out infinite var(--delay,0s);}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.7;transform:scale(1.6)}}
+/* Sun badge top-right instead of moon */
+.moon-fixed{position:fixed;top:24px;right:28px;z-index:1;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#40dbe1,#38a2c2);box-shadow:0 0 30px rgba(56,162,194,.3),0 0 60px rgba(64,219,225,.15);animation:moonpulse 5s ease-in-out infinite;}
+@keyframes moonpulse{0%,100%{box-shadow:0 0 30px rgba(56,162,194,.3),0 0 60px rgba(64,219,225,.15)}50%{box-shadow:0 0 50px rgba(56,162,194,.45),0 0 90px rgba(64,219,225,.25)}}
+
+/* LAYOUT */
+.app{position:relative;z-index:2;max-width:520px;margin:0 auto;padding:0 16px 80px;min-height:100vh;}
+.screen{animation:fadeUp .45s ease both;}
+.screen.hidden{display:none;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.nav{display:flex;gap:4px;background:rgba(56,162,194,.1);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:16px;padding:6px;margin:16px 0 20px;}
+.nav-btn{flex:1;padding:9px 6px;background:none;border:none;border-radius:12px;color:var(--text-mid);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-btn .ni{font-size:18px;}
+.nav-btn.active{background:var(--glass);color:var(--sun);}
+.nav-btn:hover:not(.active){color:var(--text);}
+
+.panel{background:#ffffff;border:1px solid rgba(56,162,194,.15);border-radius:22px;padding:22px;box-shadow:0 2px 16px rgba(56,162,194,.08);margin-bottom:14px;}
+.panel-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:var(--ocean-deep);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+/* BUTTONS */
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:15px;font-family:'Fraunces',serif;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.btn-sun{background:linear-gradient(135deg,var(--ocean) 0%,var(--ocean-deep) 100%);color:#ffffff;box-shadow:0 6px 24px rgba(56,162,194,.3);}
+.btn-sun:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(56,162,194,.45)}
+.btn-ghost{background:var(--bg-soft);color:var(--text-mid);border:1px solid rgba(56,162,194,.2);margin-top:10px;}
+.btn-ghost:hover{background:var(--bg-section);color:var(--text);}
+.btn-sm{width:auto;padding:9px 16px;font-size:13px;border-radius:10px;display:inline-block;}
+
+/* FORM */
+.f-label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-soft);margin-bottom:7px;}
+.f-input,.f-select,.f-textarea{width:100%;padding:11px 15px;background:var(--bg-soft);border:1.5px solid rgba(56,162,194,.2);border-radius:12px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;outline:none;transition:border-color .2s;margin-bottom:14px;}
+.f-input::placeholder{color:var(--text-low);}
+.f-input:focus,.f-select:focus,.f-textarea:focus{border-color:var(--ocean);background:#ffffff;box-shadow:0 0 0 3px rgba(56,162,194,.1);}
+.f-select option{background:#ffffff;color:var(--text);}
+.f-textarea{resize:vertical;min-height:72px;line-height:1.6;}
+
+/* CHIPS */
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
+.chip{padding:7px 13px;border-radius:20px;border:1.5px solid rgba(56,162,194,.25);background:var(--bg-soft);color:var(--text-mid);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;user-select:none;}
+.chip:hover{border-color:var(--ocean);color:var(--ocean-deep);}
+.chip.sel-sun{background:rgba(56,162,194,.15);border-color:var(--ocean);color:var(--ocean-deep);}
+.chip.sel-ocean{background:rgba(64,219,225,.15);border-color:var(--ocean-bright);color:var(--ocean-deep);}
+.chip.sel-leaf{background:rgba(218,255,187,.5);border-color:#8ec86a;color:#3a6b20;}
+.chip.sel-coral{background:rgba(216,110,89,.12);border-color:var(--terracotta);color:var(--terracotta);}
+.chip.sel-purple{background:rgba(217,187,255,.4);border-color:#a47fe0;color:#6b3fa0;}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0 14px;}
+.toggle-row-label{font-size:14px;font-weight:600;color:var(--text-mid);}
+.toggle{position:relative;width:46px;height:25px;cursor:pointer;}
+.toggle input{display:none;}
+.toggle-track{position:absolute;inset:0;border-radius:13px;background:rgba(56,162,194,.2);transition:background .3s;}
+.toggle input:checked+.toggle-track{background:var(--ocean);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:white;transition:transform .3s;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.toggle input:checked~.toggle-thumb{transform:translateX(21px);}
+
+/* NAME TAGS */
+.name-row{display:flex;gap:8px;margin-bottom:12px;}
+.name-row .f-input{margin-bottom:0;flex:1;}
+.name-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;min-height:10px;}
+.ntag{display:flex;align-items:center;gap:5px;background:rgba(56,162,194,.12);border:1px solid rgba(56,162,194,.3);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--ocean-deep);animation:popIn .2s ease;}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.ntag button{background:none;border:none;color:var(--ocean);font-size:15px;cursor:pointer;line-height:1;padding:0;}
+
+/* CHILD INTEREST ENTRY */
+.child-interests-block{border:1.5px solid rgba(56,162,194,.15);background:var(--bg-soft);border-radius:16px;padding:14px;margin-bottom:12px;}
+.child-interest-name{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ocean-deep);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.interest-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.itag{display:flex;align-items:center;gap:5px;background:rgba(56,162,194,.1);border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:600;color:var(--ocean-deep);}
+.itag button{background:none;border:none;color:var(--ocean);font-size:13px;cursor:pointer;padding:0;}
+.interest-input-row{display:flex;gap:8px;}
+.interest-input-row input{flex:1;margin-bottom:0;}
+.no-interests{font-size:12px;color:var(--text-low);font-style:italic;padding:4px 0;}
+
+/* LOCATIONS */
+.sel-locations-bar{background:rgba(56,162,194,.08);border:1px solid rgba(56,162,194,.2);border-radius:14px;padding:12px 15px;margin-bottom:14px;}
+.sel-loc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.sel-loc-count{font-size:12px;font-weight:600;color:var(--ocean-deep);text-transform:uppercase;letter-spacing:1px;}
+.sel-loc-list{display:flex;flex-wrap:wrap;gap:6px;}
+.sel-loc-pill{display:flex;align-items:center;gap:5px;background:rgba(56,162,194,.1);border:1px solid rgba(56,162,194,.25);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--ocean-deep);}
+.sel-loc-pill button{background:none;border:none;color:var(--ocean);cursor:pointer;font-size:13px;line-height:1;}
+.browse-btn{width:100%;padding:11px;background:rgba(56,162,194,.06);border:1.5px dashed rgba(56,162,194,.3);border-radius:12px;color:var(--ocean-deep);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:14px;}
+.browse-btn:hover{background:rgba(56,162,194,.12);border-color:var(--ocean);}
+
+/* BLUEPRINT PREVIEW */
+.blueprint-preview{background:rgba(56,162,194,.05);border:1px solid rgba(56,162,194,.18);border-radius:18px;padding:18px;margin-bottom:14px;}
+.bp-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ocean-deep);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.bp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bp-story{background:#ffffff;border-radius:12px;padding:10px 12px;border:1px solid rgba(56,162,194,.15);}
+.bp-story-num{font-size:10px;font-weight:600;color:var(--text-low);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.bp-story-hero{font-size:13px;font-weight:700;color:var(--ocean-deep);margin-bottom:3px;}
+.bp-story-loc{font-size:11px;color:var(--ocean);margin-bottom:2px;}
+.bp-story-interest{font-size:11px;color:var(--terracotta);}
+.bp-note{font-size:12px;color:var(--text-soft);margin-top:10px;line-height:1.6;font-style:italic;}
+
+/* EXPLORER */
+.explorer-header{display:flex;align-items:center;gap:10px;padding:14px 0 16px;}
+.back-link{background:var(--bg-soft);border:1px solid rgba(56,162,194,.2);border-radius:10px;color:var(--text-mid);padding:7px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.back-link:hover{background:var(--bg-section);color:var(--text);}
+.exp-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text-dark);flex:1;}
+.exp-sel-badge{background:var(--ocean);color:white;border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;white-space:nowrap;}
+.exp-search{position:relative;margin-bottom:14px;}
+.exp-si{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;}
+.exp-search input{width:100%;padding:11px 13px 11px 38px;background:var(--bg-soft);border:1px solid rgba(56,162,194,.2);border-radius:13px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.exp-search input:focus{border-color:var(--ocean);box-shadow:0 0 0 3px rgba(56,162,194,.1);}
+.exp-search input::placeholder{color:var(--text-low);}
+.exp-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;margin-bottom:14px;scrollbar-width:none;}
+.exp-cats::-webkit-scrollbar{display:none;}
+.exp-cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid rgba(56,162,194,.2);background:var(--bg-soft);color:var(--text-mid);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.exp-cat-btn.active,.exp-cat-btn:hover{background:rgba(56,162,194,.12);border-color:var(--ocean);color:var(--ocean-deep);}
+.exp-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px;}
+.exp-card{background:#ffffff;border:1.5px solid rgba(56,162,194,.15);border-radius:18px;padding:15px;cursor:pointer;transition:all .22s;display:flex;align-items:flex-start;gap:13px;position:relative;box-shadow:0 1px 6px rgba(56,162,194,.06);}
+.exp-card:hover{background:var(--bg-soft);border-color:rgba(56,162,194,.35);}
+.exp-card.selected{background:rgba(56,162,194,.08);border-color:var(--ocean);box-shadow:0 0 0 3px rgba(56,162,194,.12);}
+.exp-emoji{font-size:28px;flex-shrink:0;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:var(--bg-soft);border-radius:12px;}
+.exp-body{flex:1;min-width:0;}
+.exp-name{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--text-dark);margin-bottom:2px;}
+.exp-area{font-size:12px;color:var(--text-low);margin-bottom:5px;}
+.exp-desc{font-size:12px;color:var(--text-soft);line-height:1.5;}
+.exp-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.exp-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(56,162,194,.08);color:var(--ocean-deep);}
+.exp-check{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;border:2px solid rgba(56,162,194,.25);display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;flex-shrink:0;}
+.exp-card.selected .exp-check{background:var(--ocean);border-color:var(--ocean);color:white;}
+.exp-add-form{background:rgba(56,162,194,.05);border:1.5px dashed rgba(56,162,194,.25);border-radius:18px;padding:18px;margin-top:8px;}
+.exp-add-title{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ocean-deep);margin-bottom:14px;}
+.exp-add-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.exp-add-btn{width:100%;padding:12px;background:rgba(56,162,194,.12);border:1.5px solid rgba(56,162,194,.3);border-radius:12px;color:var(--ocean-deep);font-family:'Fraunces',serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.exp-add-btn:hover{background:rgba(56,162,194,.22);}
+.exp-done-bar{position:sticky;bottom:16px;background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));border-radius:16px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 32px rgba(56,162,194,.35);animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.exp-done-text{font-size:14px;font-weight:700;color:white;}
+.exp-done-text span{font-size:20px;font-weight:900;}
+.exp-done-btn{background:white;color:var(--ocean-deep);border:none;border-radius:10px;padding:9px 18px;font-family:'Fraunces',serif;font-size:14px;font-weight:900;cursor:pointer;transition:transform .15s;}
+.exp-done-btn:hover{transform:scale(1.04);}
+
+/* LOADING */
+.loading-wrap{text-align:center;padding:60px 20px;}
+.loading-star{font-size:72px;display:block;margin-bottom:20px;animation:spinFloat 2.5s ease-in-out infinite;}
+@keyframes spinFloat{0%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-12px)}100%{transform:rotate(-8deg) translateY(0)}}
+.loading-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--ocean-deep);margin-bottom:10px;}
+.loading-msg{color:var(--text-soft);font-size:14px;line-height:1.8;margin-bottom:24px;}
+.loading-steps{text-align:left;background:#ffffff;border:1px solid rgba(56,162,194,.15);border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 2px 12px rgba(56,162,194,.08);}
+.step{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(56,162,194,.08);font-size:13px;color:var(--text-soft);transition:color .5s;}
+.step:last-child{border-bottom:none;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(56,162,194,.2);transition:background .5s;flex-shrink:0;}
+.step.done .step-dot{background:var(--ocean);}
+.step.active .step-dot{background:var(--ocean-bright);animation:pulseDot 1s ease-in-out infinite;}
+.step.done,.step.active{color:var(--text);}
+@keyframes pulseDot{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+.loading-bar-wrap{background:rgba(56,162,194,.1);border-radius:8px;height:6px;overflow:hidden;}
+.loading-bar{height:100%;background:linear-gradient(90deg,var(--ocean),var(--ocean-bright),var(--ocean-deep));border-radius:8px;transition:width 1s ease;}
+
+/* STORY LIST */
+.stories-hero{text-align:center;padding:28px 0 20px;}
+.stories-emoji{font-size:52px;display:block;margin-bottom:8px;animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.stories-title{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--ocean-deep);}
+.stories-sub{font-size:13px;color:var(--text-soft);margin-top:4px;line-height:1.6;}
+
+/* STORY PILL */
+.story-pill{background:#ffffff;border:1.5px solid rgba(56,162,194,.15);border-radius:18px;padding:14px 15px;margin-bottom:10px;cursor:pointer;transition:all .22s;display:flex;align-items:center;gap:12px;animation:fadeUp .35s ease both;position:relative;box-shadow:0 1px 8px rgba(56,162,194,.06);}
+.story-pill:hover{background:var(--bg-soft);border-color:rgba(56,162,194,.35);transform:translateX(4px);}
+.pill-emoji{font-size:32px;flex-shrink:0;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:var(--bg-soft);border-radius:13px;}
+.pill-body{flex:1;min-width:0;}
+.pill-num{font-size:10px;font-weight:600;color:var(--text-low);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px;}
+.pill-name{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--text-dark);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pill-dna{display:flex;flex-wrap:wrap;gap:5px;}
+.dna-pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;border:1px solid;}
+.dna-who{background:rgba(56,162,194,.1);border-color:rgba(56,162,194,.25);color:var(--ocean-deep);}
+.dna-where{background:rgba(64,219,225,.1);border-color:rgba(64,219,225,.3);color:var(--ocean-deep);}
+.dna-what{background:rgba(216,110,89,.08);border-color:rgba(216,110,89,.2);color:var(--terracotta);}
+.pill-arrow{color:var(--text-low);font-size:20px;transition:color .2s;}
+.story-pill:hover .pill-arrow{color:var(--ocean);}
+
+/* ═══ STORY DNA CARD (top of reader) ═══ */
+.dna-card{
+  background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));
+  border:1px solid rgba(56,162,194,.2);
+  border-radius:18px;padding:16px 18px;margin-bottom:16px;
+}
+.dna-card-label{
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;
+  color:var(--ocean-deep);margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.dna-card-label::after{content:'';flex:1;height:1px;background:rgba(56,162,194,.2);}
+.dna-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dna-row{background:#ffffff;border-radius:12px;padding:10px 12px;border:1px solid rgba(56,162,194,.12);}
+.dna-row-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-low);margin-bottom:4px;}
+.dna-row-value{font-size:14px;font-weight:700;line-height:1.3;}
+.dna-row-value.who{color:var(--ocean-deep);}
+.dna-row-value.where{color:var(--ocean);}
+.dna-row-value.what{color:var(--terracotta);}
+.dna-row-value.vibe{color:var(--ocean-deep);}
+.dna-promise{
+  margin-top:10px;padding-top:10px;
+  border-top:1px solid rgba(56,162,194,.1);
+  font-size:12px;color:var(--text-soft);line-height:1.6;
+  display:flex;align-items:flex-start;gap:7px;
+}
+.dna-promise-icon{font-size:16px;flex-shrink:0;}
+
+/* READER */
+.reader-top{display:flex;align-items:center;gap:10px;padding:14px 0 16px;}
+.reader-title-sm{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--text-dark);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.story-scene{width:100%;border-radius:24px;aspect-ratio:4/3;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.scene-gradient{position:absolute;inset:0;transition:background 1s ease;}
+.scene-blob{position:absolute;border-radius:50%;opacity:.15;animation:blobFloat var(--bd,6s) ease-in-out infinite var(--bdelay,0s);}
+@keyframes blobFloat{0%,100%{transform:scale(1) translate(0,0)}50%{transform:scale(1.3) translate(10px,-10px)}}
+.scene-icon{font-size:88px;position:relative;z-index:2;animation:sceneFloat 4s ease-in-out infinite;filter:drop-shadow(0 10px 30px rgba(56,162,194,.25));}
+@keyframes sceneFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.05)}}
+.scene-loc-badge{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--ocean-deep);white-space:nowrap;z-index:3;}
+.page-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 14px;}
+.pdot{width:8px;height:8px;border-radius:4px;background:rgba(56,162,194,.2);transition:all .3s;cursor:pointer;}
+.pdot.active{background:var(--ocean);width:24px;}
+.text-panel{background:#ffffff;border:1px solid rgba(56,162,194,.15);border-radius:20px;padding:22px;margin-bottom:14px;box-shadow:0 2px 16px rgba(56,162,194,.08);transition:opacity .3s;}
+.text-chapter{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--ocean);margin-bottom:12px;}
+.story-body{font-family:'Fraunces',serif;font-size:17px;line-height:1.9;color:var(--text-dark);font-weight:400;}
+.story-body strong{color:var(--ocean-deep);font-weight:700;}
+.story-body em{color:var(--terracotta);font-style:normal;font-weight:600;}
+.reader-nav{display:flex;gap:10px;}
+.reader-nav .btn{flex:1;padding:13px;font-size:15px;}
+.the-end-wrap{text-align:center;padding:28px 0;}
+.the-end-icon{font-size:64px;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;}
+.the-end-title{font-family:'Fraunces',serif;font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.the-end-sub{color:var(--text-soft);font-size:14px;line-height:1.7;margin-bottom:24px;}
+
+/* HERO */
+.hero{text-align:center;padding:44px 0 30px;}
+.hero-moon{font-size:64px;display:block;margin-bottom:10px;animation:float 4s ease-in-out infinite;}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(34px,8vw,46px);font-weight:700;background:linear-gradient(135deg,var(--ocean-deep) 0%,var(--ocean) 50%,var(--ocean-bright) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;margin-bottom:8px;}
+.hero-coast{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-bottom:28px;}
+.price-card{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:20px;}
+.price-num{font-family:'Fraunces',serif;font-size:56px;font-weight:700;color:var(--ocean-deep);line-height:1;}
+.price-num sup{font-size:24px;vertical-align:super;}
+.price-stories{color:var(--ocean);font-size:15px;font-weight:600;margin-top:6px;}
+.price-detail{color:var(--text-soft);font-size:12px;margin-top:4px;}
+
+@media(max-width:380px){.hero-title{font-size:30px;}.story-body{font-size:16px;}.exp-add-grid{grid-template-columns:1fr;}.dna-rows{grid-template-columns:1fr;}.bp-grid{grid-template-columns:1fr;}}
+
+/* ═══ AUDIO PLAYER ═══ */
+.audio-bar{
+  background:linear-gradient(135deg,rgba(56,162,194,.1),rgba(64,219,225,.07));
+  border:1px solid rgba(56,162,194,.25);
+  border-radius:18px;padding:14px 16px;margin-bottom:14px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.audio-bar-top{display:flex;align-items:center;gap:10px;}
+.audio-play-btn{
+  width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));
+  color:white;font-size:20px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;box-shadow:0 4px 16px rgba(56,162,194,.35);
+}
+.audio-play-btn:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(56,162,194,.5);}
+.audio-play-btn.playing{background:linear-gradient(135deg,var(--terracotta),#b85040);}
+.audio-info{flex:1;min-width:0;}
+.audio-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ocean-deep);margin-bottom:3px;}
+.audio-status{font-size:12px;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.audio-status.speaking{color:var(--ocean);}
+.audio-bar-bottom{display:flex;align-items:center;gap:8px;justify-content:space-between;}
+.audio-speed-group{display:flex;gap:4px;}
+.audio-speed-btn{
+  padding:5px 11px;border-radius:20px;
+  border:1.5px solid rgba(56,162,194,.2);
+  background:var(--bg-soft);color:var(--text-soft);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .18s;
+}
+.audio-speed-btn.active{background:rgba(56,162,194,.15);border-color:var(--ocean);color:var(--ocean-deep);}
+.audio-voice-note{font-size:10px;color:var(--text-soft);font-style:italic;text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* word highlight */
+.tts-word{transition:background .08s,color .08s;border-radius:3px;padding:0 1px;}
+.tts-word.tts-active{background:rgba(56,162,194,.25);color:var(--ocean-deep);}
+.audio-unsupported{font-size:12px;color:var(--text-soft);font-style:italic;text-align:center;padding:6px 0;}
+</style>
+</head>
+<body>
+<div class="sky-bg"></div>
+<div id="starfield"></div>
+<div class="moon-fixed" title="Sunny Stories">☀️</div>
+
+<div class="app">
+
+<!-- ═══════════ API KEY SETUP ═══════════ -->
+<!-- ═══════════ HOME ═══════════ -->
+<div id="s-home" class="screen">
+  <div class="hero">
+    <span class="hero-moon">🌊</span>
+    <div class="hero-title">Sunny Stories</div>
+    <div class="hero-coast">✦ Personalised Stories for Sunshine Coast Families ✦</div>
+    <div class="price-card">
+      <div class="price-num"><sup>$</sup>10</div>
+      <div class="price-stories">✨ 10 personalised stories</div>
+      <div class="price-detail">$1 per story · each one built just for your family</div>
+    </div>
+    <button class="btn btn-sun" onclick="go('s-form')">✨ Create Our Stories</button>
+  </div>
+  <div style="text-align:center;color:var(--text-soft);font-size:12px;padding-bottom:20px;">🔒 Secure · Stories ready in minutes · Read anywhere, any time</div>
+</div>
+
+<!-- ═══════════ FORM ═══════════ -->
+<div id="s-form" class="screen hidden">
+  <div class="nav">
+    <button class="nav-btn active" onclick="go('s-form')"><span class="ni">✍️</span>Our Story</button>
+    <button class="nav-btn" onclick="go('s-explorer')"><span class="ni">🗺️</span>Locations</button>
+    <button class="nav-btn" onclick="go('s-list')"><span class="ni">📚</span>My Books</button>
+  </div>
+
+  <!-- Step 1: Children + per-child interests -->
+  <div class="panel">
+    <div class="panel-title">👦👧 Your children & what they love</div>
+    <label class="f-label">Add each child's name</label>
+    <div class="name-row">
+      <input class="f-input" id="nameInput" placeholder="e.g. Lily, Oscar…" onkeydown="if(event.key==='Enter')addName()">
+      <button class="btn btn-sun btn-sm" onclick="addName()">Add</button>
+    </div>
+    <div id="childBlocks"></div>
+    <p id="noChildren" style="font-size:13px;color:var(--text-low);font-style:italic;padding:4px 0 10px">Add a child's name above to get started ↑</p>
+  </div>
+
+
+
+  <!-- Step 3: Locations -->
+  <div class="panel">
+    <div class="panel-title">🌊 Favourite places</div>
+    <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;line-height:1.6;">Pick as few as 1 or as many as you like — we'll spread them across your 10 stories so each one feels different.</p>
+    <div class="sel-locations-bar" id="selLocBar" style="display:none">
+      <div class="sel-loc-header">
+        <span class="sel-loc-count" id="selLocCount">0 places selected</span>
+        <button onclick="go('s-explorer')" style="background:none;border:none;color:var(--ocean);font-size:12px;font-weight:700;cursor:pointer;">+ Add more</button>
+      </div>
+      <div class="sel-loc-list" id="selLocList"></div>
+    </div>
+    <button class="browse-btn" id="browseBtn" onclick="go('s-explorer')">🗺️ Browse & Pick Locations →</button>
+  </div>
+
+  <!-- Step 4: Vibe -->
+  <div class="panel">
+    <div class="panel-title">✨ Story vibe</div>
+    <div class="chip-grid">
+      <div class="chip sel-sun" data-g="vibe" data-v="calm and gentle" onclick="singleChip(this,'sel-sun')">😌 Calm & Gentle</div>
+      <div class="chip" data-g="vibe" data-v="adventurous and exciting" onclick="singleChip(this,'sel-sun')">🗺️ Big Adventures</div>
+      <div class="chip" data-g="vibe" data-v="funny and silly" onclick="singleChip(this,'sel-sun')">😂 Funny & Silly</div>
+      <div class="chip" data-g="vibe" data-v="magical and whimsical" onclick="singleChip(this,'sel-sun')">🌟 Magical</div>
+      <div class="chip" data-g="vibe" data-v="cosy and warm" onclick="singleChip(this,'sel-sun')">🏡 Cosy & Warm</div>
+      <div class="chip" data-g="vibe" data-v="mysterious and suspenseful" onclick="singleChip(this,'sel-sun')">🔍 Mystery</div>
+      <div class="chip" data-g="vibe" data-v="educational and curious" onclick="singleChip(this,'sel-sun')">🔬 Curious & Clever</div>
+      <div class="chip" data-g="vibe" data-v="sporty and energetic" onclick="singleChip(this,'sel-sun')">⚡ Sporty & Active</div>
+    </div>
+  </div>
+
+  <!-- Blueprint preview (shows when enough info entered) -->
+  <div class="blueprint-preview hidden" id="blueprintPreview">
+    <div class="bp-title">🗂️ Your story blueprint</div>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:12px;line-height:1.6;">Here's exactly how your inputs will be spread across the 10 stories — every child and every location gets featured:</p>
+    <div class="bp-grid" id="bpGrid"></div>
+    <button id="bpCollapseBtn" onclick="toggleBpExpand()" style="display:none;width:100%;margin-top:8px;padding:8px;background:none;border:1px solid rgba(56,162,194,.2);border-radius:10px;color:var(--ocean);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">↑ Show less</button>
+    <div class="bp-note" id="bpNote"></div>
+  </div>
+
+  <div class="price-card">
+    <div class="price-num"><sup>$</sup>10</div>
+    <div class="price-stories">10 personalised stories</div>
+    <div class="price-detail">Each built from a unique combination of your family's picks</div>
+  </div>
+  <button class="btn btn-sun" onclick="submitForm()">✨ Generate My Stories · $10</button>
+  <button class="btn btn-ghost" onclick="go('s-home')">← Back</button>
+</div>
+
+<!-- ═══════════ EXPLORER ═══════════ -->
+<div id="s-explorer" class="screen hidden">
+  <div class="explorer-header">
+    <button class="back-link" onclick="returnFromExplorer()">← Back to form</button>
+    <div class="exp-title">Pick Places</div>
+    <div class="exp-sel-badge" id="expSelBadge">0 selected</div>
+  </div>
+  <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;line-height:1.5;">Tap locations your family loves — we'll weave each one into its own story.</p>
+  <div class="exp-search"><span class="exp-si">🔍</span><input type="text" placeholder="Search beaches, parks, hinterland…" id="expSearch" oninput="renderExplorer()"></div>
+  <div class="exp-cats" id="expCats"></div>
+  <div id="expGrid"></div>
+  <div class="exp-add-form">
+    <div class="exp-add-title">📍 Know a hidden gem?</div>
+    <div class="exp-add-grid">
+      <div><label class="f-label">Place name</label><input class="f-input" id="ua-name" placeholder="e.g. Bokarina Beach" style="margin-bottom:0"></div>
+      <div><label class="f-label">Area / Suburb</label><input class="f-input" id="ua-area" placeholder="e.g. Kawana" style="margin-bottom:0"></div>
+    </div>
+    <div style="margin-top:10px;">
+      <label class="f-label">Category</label>
+      <select class="f-select" id="ua-cat" style="margin-bottom:10px">
+        <option value="beaches">🏖️ Beach</option>
+        <option value="playgrounds">🛝 Playground</option>
+        <option value="nature">🌿 Nature / Walk</option>
+        <option value="attractions">🎡 Attraction</option>
+        <option value="hinterland">⛰️ Hinterland</option>
+        <option value="markets">🛍️ Market</option>
+        <option value="rainy">🌧️ Rainy Day</option>
+      </select>
+      <label class="f-label">Why do your kids love it?</label>
+      <textarea class="f-textarea" id="ua-desc" placeholder="Tell us what makes this spot special…" style="margin-bottom:10px;min-height:60px"></textarea>
+      <button class="exp-add-btn" onclick="addUserLocation()">⭐ Add & Select This Spot</button>
+    </div>
+  </div>
+  <div class="exp-done-bar" id="expDoneBar" style="display:none">
+    <div class="exp-done-text"><span id="expDoneCount">0</span> places chosen ✨</div>
+    <button class="exp-done-btn" onclick="returnFromExplorer()">Done →</button>
+  </div>
+</div>
+
+<!-- ═══════════ LOADING ═══════════ -->
+<div id="s-loading" class="screen hidden">
+  <div class="loading-wrap">
+    <span class="loading-star">🌊</span>
+    <div class="loading-title">Weaving your stories…</div>
+    <div class="loading-msg" id="loadMsg">Sprinkling Sunshine Coast magic<br>into your family's tales…</div>
+    <div class="loading-steps" id="loadSteps">
+      <div class="step active" id="step0"><div class="step-dot"></div>Building your story blueprint</div>
+      <div class="step" id="step1"><div class="step-dot"></div>Assigning locations to each story</div>
+      <div class="step" id="step2"><div class="step-dot"></div>Crafting unique adventures</div>
+      <div class="step" id="step3"><div class="step-dot"></div>Writing your children into the tales</div>
+      <div class="step" id="step4"><div class="step-dot"></div>Adding warm, joyful endings</div>
+      <div class="step" id="step5"><div class="step-dot"></div>Polishing every last word</div>
+    </div>
+    <div class="loading-bar-wrap"><div class="loading-bar" id="loadBar" style="width:0%"></div></div>
+    <div style="margin-top:20px;background:#ffffff;border:1px solid rgba(56,162,194,.15);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(56,162,194,.07);">
+      <div style="font-size:13px;color:var(--text-soft);">⏱ Time elapsed</div>
+      <div id="elapsedTimer" style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ocean-deep);">0:00</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-soft);text-align:center;margin-top:12px;line-height:1.6;">Writing 10 unique stories takes around 30–60 seconds.<br>Please keep this page open ✨</p>
+  </div>
+</div>
+
+<!-- ═══════════ STORY LIST ═══════════ -->
+<div id="s-list" class="screen hidden">
+  <div class="nav">
+    <button class="nav-btn" onclick="go('s-form')"><span class="ni">✍️</span>Our Story</button>
+    <button class="nav-btn" onclick="go('s-explorer')"><span class="ni">🗺️</span>Locations</button>
+    <button class="nav-btn active" onclick="go('s-list')"><span class="ni">📚</span>My Books</button>
+  </div>
+  <div class="stories-hero">
+    <span class="stories-emoji">✨</span>
+    <div class="stories-title">Your Story Collection</div>
+    <div class="stories-sub" id="storiesSub">10 stories built just for your family</div>
+  </div>
+  <div id="storyList"></div>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="go('s-form')">✨ Create Another Collection</button>
+</div>
+
+<!-- ═══════════ READER ═══════════ -->
+<div id="s-reader" class="screen hidden">
+  <div class="reader-top">
+    <button class="back-link" onclick="go('s-list')">← Stories</button>
+    <div class="reader-title-sm" id="readerTitle">Story</div>
+    <div style="width:56px"></div>
+  </div>
+
+  <!-- Story DNA Card — shown before reading -->
+  <div class="dna-card" id="dnCard">
+    <div class="dna-card-label">✦ This story was built with</div>
+    <div class="dna-rows" id="dnaRows"></div>
+    <div class="dna-promise" id="dnaPromise"></div>
+  </div>
+
+  <div class="story-scene" id="storyScene">
+    <div class="scene-gradient" id="sceneGradient"></div>
+    <div class="scene-blob" style="width:200px;height:200px;--bd:7s;--bdelay:0s;top:-60px;right:-40px;background:var(--ocean)"></div>
+    <div class="scene-blob" style="width:150px;height:150px;--bd:5s;--bdelay:2s;bottom:-50px;left:-30px;background:var(--ocean-bright)"></div>
+    <div class="scene-blob" style="width:100px;height:100px;--bd:8s;--bdelay:1s;top:40%;left:40%;background:var(--terracotta)"></div>
+    <div class="scene-icon" id="sceneIcon">🌊</div>
+    <div class="scene-loc-badge" id="sceneLoc">📍 Sunshine Coast</div>
+  </div>
+
+  <div class="page-dots" id="pageDots"></div>
+
+  <!-- Audio readback bar -->
+  <div class="audio-bar" id="audioBar">
+    <div id="audioUnsupported" class="audio-unsupported" style="display:none">
+      🔇 Read-aloud isn't supported in this browser. Try Chrome or Safari.
+    </div>
+    <div id="audioControls">
+      <div class="audio-bar-top">
+        <button class="audio-play-btn" id="audioPlayBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
+        <div class="audio-info">
+          <div class="audio-label">🔊 Read aloud</div>
+          <div class="audio-status" id="audioStatus">Tap ▶ to listen to this page</div>
+        </div>
+      </div>
+      <div class="audio-bar-bottom">
+        <div class="audio-speed-group">
+          <button class="audio-speed-btn" data-rate="0.8" onclick="setAudioSpeed(this)">Slow</button>
+          <button class="audio-speed-btn active" data-rate="1.0" onclick="setAudioSpeed(this)">Normal</button>
+          <button class="audio-speed-btn" data-rate="1.2" onclick="setAudioSpeed(this)">Fast</button>
+        </div>
+        <div class="audio-voice-note" id="audioVoiceName"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-panel" id="textPanel">
+    <div class="text-chapter" id="textChapter">Page 1</div>
+    <div class="story-body" id="storyText">Loading…</div>
+  </div>
+  <div class="reader-nav">
+    <button class="btn btn-ghost" id="prevBtn" onclick="changePage(-1)">← Prev</button>
+    <button class="btn btn-sun" id="nextBtn" onclick="changePage(1)">Next →</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LIGHT BUBBLES (airy daytime feel)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const sf=document.getElementById('starfield');
+for(let i=0;i<40;i++){
+  const s=document.createElement('div');s.className='star';
+  const sz=Math.random()*18+6;
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${4+Math.random()*6}s;--delay:${Math.random()*8}s;opacity:.18`;
+  sf.appendChild(s);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   STATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const ST = {
+  children: [],        // [{name, interests:[]}]
+  ages: [],
+  vibe: 'gentle and sleepy',
+  selectedLocations: [],
+  blueprints: [],      // pre-computed per-story briefs
+  stories: [],
+  currentStory: null,
+  currentPage: 0,
+  expFilter: 'all',
+  userLocations: JSON.parse(localStorage.getItem('sst_user_locs')||'[]'),
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LOCATION DATABASE (condensed)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const LOCS=[
+  {id:1,cat:'beaches',emoji:'🏄',name:'Mooloolaba Beach',area:'Mooloolaba',tags:['Patrolled','Playground','Esplanade'],desc:'Calm waves, beachfront playground and ice-cream esplanade. One of the safest and most-loved family beaches.'},
+  {id:2,cat:'beaches',emoji:'🏊',name:'Kings Beach',area:'Caloundra',tags:['Ocean Pool','Splash Park','Patrolled'],desc:'Home to Queensland\'s only oceanside saltwater pool plus a fountain splash park and playground.'},
+  {id:3,cat:'beaches',emoji:'🦀',name:'Currimundi Lake',area:'Currimundi',tags:['Calm','Toddler-safe','Kayaking'],desc:'Where forest meets sea. Shallow lake waters perfect for babies, toddlers and first-time swimmers.'},
+  {id:4,cat:'beaches',emoji:'🌅',name:'Noosa Main Beach',area:'Noosa Heads',tags:['Patrolled','Dolphins','No High-rises'],desc:'Iconic Noosa beach with calm turquoise water. Dolphins spotted just offshore most mornings.'},
+  {id:5,cat:'beaches',emoji:'🐚',name:'Shelly Beach',area:'Caloundra',tags:['Rock Pools','Shell Collecting','Calm'],desc:'Crystal-clear rock pools and shell-filled sand. A little explorer\'s paradise.'},
+  {id:6,cat:'beaches',emoji:'🏖️',name:'Coolum Beach',area:'Coolum',tags:['Surf Lessons','Patrolled','Relaxed Vibe'],desc:'Relaxed locals\' favourite with Mt Coolum backdrop and excellent surf school options.'},
+  {id:7,cat:'beaches',emoji:'🌊',name:'Peregian Beach',area:'Peregian',tags:['Quiet','Sea Turtles','Whale Watching'],desc:'Wild and beautiful beach backed by National Park. Known for nesting turtles and whale season.'},
+  {id:8,cat:'beaches',emoji:'🎣',name:'Bulcock Beach',area:'Caloundra',tags:['Fishing','Calm Bay','Boardwalk'],desc:'Tranquil bay for fishing off the jetty and watching boats drift through Pumicestone Passage.'},
+  {id:9,cat:'beaches',emoji:'🪸',name:'La Balsa Park & Pt Cartwright',area:'Buddina',tags:['Lighthouse','Rock Pools','Whale Watch'],desc:'Rocky headland with a lighthouse and sheltered calm-water swimming below at La Balsa Park.'},
+  {id:10,cat:'beaches',emoji:'🐠',name:'Mudjimba Beach',area:'Mudjimba',tags:['Uncrowded','Dog Friendly','Island Views'],desc:'Stunning uncrowded beach with beautiful views of Old Woman Island.'},
+  {id:11,cat:'beaches',emoji:'🌊',name:'Alexandra Headland',area:'Alex Heads',tags:['Surf','Headland Walk','Surf Club'],desc:'Legendary surf beach with a beautiful headland walk connecting to Maroochydore.'},
+  {id:12,cat:'beaches',emoji:'🏄',name:'Dicky Beach',area:'Caloundra',tags:['Patrolled','Relaxed','Less Crowded'],desc:'Classic relaxed family beach with patrolled swimming and grassy picnic areas.'},
+  {id:13,cat:'playgrounds',emoji:'🌳',name:'Bells Reach Playground',area:'Bokarina',tags:['Nature-inspired','Huge','River Views'],desc:'An award-winning nature-themed masterpiece — enormous, beautifully shaded with river views.'},
+  {id:14,cat:'playgrounds',emoji:'🏞️',name:'Cotton Tree Park',area:'Maroochydore',tags:['River Beach','BBQs','Two Playgrounds'],desc:'Sandy river banks, calm paddling waters, two playgrounds and BBQs.'},
+  {id:15,cat:'playgrounds',emoji:'💦',name:'Kawana Splash Pad',area:'Bokarina',tags:['Water Play','Shade','Café Nearby'],desc:'Perfect hot-day outdoor splash pad with water jets and sprinklers for toddlers.'},
+  {id:16,cat:'playgrounds',emoji:'⛵',name:'Noosaville Riverfront',area:'Noosaville',tags:['Noosa River','Walkway','Cafés'],desc:'Lush green lawns to the Noosa River, part of a gorgeous café-lined walkway.'},
+  {id:17,cat:'playgrounds',emoji:'🌸',name:'Buderim Village Park',area:'Buderim',tags:['Heritage Setting','Shaded','Village Café'],desc:'Charming village playground in leafy Buderim with a heritage backdrop and café next door.'},
+  {id:18,cat:'playgrounds',emoji:'🌊',name:'Mooloolaba Spit Playground',area:'Mooloolaba',tags:['Foreshore','Channel Views','BBQs'],desc:'Large foreshore playground close to the famous fish & chip strip.'},
+  {id:21,cat:'nature',emoji:'🌿',name:'Noosa National Park Walk',area:'Noosa Heads',tags:['Koalas','Dolphins','Hidden Beaches'],desc:'One of Australia\'s most beautiful coastal walks. Spot koalas, dolphins, and secret beaches.'},
+  {id:22,cat:'nature',emoji:'💦',name:'Gardners Falls',area:'Maleny',tags:['Swimming Hole','Rock Pools','Rainforest'],desc:'A short rainforest walk leads to beautiful waterfalls and crystal rock pools.'},
+  {id:23,cat:'nature',emoji:'🏔️',name:'Glass House Mountains',area:'Glass House Mountains',tags:['Volcanic Peaks','Lookout','Educational'],desc:'Ancient volcanic peaks with brilliant hands-on visitor centre exhibits.'},
+  {id:24,cat:'nature',emoji:'🌲',name:'Mary Cairncross Reserve',area:'Maleny',tags:['Discovery Centre','Rainforest','Pademelons'],desc:'Stunning rainforest reserve with an interactive Discovery Centre designed for kids.'},
+  {id:25,cat:'nature',emoji:'🌺',name:'Mapleton Falls',area:'Mapleton',tags:['Waterfall','Easy Walk','Picnic Area'],desc:'A stunning waterfall accessible via a short, easy rainforest walk.'},
+  {id:26,cat:'nature',emoji:'🐦',name:'Kondalilla Falls',area:'Montville area',tags:['Waterfall','Swimming Hole','Rainforest'],desc:'A gorgeous rainforest walk to a beautiful waterfall and rock pool swimming hole.'},
+  {id:27,cat:'nature',emoji:'🌿',name:'Buderim Forest & Falls',area:'Buderim',tags:['Easy Walk','Waterfall','Crystal Creek'],desc:'Easy rainforest walk minutes from Buderim Village to a waterfall and clear creek.'},
+  {id:28,cat:'nature',emoji:'🐊',name:'Booloumba Creek',area:'Conondale NP',tags:['Swimming Holes','Boulders','Bush Walk'],desc:'Spectacular boulders kids love climbing, plus crystal creek swimming holes.'},
+  {id:31,cat:'attractions',emoji:'🐊',name:'Australia Zoo',area:'Beerwah',tags:['Wildlife','Croc Show','Kangaroos','Waterpark'],desc:'The legendary Irwin zoo. Hand-feed kangaroos, meet koalas, watch the Crocoseum.'},
+  {id:32,cat:'attractions',emoji:'🐟',name:'SEA LIFE Sunshine Coast',area:'Mooloolaba',tags:['Aquarium','Underwater Tunnel','Sharks'],desc:'An 80-metre underwater tunnel with sharks and rays swimming overhead.'},
+  {id:33,cat:'attractions',emoji:'🎢',name:'Aussie World',area:'Palmview',tags:['Theme Park','Rides All Ages','Great Value'],desc:'Beloved local theme park with rides for every age. Unpretentious, great fun.'},
+  {id:34,cat:'attractions',emoji:'🌿',name:'The Ginger Factory',area:'Yandina',tags:['Train Ride','Boat Ride','Playground','Free Entry'],desc:'Ginger Train, rainforest boat cruise, playground and giant snakes & ladders.'},
+  {id:35,cat:'attractions',emoji:'🦜',name:'Maleny Bird World',area:'Maleny',tags:['Bird Feeding','Gardens','Macaws & Cockatoos'],desc:'Majestic macaws and cockatoos that land right on your head!'},
+  {id:36,cat:'attractions',emoji:'🐨',name:'Wildlife HQ Zoo',area:'Woombye',tags:['Smaller Zoo','Less Crowded','Koala Cuddles'],desc:'A quieter, more intimate wildlife experience. Perfect for younger children.'},
+  {id:37,cat:'attractions',emoji:'🌀',name:'Amaze World Hedge Maze',area:'Gympie Rd',tags:['Hedge Maze','Mini Golf','Puzzles','Water Play'],desc:'A living hedge maze plus mini golf, rope mazes, outdoor puzzles and water play.'},
+  {id:38,cat:'attractions',emoji:'🐯',name:'Hologram Zoo',area:'Nambour',tags:['Holograms','Indoor','Tech Wonder'],desc:'Face-to-face with holographic tigers, dinosaurs and ocean creatures.'},
+  {id:39,cat:'attractions',emoji:'✈️',name:'Queensland Air Museum',area:'Caloundra',tags:['75+ Aircraft','Aviation','Educational'],desc:'A massive collection of 75+ historically significant aircraft.'},
+  {id:40,cat:'attractions',emoji:'🏄',name:'Bli Bli Watersports',area:'Bli Bli',tags:['Wake Park','Cable Ski','Obstacle Course'],desc:'Epic wake boarding and cable skiing with a huge inflatable water obstacle course.'},
+  {id:43,cat:'hinterland',emoji:'⛰️',name:'Montville Village',area:'Montville',tags:['Rainforest Walks','Craft Shops','Fairy-tale Vibe'],desc:'A magical escarpment village surrounded by rainforest. Fairy-lit cafés and galleries.'},
+  {id:44,cat:'hinterland',emoji:'🍓',name:'Eumundi Markets',area:'Eumundi',tags:['Artisan Market','Live Music','Huge','Saturday'],desc:'One of Australia\'s best markets — hundreds of stalls, local produce, arts and live music.'},
+  {id:45,cat:'hinterland',emoji:'🐄',name:'Maleny Dairies',area:'Maleny',tags:['Farm','Fresh Dairy','Educational'],desc:'Watch real cows being milked and buy incredible fresh local products.'},
+  {id:46,cat:'hinterland',emoji:'🌄',name:'Mapleton Village Lookout',area:'Mapleton',tags:['Panoramic Views','Village Charm','Picnic'],desc:'Breathtaking coast views from this charming hinterland village.'},
+  {id:47,cat:'hinterland',emoji:'🌾',name:'Kenilworth Dairies',area:'Kenilworth',tags:['Ice Cream','Cheese','Country Drive'],desc:'A gorgeous hinterland drive to iconic Kenilworth Dairies and famous ice cream.'},
+  {id:49,cat:'markets',emoji:'🌞',name:'Kawana Farmers Market',area:'Buddina',tags:['Saturday Morning','Fresh Produce','Community'],desc:'A beloved Saturday morning ritual with fresh local produce and community vibes.'},
+  {id:50,cat:'markets',emoji:'🐟',name:"Fisherman's Road Market",area:'Maroochydore',tags:['Sunday Morning','Local','Relaxed'],desc:'Early Sunday morning market with fresh fish, local produce and great coffee.'},
+  {id:51,cat:'markets',emoji:'🥕',name:'Yandina Country Markets',area:'Yandina',tags:['Artisan','Hinterland','Saturday'],desc:'A wonderful community market in hinterland Yandina. Artisan goods and fresh produce.'},
+  {id:52,cat:'markets',emoji:'🍋',name:'Noosa Farmers Market',area:'Noosaville',tags:['Sunday','Premium','Noosa River'],desc:'Premium Sunday market by the Noosa River with incredible local produce and live music.'},
+  {id:53,cat:'rainy',emoji:'📚',name:'Sunshine Coast Libraries',area:'Various',tags:['Free','Storytime','Air Con'],desc:'Free storytime sessions for young children. A welcoming rainy morning activity.'},
+  {id:54,cat:'rainy',emoji:'🏃',name:'Rush Adventureland',area:'Maroochydore',tags:['Trampolines','Ninja Course','Indoor'],desc:'50+ trampolines, Ninja Course, climbing walls and Toddler Zone.'},
+];
+
+const CAT_INFO={
+  all:{label:'All',emoji:'✨'},beaches:{label:'Beaches',emoji:'🏖️'},
+  playgrounds:{label:'Playgrounds',emoji:'🛝'},nature:{label:'Nature & Walks',emoji:'🌿'},
+  attractions:{label:'Attractions',emoji:'🎡'},hinterland:{label:'Hinterland',emoji:'⛰️'},
+  markets:{label:'Markets',emoji:'🛍️'},rainy:{label:'Rainy Day',emoji:'🌧️'},user:{label:'My Picks',emoji:'⭐'},
+};
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   NAVIGATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function go(screen){
+  if(screen !== 's-reader') audioStop();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(screen).classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(screen==='s-explorer') renderExplorer();
+  if(screen==='s-list') renderStoryList();
+  if(screen==='s-form') updateBlueprintPreview();
+}
+function returnFromExplorer(){ updateFormLocations(); go('s-form'); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CHILDREN + PER-CHILD INTERESTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function addName(){
+  const inp=document.getElementById('nameInput');
+  const n=inp.value.trim();
+  if(!n||ST.children.find(c=>c.name===n)){inp.value='';return;}
+  ST.children.push({name:n, interests:[], age:null});
+  inp.value='';
+  renderChildBlocks();
+  updateBlueprintPreview();
+}
+
+function removeName(name){
+  ST.children=ST.children.filter(c=>c.name!==name);
+  renderChildBlocks();
+  updateBlueprintPreview();
+}
+
+function addInterest(childName){
+  const inp=document.getElementById(`int-inp-${childName}`);
+  const val=inp.value.trim();
+  if(!val){return;}
+  const child=ST.children.find(c=>c.name===childName);
+  if(child && !child.interests.includes(val)){
+    child.interests.push(val);
+    inp.value='';
+    renderChildBlocks();
+    updateBlueprintPreview();
+  }
+}
+
+function removeInterest(childName, interest){
+  const child=ST.children.find(c=>c.name===childName);
+  if(child) child.interests=child.interests.filter(i=>i!==interest);
+  renderChildBlocks();
+  updateBlueprintPreview();
+}
+
+const INTEREST_SUGGESTIONS=['surfing','animals','dinosaurs','magic','pirates','fairies','superheroes','space','trucks','dancing','art','cooking','sharks','horses','robots','princesses','dragons','music'];
+
+function renderChildBlocks(){
+  const noEl=document.getElementById('noChildren');
+  const container=document.getElementById('childBlocks');
+  if(ST.children.length===0){
+    noEl.style.display='block'; container.innerHTML=''; return;
+  }
+  noEl.style.display='none';
+  container.innerHTML=ST.children.map(child=>`
+    <div class="child-interests-block">
+      <div class="child-interest-name">
+        ⭐ ${child.name}
+        <button onclick="removeName('${child.name}')" style="background:none;border:none;color:var(--coral);font-size:13px;cursor:pointer;margin-left:auto;font-weight:700;">Remove</button>
+      </div>
+      <label class="f-label">${child.name}'s age</label>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;">
+        ${[3,4,5,6,7].map(a=>`
+          <button onclick="setChildAge('${child.name}',${a})"
+            style="padding:8px 14px;border-radius:20px;border:1.5px solid ${child.age===a?'var(--ocean)':'rgba(56,162,194,.2)'};background:${child.age===a?'rgba(56,162,194,.12)':'var(--bg-soft)'};color:${child.age===a?'var(--ocean-deep)':'var(--text-soft)'};font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;">
+            ${a}
+          </button>`).join('')}
+      </div>
+      <label class="f-label">What does ${child.name} love?</label>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <input class="f-input" id="int-inp-${child.name}" placeholder="e.g. dinosaurs, surfing, magic…"
+          style="margin-bottom:0;flex:1;"
+          onkeydown="if(event.key==='Enter')addInterest('${child.name}')">
+        <button class="btn btn-sun btn-sm" onclick="addInterest('${child.name}')">Add</button>
+      </div>
+      <!-- Quick-pick suggestions -->
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">
+        ${INTEREST_SUGGESTIONS.filter(s=>!child.interests.includes(s)).slice(0,8).map(s=>`
+          <button onclick="quickAddInterest('${child.name}','${s}')"
+            style="padding:4px 10px;border-radius:16px;border:1px solid rgba(56,162,194,.2);background:var(--bg-soft);color:var(--text-soft);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;"
+            onmouseover="this.style.borderColor='var(--ocean)';this.style.color='var(--ocean-deep)'"
+            onmouseout="this.style.borderColor='rgba(56,162,194,.15)';this.style.color='var(--text-low)'">
+            + ${s}
+          </button>`).join('')}
+      </div>
+      ${child.interests.length>0
+        ? `<div class="interest-tags">${child.interests.map(i=>`
+            <div class="itag">${i}
+              <button onclick="removeInterest('${child.name}','${i}')">×</button>
+            </div>`).join('')}</div>`
+        : `<p class="no-interests">Type or tap suggestions above to add what ${child.name} loves</p>`
+      }
+    </div>`).join('');
+}
+
+function quickAddInterest(childName, val){
+  const child=ST.children.find(c=>c.name===childName);
+  if(child && !child.interests.includes(val)){
+    child.interests.push(val);
+    renderChildBlocks();
+    updateBlueprintPreview();
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CHIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function toggleChip(el,cls){
+  const g=el.dataset.g,v=el.dataset.v;
+  if(el.classList.contains(cls)){el.classList.remove(cls);ST[g]=ST[g].filter(x=>x!==v);}
+  else{el.classList.add(cls);if(!ST[g])ST[g]=[];ST[g].push(v);}
+  updateBlueprintPreview();
+}
+function singleChip(el,cls){
+  const g=el.dataset.g;
+  document.querySelectorAll(`[data-g="${g}"]`).forEach(c=>c.className='chip');
+  el.classList.add(cls);
+  ST[g]=el.dataset.v;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BLUEPRINT ENGINE
+   This is the core logic that decides,
+   per-story, who is hero / what location /
+   which interest — BEFORE the AI runs.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function buildBlueprints(){
+  const NUM = 10;
+  const children = ST.children.length > 0
+    ? ST.children
+    : [{name:'Your child', interests:[]}];
+
+  // Gather all interests as [{child, interest}] pairs
+  let interestPairs = [];
+  children.forEach(child=>{
+    (child.interests.length>0 ? child.interests : ['exploring']).forEach(interest=>{
+      interestPairs.push({child:child.name, interest});
+    });
+  });
+  if(interestPairs.length===0) interestPairs=[{child:children[0].name,interest:'exploring'}];
+
+  // Gather locations — fallback to generic SC spots
+  const locs = ST.selectedLocations.length > 0
+    ? ST.selectedLocations
+    : [{name:'the Sunshine Coast', area:'', emoji:'🌊', desc:'The beautiful Sunshine Coast of Queensland'}];
+
+  const blueprints = [];
+  for(let i=0;i<NUM;i++){
+    // Rotate through: child hero, interest, location — all independently
+    // This ensures every child appears, every interest appears, every location appears
+    const childIdx    = i % children.length;
+    const interestIdx = i % interestPairs.length;
+    const locIdx      = i % locs.length;
+
+    // Co-star: the other child (if there are multiple children)
+    const costarIdx = (childIdx + 1) % children.length;
+    const costar = children.length > 1 ? children[costarIdx].name : null;
+
+    blueprints.push({
+      storyNum:    i+1,
+      hero:        children[childIdx].name,
+      costar:      costar,
+      interest:    interestPairs[interestIdx].interest,
+      location:    locs[locIdx],
+      vibe:        ST.vibe || 'gentle and sleepy',
+    });
+  }
+  return blueprints;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BLUEPRINT PREVIEW (in form)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function updateBlueprintPreview(){
+  const preview = document.getElementById('blueprintPreview');
+  const hasChildren = ST.children.length > 0;
+  const hasLocations = ST.selectedLocations.length > 0;
+
+  if(!hasChildren){ preview.classList.add('hidden'); return; }
+
+  const bps = buildBlueprints();
+  ST.blueprints = bps;
+
+  // State: track whether expanded
+  const isExpanded = document.getElementById('bpGrid')?.dataset.expanded === 'true';
+
+  function renderBpGrid(expanded) {
+    const shown = expanded ? bps : bps.slice(0,6);
+    const remaining = bps.length - 6;
+    document.getElementById('bpGrid').innerHTML = shown.map(bp=>`
+      <div class="bp-story">
+        <div class="bp-story-num">Story ${bp.storyNum}</div>
+        <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
+        <div class="bp-story-loc">📍 ${bp.location.name}</div>
+        <div class="bp-story-interest">💛 ${bp.interest}</div>
+      </div>`).join('')
+    + (bps.length > 6 && !expanded
+      ? `<div class="bp-story" style="display:flex;align-items:center;justify-content:center;min-height:80px;cursor:pointer;border:1.5px dashed rgba(56,162,194,.25);" onclick="toggleBpExpand()">
+          <span style="color:var(--ocean);font-size:13px;font-weight:600;">+ ${remaining} more stories — tap to see all</span>
+         </div>` : '');
+    document.getElementById('bpGrid').dataset.expanded = expanded ? 'true' : 'false';
+    // Update collapse button
+    const collapseBtn = document.getElementById('bpCollapseBtn');
+    if(collapseBtn) collapseBtn.style.display = expanded && bps.length > 6 ? 'block' : 'none';
+  }
+
+  renderBpGrid(isExpanded);
+
+  // Generate a plain-English note about the distribution
+  const childNames = ST.children.map(c=>c.name);
+  const locCount = ST.selectedLocations.length;
+  const intCount = ST.children.reduce((sum,c)=>sum+c.interests.length,0);
+
+  let note = `Every child appears in multiple stories. `;
+  if(locCount > 0 && locCount < 10) note += `Your ${locCount} location${locCount>1?'s are':' is'} each used in ${Math.ceil(10/locCount)} stories. `;
+  if(locCount >= 10) note += `Each of your ${locCount} locations gets its own story. `;
+  if(intCount > 0) note += `All interests are woven in throughout. `;
+  note += `No story will leave any child out.`;
+
+  document.getElementById('bpNote').textContent = note;
+  preview.classList.remove('hidden');
+  updateFormLocations();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FORM LOCATIONS UI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function toggleBpExpand(){
+  const grid = document.getElementById('bpGrid');
+  const expanded = grid.dataset.expanded === 'true';
+  updateBlueprintPreview._forceExpand = !expanded;
+  // Re-render with toggled state
+  const bps = ST.blueprints;
+  const nowExpanded = !expanded;
+  const remaining = bps.length - 6;
+  grid.innerHTML = (nowExpanded ? bps : bps.slice(0,6)).map(bp=>`
+    <div class="bp-story">
+      <div class="bp-story-num">Story ${bp.storyNum}</div>
+      <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
+      <div class="bp-story-loc">📍 ${bp.location.name}</div>
+      <div class="bp-story-interest">💛 ${bp.interest}</div>
+    </div>`).join('')
+  + (bps.length > 6 && !nowExpanded
+    ? `<div class="bp-story" style="display:flex;align-items:center;justify-content:center;min-height:80px;cursor:pointer;border:1.5px dashed rgba(56,162,194,.25);" onclick="toggleBpExpand()">
+        <span style="color:var(--ocean);font-size:13px;font-weight:600;">+ ${remaining} more stories — tap to see all</span>
+       </div>` : '');
+  grid.dataset.expanded = nowExpanded ? 'true' : 'false';
+  const collapseBtn = document.getElementById('bpCollapseBtn');
+  if(collapseBtn) collapseBtn.style.display = nowExpanded && bps.length > 6 ? 'block' : 'none';
+}
+function updateFormLocations(){
+  const bar=document.getElementById('selLocBar');
+  const btn=document.getElementById('browseBtn');
+  const n=ST.selectedLocations.length;
+  if(n>0){
+    bar.style.display='block';
+    document.getElementById('selLocCount').textContent=`${n} place${n!==1?'s':''} selected`;
+    document.getElementById('selLocList').innerHTML=ST.selectedLocations.map(l=>`
+      <div class="sel-loc-pill">${l.emoji||'📍'} ${l.name}
+        <button onclick="removeSelectedLoc(${l.id})">×</button>
+      </div>`).join('');
+    btn.textContent='🗺️ Change / Add More Locations →';
+  } else {
+    bar.style.display='none';
+    btn.textContent='🗺️ Browse & Pick Locations →';
+  }
+}
+function removeSelectedLoc(id){
+  ST.selectedLocations=ST.selectedLocations.filter(l=>l.id!==id);
+  updateFormLocations();
+  updateBlueprintPreview();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   EXPLORER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function allLocs(){
+  return[...LOCS,...ST.userLocations.map((u,i)=>({...u,id:9000+i,cat:u.cat||'user',isUser:true}))];
+}
+function isSelected(loc){ return ST.selectedLocations.some(s=>s.id===loc.id); }
+function toggleLocSelection(id){
+  const loc=allLocs().find(l=>l.id===id);
+  if(!loc)return;
+  if(isSelected(loc)) ST.selectedLocations=ST.selectedLocations.filter(s=>s.id!==id);
+  else ST.selectedLocations.push(loc);
+  updateExpBadge();
+  renderExplorer();
+  updateBlueprintPreview();
+}
+function updateExpBadge(){
+  const n=ST.selectedLocations.length;
+  document.getElementById('expSelBadge').textContent=`${n} selected`;
+  const bar=document.getElementById('expDoneBar');
+  if(n>0){bar.style.display='flex';document.getElementById('expDoneCount').textContent=n;}
+  else bar.style.display='none';
+}
+function renderExplorer(){
+  const cats=['all','beaches','playgrounds','nature','attractions','hinterland','markets','rainy','user'];
+  document.getElementById('expCats').innerHTML=cats.map(c=>`
+    <button class="exp-cat-btn ${ST.expFilter===c?'active':''}"
+      onclick="ST.expFilter='${c}';renderExplorer()">
+      ${CAT_INFO[c]?.emoji||'📍'} ${CAT_INFO[c]?.label||c}
+    </button>`).join('');
+  const search=(document.getElementById('expSearch')?.value||'').toLowerCase();
+  const filtered=allLocs().filter(loc=>{
+    if(ST.expFilter!=='all'&&loc.cat!==ST.expFilter)return false;
+    if(search){const h=`${loc.name} ${loc.area} ${loc.desc} ${(loc.tags||[]).join(' ')}`.toLowerCase();if(!h.includes(search))return false;}
+    return true;
+  });
+  if(!filtered.length){document.getElementById('expGrid').innerHTML=`<div style="text-align:center;color:var(--text-low);padding:40px">No locations found 🔍</div>`;updateExpBadge();return;}
+  document.getElementById('expGrid').innerHTML=`<div class="exp-grid">${filtered.map(loc=>{
+    const sel=isSelected(loc);
+    return`<div class="exp-card ${sel?'selected':''}" onclick="toggleLocSelection(${loc.id})">
+      <div class="exp-emoji">${loc.emoji}</div>
+      <div class="exp-body">
+        <div class="exp-name">${loc.name}${loc.isUser?' <span style="font-size:10px;background:rgba(56,162,194,.12);color:var(--ocean-deep);padding:1px 6px;border-radius:6px;font-weight:600;">⭐ Your pick</span>':''}</div>
+        <div class="exp-area">📍 ${loc.area}</div>
+        <div class="exp-desc">${loc.desc}</div>
+        ${loc.tags?.length?`<div class="exp-tags">${loc.tags.slice(0,3).map(t=>`<span class="exp-tag">${t}</span>`).join('')}</div>`:''}
+      </div>
+      <div class="exp-check">${sel?'✓':''}</div>
+    </div>`;}).join('')}</div>`;
+  updateExpBadge();
+}
+function addUserLocation(){
+  const name=document.getElementById('ua-name').value.trim();
+  const area=document.getElementById('ua-area').value.trim();
+  const cat=document.getElementById('ua-cat').value;
+  const desc=document.getElementById('ua-desc').value.trim();
+  if(!name||!area||!desc){alert('Please fill in name, area and description!');return;}
+  const emojiMap={beaches:'🏖️',playgrounds:'🛝',nature:'🌿',attractions:'🎡',hinterland:'⛰️',markets:'🛍️',rainy:'🌧️'};
+  const newLoc={id:9000+ST.userLocations.length,name,area,cat,desc,emoji:emojiMap[cat]||'📍',tags:[area],isUser:true};
+  ST.userLocations.push(newLoc);
+  localStorage.setItem('sst_user_locs',JSON.stringify(ST.userLocations));
+  ST.selectedLocations.push(newLoc);
+  document.getElementById('ua-name').value='';
+  document.getElementById('ua-area').value='';
+  document.getElementById('ua-desc').value='';
+  renderExplorer();
+  updateBlueprintPreview();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FORM SUBMIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function submitForm(){
+  if(!ST.children.length){alert('Please add at least one child\'s name! ⭐');return;}
+  if(ST.children.some(c=>!c.age)){alert('Please select an age for each child! 🎂');return;}
+  ST.blueprints=buildBlueprints();
+  go('s-loading');
+  startElapsedTimer();
+  await runGeneration();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GENERATION + LOADING ANIMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function runGeneration(){
+  let stepIdx=0;
+  function advStep(){
+    if(stepIdx>0){const p=document.getElementById(`step${stepIdx-1}`);p.classList.remove('active');p.classList.add('done');}
+    const el=document.getElementById(`step${stepIdx}`);
+    if(el){el.classList.add('active');document.getElementById('loadBar').style.width=(stepIdx/5*90)+'%';}
+    stepIdx++;
+  }
+  advStep();
+  const timer=setInterval(advStep,2000);
+  const msgs=['Mapping your favourite Sunshine Coast spots…','Writing your children into the stories…','Making sure every location gets its moment…','Weaving in your child\'s favourite things…','Final sprinkle of coastal magic…'];
+  let mi=0;
+  const msgEl=document.getElementById('loadMsg');
+  const msgTimer=setInterval(()=>{
+    msgEl.style.opacity=0;
+    setTimeout(()=>{msgEl.innerHTML=msgs[mi%msgs.length];msgEl.style.opacity=1;msgEl.style.transition='opacity .4s';mi++;},300);
+  },2400);
+  try{
+    ST.stories=await callAPI();
+    clearInterval(timer);clearInterval(msgTimer);
+    document.getElementById('loadBar').style.width='100%';
+    stopElapsedTimer();
+    await delay(600);
+    go('s-list');
+  }catch(e){
+    clearInterval(timer);clearInterval(msgTimer);
+    if(e.message==='No API key') return; // already redirected to setup
+    console.error('Generation error:', e);
+    const msg = e.message?.includes('401') ? 'API key invalid or expired — check your key in Settings.' :
+                e.message?.includes('429') ? 'Rate limit hit — wait a moment and try again.' :
+                e.message?.includes('Failed to fetch') ? 'Network error — check your internet connection.' :
+                'Something went wrong generating your stories. Please try again!';
+    stopElapsedTimer();
+    alert('✨ ' + msg);
+    go('s-form');
+  }
+}
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   API CALL — blueprints drive the prompt
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function callAPI(){
+  const agesStr=ST.children.map(c=>`${c.name} (age ${c.age||'unknown'})`).join(', ');
+  const includeNames=true; // can wire to toggle
+
+  // Build a per-story brief from blueprints
+  const storyBriefs=ST.blueprints.map(bp=>{
+    const locDetail=`${bp.location.name} (${bp.location.area||'Sunshine Coast'})${bp.location.desc?': '+bp.location.desc:''}`;
+    const costarLine=bp.costar?`; ${bp.costar} also appears`:'';
+    return `Story ${bp.storyNum}: HERO = ${bp.hero}${costarLine} | LOCATION = ${locDetail} | MAIN INTEREST = ${bp.interest} | VIBE = ${bp.vibe}`;
+  }).join('\n');
+
+  const prompt=`You are a warm, lyrical children's story author specialising in the Sunshine Coast of Queensland, Australia. You write for Sunny Stories — personalised stories for Sunshine Coast families.
+
+Generate exactly 10 short stories. You have been given a specific brief for EACH story — follow each brief precisely. This ensures every child is featured, every location gets its own story, and every interest is explored.
+
+FAMILY PROFILE:
+- Children: ${ST.children.map(c=>`${c.name} (loves: ${c.interests.join(', ')||'exploring'})`).join('; ')}
+- Children & ages: ${agesStr}
+
+PER-STORY BRIEFS (follow exactly):
+${storyBriefs}
+
+WRITING RULES:
+- Each story 300–400 words long (3–5 min reading time)
+- The HERO child must appear by name within the first 2 sentences
+- The LOCATION must be described with real, specific sensory details (what you can see, hear, smell there)
+- The MAIN INTEREST must drive the plot — it's not a background detail, it's why the story happens
+- If a costar is listed, they appear meaningfully (not just a mention)
+- Warm, joyful endings — the child feels seen, proud, and loved
+- Stories work at bedtime, on the couch, in the car, at the beach — write them for any moment
+- Split into exactly 3 pages using the separator [PAGE]
+- Writing tone: lyrical, warm, vivid. Language simple but beautiful — the kind that sounds wonderful read aloud.
+
+OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no commentary.
+[
+  {
+    "title": "Story title",
+    "emoji": "🌊",
+    "location": "Location name",
+    "area": "Suburb/area",
+    "readTime": "4 min",
+    "hero": "Child name",
+    "costar": "Second child name or null",
+    "interest": "Main interest",
+    "sceneColor": "CSS gradient e.g. linear-gradient(135deg, #38a2c2, #306ca4)",
+    "pages": ["page 1 text", "page 2 text", "page 3 text"]
+  }
+]`;
+
+  // Calls our Netlify proxy — API key lives securely on the server
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if(!res.ok) throw new Error('API ' + res.status);
+  const data = await res.json();
+  const text = data.content.map(i=>i.text||'').join('');
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   STORY LIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function renderStoryList(){
+  const names=ST.children.map(c=>c.name).join(' & ')||'Your family';
+  document.getElementById('storiesSub').textContent=`${names}'s personal story collection`;
+  if(!ST.stories.length){
+    document.getElementById('storyList').innerHTML=`
+      <div style="text-align:center;padding:40px 20px;color:var(--text-soft)">
+        <div style="font-size:48px;margin-bottom:12px">🌊</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;margin-bottom:8px;color:var(--text)">No stories yet</div>
+        <div style="font-size:13px;line-height:1.7">Create your first personalised story collection — pick your locations, tell us about your family, and let the magic happen.</div>
+        <button class="btn btn-sun" style="margin-top:20px;max-width:260px;margin:20px auto 0;display:block" onclick="go('s-form')">✨ Create Stories</button>
+      </div>`;
+    return;
+  }
+  document.getElementById('storyList').innerHTML=ST.stories.map((s,i)=>`
+    <div class="story-pill" onclick="openStory(${i})" style="animation-delay:${i*.05}s">
+      <div class="pill-emoji">${s.emoji||'🌙'}</div>
+      <div class="pill-body">
+        <div class="pill-num">Story ${i+1} of ${ST.stories.length}</div>
+        <div class="pill-name">${s.title}</div>
+        <div class="pill-dna">
+          <span class="dna-pill dna-who">⭐ ${s.hero||''}${s.costar?' & '+s.costar:''}</span>
+          <span class="dna-pill dna-where">📍 ${s.location||'Sunshine Coast'}</span>
+          <span class="dna-pill dna-what">💛 ${s.interest||''}</span>
+        </div>
+      </div>
+      <div class="pill-arrow">›</div>
+    </div>`).join('');
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   READER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function openStory(idx){
+  ST.currentStory=idx;ST.currentPage=0;
+  const s=ST.stories[idx];
+  document.getElementById('readerTitle').textContent=s.title;
+  document.getElementById('sceneLoc').textContent=`📍 ${s.location||'Sunshine Coast'}`;
+  document.getElementById('sceneGradient').style.background=s.sceneColor||'linear-gradient(135deg,#38a2c2,#306ca4,#40dbe1)';
+
+  // Build Story DNA card
+  const costarLine=s.costar?`${s.hero} & ${s.costar}`:s.hero;
+  const costarPromise=s.costar
+    ? `Both <strong>${s.hero}</strong> and <strong>${s.costar}</strong> appear in this story.`
+    : `<strong>${s.hero}</strong> is the hero of this story.`;
+
+  document.getElementById('dnaRows').innerHTML=`
+    <div class="dna-row">
+      <div class="dna-row-label">⭐ Hero${s.costar?' & friend':''}</div>
+      <div class="dna-row-value who">${costarLine}</div>
+    </div>
+    <div class="dna-row">
+      <div class="dna-row-label">📍 Set in</div>
+      <div class="dna-row-value where">${s.location||'Sunshine Coast'}</div>
+    </div>
+    <div class="dna-row">
+      <div class="dna-row-label">💛 About</div>
+      <div class="dna-row-value what">${s.interest||'adventure'}</div>
+    </div>
+    <div class="dna-row">
+      <div class="dna-row-label">🌙 Vibe</div>
+      <div class="dna-row-value vibe">${s.vibe||ST.vibe||'gentle & calming'}</div>
+    </div>`;
+
+  document.getElementById('dnaPromise').innerHTML=`
+    <span class="dna-promise-icon">✅</span>
+    <span>${costarPromise} The story is set at <strong>${s.location}</strong> and inspired by a love of <strong>${s.interest}</strong>.</span>`;
+
+  renderPageDots(s.pages.length+1);
+  renderPage();
+  go('s-reader');
+  audioStop(true);
+  audioSetStatus('Tap ▶ to listen to this page', false);
+  audioInit();
+}
+
+function renderPageDots(total){
+  document.getElementById('pageDots').innerHTML=Array.from({length:total},(_,i)=>
+    `<div class="pdot ${i===0?'active':''}" onclick="jumpPage(${i})"></div>`).join('');
+}
+function updateDots(){document.querySelectorAll('.pdot').forEach((d,i)=>d.classList.toggle('active',i===ST.currentPage));}
+function jumpPage(i){ST.currentPage=i;renderPage();}
+function changePage(dir){
+  const s=ST.stories[ST.currentStory];
+  ST.currentPage=Math.max(0,Math.min(s.pages.length,ST.currentPage+dir));
+  renderPage();
+}
+
+function renderPage(){
+  const s=ST.stories[ST.currentStory];
+  const p=ST.currentPage,total=s.pages.length;
+  const panel=document.getElementById('textPanel');
+  updateDots();
+  const icons=[s.emoji||'🌊','🌊','⭐','🌿','☀️'];
+  document.getElementById('sceneIcon').textContent=icons[p%icons.length];
+  audioStop(false); // stop speech but preserve autoAdvancing flag
+  panel.style.opacity=0;
+  setTimeout(()=>{
+    if(p>=total){
+      panel.innerHTML=`<div class="the-end-wrap">
+        <span class="the-end-icon">✨</span>
+        <div class="the-end-title">The End ✨</div>
+        <div class="the-end-sub">Well done, ${s.hero||'little one'}.<br>Another adventure waits whenever you're ready.</div>
+        <button class="btn btn-sun" onclick="go('s-list')" style="max-width:260px;margin:0 auto;display:block">📚 Back to Stories</button>
+      </div>`;
+      AUDIO.autoAdvancing=false;
+      audioSetStatus('Story complete ✨', false);
+      updatePlayBtn();
+    } else {
+      const formatted=fmtText(s.pages[p],s);
+      panel.innerHTML=`<div class="text-chapter">Page ${p+1} of ${total}</div><div class="story-body" id="storyBodyEl">${wrapWords(formatted)}</div>`;
+      audioSetStatus('Tap ▶ to listen to this page', false);
+    }
+    panel.style.opacity=1;panel.style.transition='opacity .3s';
+    document.getElementById('prevBtn').style.display=p===0?'none':'block';
+    document.getElementById('nextBtn').textContent=p>=total-1?'✨ The End':'Next →';
+    // If auto-advancing, restart speech on this new page
+    if(AUDIO.autoAdvancing && p<total){
+      setTimeout(()=>audioPlay(), 350);
+    }
+  },200);
+}
+
+function fmtText(text,s){
+  if(!text)return'';
+  let t=text;
+  // Bold all children's names
+  ST.children.forEach(c=>{
+    t=t.replace(new RegExp(`\\b${c.name}\\b`,'g'),`<strong>${c.name}</strong>`);
+  });
+  // Italicise the location name
+  if(s.location){
+    t=t.replace(new RegExp(`\\b${s.location.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'g'),`<em>${s.location}</em>`);
+  }
+  return t;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CHILD AGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function setChildAge(name, age){
+  const child = ST.children.find(c=>c.name===name);
+  if(child){ child.age = age; }
+  renderChildBlocks();
+  updateBlueprintPreview();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ELAPSED TIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+let elapsedInterval = null;
+
+function startElapsedTimer(){
+  const start = Date.now();
+  const el = document.getElementById('elapsedTimer');
+  if(elapsedInterval) clearInterval(elapsedInterval);
+  elapsedInterval = setInterval(()=>{
+    const secs = Math.floor((Date.now()-start)/1000);
+    const m = Math.floor(secs/60);
+    const s = secs % 60;
+    if(el) el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function stopElapsedTimer(){
+  if(elapsedInterval){ clearInterval(elapsedInterval); elapsedInterval=null; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WORD WRAPPER — for TTS highlighting
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function wrapWords(html){
+  const tpl=document.createElement('div');
+  tpl.innerHTML=html;
+  let wi=0;
+  function walk(node){
+    if(node.nodeType===3){
+      const parts=node.textContent.split(/(\s+)/);
+      const frag=document.createDocumentFragment();
+      parts.forEach(part=>{
+        if(/\S/.test(part)){
+          const span=document.createElement('span');
+          span.className='tts-word';span.dataset.wi=wi++;span.textContent=part;
+          frag.appendChild(span);
+        } else {
+          frag.appendChild(document.createTextNode(part));
+        }
+      });
+      node.parentNode.replaceChild(frag,node);
+    } else if(node.nodeType===1&&node.tagName!=='SCRIPT'&&node.tagName!=='STYLE'){
+      Array.from(node.childNodes).forEach(walk);
+    }
+  }
+  Array.from(tpl.childNodes).forEach(walk);
+  return tpl.innerHTML;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   AUDIO ENGINE — Web Speech API
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const AUDIO={supported:'speechSynthesis' in window,playing:false,autoAdvancing:false,rate:1.0,voice:null,utterance:null};
+
+function audioInit(){
+  if(!AUDIO.supported){
+    const u=document.getElementById('audioUnsupported');
+    const c=document.getElementById('audioControls');
+    if(u)u.style.display='block';
+    if(c)c.style.display='none';
+    return;
+  }
+  function pickVoice(){
+    const voices=window.speechSynthesis.getVoices();
+    if(!voices.length)return;
+    const score=v=>{
+      const l=v.lang.toLowerCase(),n=v.name.toLowerCase();
+      if(l.includes('en-au')&&(n.includes('female')||n.includes('karen')||n.includes('catherine')||n.includes('lee')))return 5;
+      if(l.includes('en-au'))return 4;
+      if(l.includes('en-gb')&&(n.includes('female')||n.includes('kate')||n.includes('serena')))return 3;
+      if(l.startsWith('en')&&(n.includes('female')||n.includes('samantha')||n.includes('victoria')||n.includes('zira')))return 2;
+      if(l.startsWith('en'))return 1;
+      return 0;
+    };
+    AUDIO.voice=[...voices].sort((a,b)=>score(b)-score(a))[0]||null;
+    const el=document.getElementById('audioVoiceName');
+    if(el&&AUDIO.voice)el.textContent=AUDIO.voice.name;
+  }
+  pickVoice();
+  if(window.speechSynthesis.onvoiceschanged!==undefined) window.speechSynthesis.onvoiceschanged=pickVoice;
+}
+
+function getPlainPageText(){
+  const s=ST.stories[ST.currentStory];
+  const p=ST.currentPage;
+  if(!s||p>=s.pages.length)return'';
+  return s.pages[p].replace(/<[^>]*>/g,'');
+}
+
+function audioPlay(){
+  if(!AUDIO.supported)return;
+  window.speechSynthesis.cancel();
+  const text=getPlainPageText();
+  if(!text)return;
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=AUDIO.rate;utt.pitch=1.05;utt.volume=1;
+  if(AUDIO.voice)utt.voice=AUDIO.voice;
+  // Word boundary highlighting
+  utt.onboundary=e=>{
+    if(e.name!=='word')return;
+    document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+    const spans=document.querySelectorAll('#storyBodyEl .tts-word');
+    let charCount=0;
+    for(let i=0;i<spans.length;i++){
+      const wl=spans[i].textContent.length;
+      if(charCount>=e.charIndex||Math.abs(charCount-e.charIndex)<=wl){
+        spans[i].classList.add('tts-active');
+        spans[i].scrollIntoView({behavior:'smooth',block:'nearest'});
+        break;
+      }
+      charCount+=wl+1;
+    }
+  };
+  utt.onstart=()=>{AUDIO.playing=true;audioSetStatus('Reading…',true);updatePlayBtn();};
+  utt.onend=()=>{
+    document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+    const s=ST.stories[ST.currentStory];
+    if(AUDIO.autoAdvancing&&s&&ST.currentPage<s.pages.length-1){
+      ST.currentPage++;renderPage();
+    } else if(AUDIO.autoAdvancing&&s&&ST.currentPage>=s.pages.length-1){
+      ST.currentPage=s.pages.length;AUDIO.autoAdvancing=false;AUDIO.playing=false;renderPage();
+    } else {
+      AUDIO.playing=false;AUDIO.autoAdvancing=false;
+      audioSetStatus('Tap ▶ to listen again',false);updatePlayBtn();
+    }
+  };
+  utt.onerror=e=>{
+    if(e.error==='interrupted')return;
+    AUDIO.playing=false;AUDIO.autoAdvancing=false;
+    audioSetStatus('Audio unavailable',false);updatePlayBtn();
+  };
+  AUDIO.utterance=utt;
+  window.speechSynthesis.speak(utt);
+}
+
+function audioPause(){
+  if(!AUDIO.supported)return;
+  window.speechSynthesis.pause();
+  AUDIO.playing=false;
+  document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+  audioSetStatus('Paused',false);updatePlayBtn();
+}
+
+function audioStop(resetAutoAdvance=true){
+  if(!AUDIO.supported)return;
+  window.speechSynthesis.cancel();
+  AUDIO.playing=false;
+  if(resetAutoAdvance)AUDIO.autoAdvancing=false;
+  document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+  updatePlayBtn();
+}
+
+function audioToggle(){
+  if(!AUDIO.supported)return;
+  if(AUDIO.playing){AUDIO.autoAdvancing=false;audioPause();}
+  else{AUDIO.autoAdvancing=true;audioPlay();}
+}
+
+function audioSetStatus(msg,speaking){
+  const el=document.getElementById('audioStatus');
+  if(!el)return;
+  el.textContent=msg;
+  el.className='audio-status'+(speaking?' speaking':'');
+}
+
+function updatePlayBtn(){
+  const btn=document.getElementById('audioPlayBtn');
+  if(!btn)return;
+  btn.textContent=AUDIO.playing?'⏸':'▶';
+  btn.classList.toggle('playing',AUDIO.playing);
+}
+
+function setAudioSpeed(btn){
+  AUDIO.rate=parseFloat(btn.dataset.rate);
+  document.querySelectorAll('.audio-speed-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(AUDIO.playing){window.speechSynthesis.cancel();setTimeout(()=>audioPlay(),100);}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   INIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+renderChildBlocks();
+audioInit();
+</script>
+</body>
+</html>
