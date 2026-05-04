@@ -310,18 +310,7 @@ body{font-family:'Nunito',sans-serif;background:var(--night);color:var(--text);m
     <p id="noChildren" style="font-size:13px;color:var(--text-low);font-style:italic;padding:4px 0 10px">Add a child's name above to get started ↑</p>
   </div>
 
-  <!-- Step 2: Ages -->
-  <div class="panel">
-    <div class="panel-title">🎂 Ages</div>
-    <label class="f-label">Select all that apply</label>
-    <div class="chip-grid">
-      <div class="chip" data-g="ages" data-v="3" onclick="toggleChip(this,'sel-sun')">3</div>
-      <div class="chip" data-g="ages" data-v="4" onclick="toggleChip(this,'sel-sun')">4</div>
-      <div class="chip" data-g="ages" data-v="5" onclick="toggleChip(this,'sel-sun')">5</div>
-      <div class="chip" data-g="ages" data-v="6" onclick="toggleChip(this,'sel-sun')">6</div>
-      <div class="chip" data-g="ages" data-v="7" onclick="toggleChip(this,'sel-sun')">7</div>
-    </div>
-  </div>
+
 
   <!-- Step 3: Locations -->
   <div class="panel">
@@ -419,6 +408,11 @@ body{font-family:'Nunito',sans-serif;background:var(--night);color:var(--text);m
       <div class="step" id="step5"><div class="step-dot"></div>Polishing every last word</div>
     </div>
     <div class="loading-bar-wrap"><div class="loading-bar" id="loadBar" style="width:0%"></div></div>
+    <div style="margin-top:20px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:13px;color:var(--text-mid);">⏱ Time elapsed</div>
+      <div id="elapsedTimer" style="font-family:'Fraunces',serif;font-size:22px;font-weight:800;color:var(--sun);">0:00</div>
+    </div>
+    <p style="font-size:12px;color:var(--text-low);text-align:center;margin-top:12px;line-height:1.6;">Writing 10 unique stories takes around 30–60 seconds.<br>Please keep this page open ✨</p>
   </div>
 </div>
 
@@ -583,7 +577,7 @@ function addName(){
   const inp=document.getElementById('nameInput');
   const n=inp.value.trim();
   if(!n||ST.children.find(c=>c.name===n)){inp.value='';return;}
-  ST.children.push({name:n, interests:[]});
+  ST.children.push({name:n, interests:[], age:null});
   inp.value='';
   renderChildBlocks();
   updateBlueprintPreview();
@@ -629,6 +623,14 @@ function renderChildBlocks(){
       <div class="child-interest-name">
         ⭐ ${child.name}
         <button onclick="removeName('${child.name}')" style="background:none;border:none;color:var(--coral);font-size:13px;cursor:pointer;margin-left:auto;font-weight:700;">Remove</button>
+      </div>
+      <label class="f-label">${child.name}'s age</label>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;">
+        ${[3,4,5,6,7].map(a=>`
+          <button onclick="setChildAge('${child.name}',${a})"
+            style="padding:8px 14px;border-radius:20px;border:1.5px solid ${child.age===a?'var(--sun)':'rgba(255,255,255,.15)'};background:${child.age===a?'rgba(251,191,36,.2)':'rgba(255,255,255,.05)'};color:${child.age===a?'var(--sun-lt)':'var(--text-mid)'};font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;">
+            ${a}
+          </button>`).join('')}
       </div>
       <label class="f-label">What does ${child.name} love?</label>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
@@ -875,9 +877,10 @@ function addUserLocation(){
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 async function submitForm(){
   if(!ST.children.length){alert('Please add at least one child\'s name! ⭐');return;}
-  if(!ST.ages.length){alert('Please select at least one age! 🎂');return;}
+  if(ST.children.some(c=>!c.age)){alert('Please select an age for each child! 🎂');return;}
   ST.blueprints=buildBlueprints();
   go('s-loading');
+  startElapsedTimer();
   await runGeneration();
 }
 
@@ -905,6 +908,7 @@ async function runGeneration(){
     ST.stories=await callAPI();
     clearInterval(timer);clearInterval(msgTimer);
     document.getElementById('loadBar').style.width='100%';
+    stopElapsedTimer();
     await delay(600);
     go('s-list');
   }catch(e){
@@ -915,6 +919,7 @@ async function runGeneration(){
                 e.message?.includes('429') ? 'Rate limit hit — wait a moment and try again.' :
                 e.message?.includes('Failed to fetch') ? 'Network error — check your internet connection.' :
                 'Something went wrong generating your stories. Please try again!';
+    stopElapsedTimer();
     alert('🌙 ' + msg);
     go('s-form');
   }
@@ -925,7 +930,7 @@ function delay(ms){return new Promise(r=>setTimeout(r,ms));}
    API CALL — blueprints drive the prompt
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 async function callAPI(){
-  const agesStr=ST.ages.join(', ')||'various';
+  const agesStr=ST.children.map(c=>`${c.name} (age ${c.age||'unknown'})`).join(', ');
   const includeNames=true; // can wire to toggle
 
   // Build a per-story brief from blueprints
@@ -941,7 +946,7 @@ Generate exactly 10 short bedtime stories. You have been given a specific brief 
 
 FAMILY PROFILE:
 - Children: ${ST.children.map(c=>`${c.name} (loves: ${c.interests.join(', ')||'exploring'})`).join('; ')}
-- Ages: ${agesStr}
+- Children & ages: ${agesStr}
 
 PER-STORY BRIEFS (follow exactly):
 ${storyBriefs}
@@ -977,7 +982,7 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-sonnet-4-5',
       max_tokens: 8000,
       messages: [{ role: 'user', content: prompt }]
     })
@@ -1115,9 +1120,41 @@ function fmtText(text,s){
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CHILD AGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function setChildAge(name, age){
+  const child = ST.children.find(c=>c.name===name);
+  if(child){ child.age = age; }
+  renderChildBlocks();
+  updateBlueprintPreview();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ELAPSED TIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+let elapsedInterval = null;
+
+function startElapsedTimer(){
+  const start = Date.now();
+  const el = document.getElementById('elapsedTimer');
+  if(elapsedInterval) clearInterval(elapsedInterval);
+  elapsedInterval = setInterval(()=>{
+    const secs = Math.floor((Date.now()-start)/1000);
+    const m = Math.floor(secs/60);
+    const s = secs % 60;
+    if(el) el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function stopElapsedTimer(){
+  if(elapsedInterval){ clearInterval(elapsedInterval); elapsedInterval=null; }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    INIT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 renderChildBlocks();
 </script>
 </body>
 </html>
+
