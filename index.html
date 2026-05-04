@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -275,6 +276,43 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .price-detail{color:var(--text-soft);font-size:12px;margin-top:4px;}
 
 @media(max-width:380px){.hero-title{font-size:30px;}.story-body{font-size:16px;}.exp-add-grid{grid-template-columns:1fr;}.dna-rows{grid-template-columns:1fr;}.bp-grid{grid-template-columns:1fr;}}
+
+/* ═══ AUDIO PLAYER ═══ */
+.audio-bar{
+  background:linear-gradient(135deg,rgba(56,162,194,.1),rgba(64,219,225,.07));
+  border:1px solid rgba(56,162,194,.25);
+  border-radius:18px;padding:14px 16px;margin-bottom:14px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.audio-bar-top{display:flex;align-items:center;gap:10px;}
+.audio-play-btn{
+  width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));
+  color:white;font-size:20px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;box-shadow:0 4px 16px rgba(56,162,194,.35);
+}
+.audio-play-btn:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(56,162,194,.5);}
+.audio-play-btn.playing{background:linear-gradient(135deg,var(--terracotta),#b85040);}
+.audio-info{flex:1;min-width:0;}
+.audio-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ocean-deep);margin-bottom:3px;}
+.audio-status{font-size:12px;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.audio-status.speaking{color:var(--ocean);}
+.audio-bar-bottom{display:flex;align-items:center;gap:8px;justify-content:space-between;}
+.audio-speed-group{display:flex;gap:4px;}
+.audio-speed-btn{
+  padding:5px 11px;border-radius:20px;
+  border:1.5px solid rgba(56,162,194,.2);
+  background:var(--bg-soft);color:var(--text-soft);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .18s;
+}
+.audio-speed-btn.active{background:rgba(56,162,194,.15);border-color:var(--ocean);color:var(--ocean-deep);}
+.audio-voice-note{font-size:10px;color:var(--text-soft);font-style:italic;text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* word highlight */
+.tts-word{transition:background .08s,color .08s;border-radius:3px;padding:0 1px;}
+.tts-word.tts-active{background:rgba(56,162,194,.25);color:var(--ocean-deep);}
+.audio-unsupported{font-size:12px;color:var(--text-soft);font-style:italic;text-align:center;padding:6px 0;}
 </style>
 </head>
 <body>
@@ -473,6 +511,31 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   </div>
 
   <div class="page-dots" id="pageDots"></div>
+
+  <!-- Audio readback bar -->
+  <div class="audio-bar" id="audioBar">
+    <div id="audioUnsupported" class="audio-unsupported" style="display:none">
+      🔇 Read-aloud isn't supported in this browser. Try Chrome or Safari.
+    </div>
+    <div id="audioControls">
+      <div class="audio-bar-top">
+        <button class="audio-play-btn" id="audioPlayBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
+        <div class="audio-info">
+          <div class="audio-label">🔊 Read aloud</div>
+          <div class="audio-status" id="audioStatus">Tap ▶ to listen to this page</div>
+        </div>
+      </div>
+      <div class="audio-bar-bottom">
+        <div class="audio-speed-group">
+          <button class="audio-speed-btn" data-rate="0.8" onclick="setAudioSpeed(this)">Slow</button>
+          <button class="audio-speed-btn active" data-rate="1.0" onclick="setAudioSpeed(this)">Normal</button>
+          <button class="audio-speed-btn" data-rate="1.2" onclick="setAudioSpeed(this)">Fast</button>
+        </div>
+        <div class="audio-voice-note" id="audioVoiceName"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="text-panel" id="textPanel">
     <div class="text-chapter" id="textChapter">Page 1</div>
     <div class="story-body" id="storyText">Loading…</div>
@@ -577,6 +640,7 @@ const CAT_INFO={
    NAVIGATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function go(screen){
+  if(screen !== 's-reader') audioStop();
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   document.getElementById(screen).classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1117,6 +1181,9 @@ function openStory(idx){
   renderPageDots(s.pages.length+1);
   renderPage();
   go('s-reader');
+  audioStop(true);
+  audioSetStatus('Tap ▶ to listen to this page', false);
+  audioInit();
 }
 
 function renderPageDots(total){
@@ -1138,6 +1205,7 @@ function renderPage(){
   updateDots();
   const icons=[s.emoji||'🌊','🌊','⭐','🌿','☀️'];
   document.getElementById('sceneIcon').textContent=icons[p%icons.length];
+  audioStop(false); // stop speech but preserve autoAdvancing flag
   panel.style.opacity=0;
   setTimeout(()=>{
     if(p>=total){
@@ -1147,12 +1215,21 @@ function renderPage(){
         <div class="the-end-sub">Well done, ${s.hero||'little one'}.<br>Another adventure waits whenever you're ready.</div>
         <button class="btn btn-sun" onclick="go('s-list')" style="max-width:260px;margin:0 auto;display:block">📚 Back to Stories</button>
       </div>`;
+      AUDIO.autoAdvancing=false;
+      audioSetStatus('Story complete ✨', false);
+      updatePlayBtn();
     } else {
-      panel.innerHTML=`<div class="text-chapter">Page ${p+1} of ${total}</div><div class="story-body">${fmtText(s.pages[p],s)}</div>`;
+      const formatted=fmtText(s.pages[p],s);
+      panel.innerHTML=`<div class="text-chapter">Page ${p+1} of ${total}</div><div class="story-body" id="storyBodyEl">${wrapWords(formatted)}</div>`;
+      audioSetStatus('Tap ▶ to listen to this page', false);
     }
     panel.style.opacity=1;panel.style.transition='opacity .3s';
     document.getElementById('prevBtn').style.display=p===0?'none':'block';
     document.getElementById('nextBtn').textContent=p>=total-1?'✨ The End':'Next →';
+    // If auto-advancing, restart speech on this new page
+    if(AUDIO.autoAdvancing && p<total){
+      setTimeout(()=>audioPlay(), 350);
+    }
   },200);
 }
 
@@ -1202,10 +1279,169 @@ function stopElapsedTimer(){
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   WORD WRAPPER — for TTS highlighting
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function wrapWords(html){
+  const tpl=document.createElement('div');
+  tpl.innerHTML=html;
+  let wi=0;
+  function walk(node){
+    if(node.nodeType===3){
+      const parts=node.textContent.split(/(\s+)/);
+      const frag=document.createDocumentFragment();
+      parts.forEach(part=>{
+        if(/\S/.test(part)){
+          const span=document.createElement('span');
+          span.className='tts-word';span.dataset.wi=wi++;span.textContent=part;
+          frag.appendChild(span);
+        } else {
+          frag.appendChild(document.createTextNode(part));
+        }
+      });
+      node.parentNode.replaceChild(frag,node);
+    } else if(node.nodeType===1&&node.tagName!=='SCRIPT'&&node.tagName!=='STYLE'){
+      Array.from(node.childNodes).forEach(walk);
+    }
+  }
+  Array.from(tpl.childNodes).forEach(walk);
+  return tpl.innerHTML;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   AUDIO ENGINE — Web Speech API
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const AUDIO={supported:'speechSynthesis' in window,playing:false,autoAdvancing:false,rate:1.0,voice:null,utterance:null};
+
+function audioInit(){
+  if(!AUDIO.supported){
+    const u=document.getElementById('audioUnsupported');
+    const c=document.getElementById('audioControls');
+    if(u)u.style.display='block';
+    if(c)c.style.display='none';
+    return;
+  }
+  function pickVoice(){
+    const voices=window.speechSynthesis.getVoices();
+    if(!voices.length)return;
+    const score=v=>{
+      const l=v.lang.toLowerCase(),n=v.name.toLowerCase();
+      if(l.includes('en-au')&&(n.includes('female')||n.includes('karen')||n.includes('catherine')||n.includes('lee')))return 5;
+      if(l.includes('en-au'))return 4;
+      if(l.includes('en-gb')&&(n.includes('female')||n.includes('kate')||n.includes('serena')))return 3;
+      if(l.startsWith('en')&&(n.includes('female')||n.includes('samantha')||n.includes('victoria')||n.includes('zira')))return 2;
+      if(l.startsWith('en'))return 1;
+      return 0;
+    };
+    AUDIO.voice=[...voices].sort((a,b)=>score(b)-score(a))[0]||null;
+    const el=document.getElementById('audioVoiceName');
+    if(el&&AUDIO.voice)el.textContent=AUDIO.voice.name;
+  }
+  pickVoice();
+  if(window.speechSynthesis.onvoiceschanged!==undefined) window.speechSynthesis.onvoiceschanged=pickVoice;
+}
+
+function getPlainPageText(){
+  const s=ST.stories[ST.currentStory];
+  const p=ST.currentPage;
+  if(!s||p>=s.pages.length)return'';
+  return s.pages[p].replace(/<[^>]*>/g,'');
+}
+
+function audioPlay(){
+  if(!AUDIO.supported)return;
+  window.speechSynthesis.cancel();
+  const text=getPlainPageText();
+  if(!text)return;
+  const utt=new SpeechSynthesisUtterance(text);
+  utt.rate=AUDIO.rate;utt.pitch=1.05;utt.volume=1;
+  if(AUDIO.voice)utt.voice=AUDIO.voice;
+  // Word boundary highlighting
+  utt.onboundary=e=>{
+    if(e.name!=='word')return;
+    document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+    const spans=document.querySelectorAll('#storyBodyEl .tts-word');
+    let charCount=0;
+    for(let i=0;i<spans.length;i++){
+      const wl=spans[i].textContent.length;
+      if(charCount>=e.charIndex||Math.abs(charCount-e.charIndex)<=wl){
+        spans[i].classList.add('tts-active');
+        spans[i].scrollIntoView({behavior:'smooth',block:'nearest'});
+        break;
+      }
+      charCount+=wl+1;
+    }
+  };
+  utt.onstart=()=>{AUDIO.playing=true;audioSetStatus('Reading…',true);updatePlayBtn();};
+  utt.onend=()=>{
+    document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+    const s=ST.stories[ST.currentStory];
+    if(AUDIO.autoAdvancing&&s&&ST.currentPage<s.pages.length-1){
+      ST.currentPage++;renderPage();
+    } else if(AUDIO.autoAdvancing&&s&&ST.currentPage>=s.pages.length-1){
+      ST.currentPage=s.pages.length;AUDIO.autoAdvancing=false;AUDIO.playing=false;renderPage();
+    } else {
+      AUDIO.playing=false;AUDIO.autoAdvancing=false;
+      audioSetStatus('Tap ▶ to listen again',false);updatePlayBtn();
+    }
+  };
+  utt.onerror=e=>{
+    if(e.error==='interrupted')return;
+    AUDIO.playing=false;AUDIO.autoAdvancing=false;
+    audioSetStatus('Audio unavailable',false);updatePlayBtn();
+  };
+  AUDIO.utterance=utt;
+  window.speechSynthesis.speak(utt);
+}
+
+function audioPause(){
+  if(!AUDIO.supported)return;
+  window.speechSynthesis.pause();
+  AUDIO.playing=false;
+  document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+  audioSetStatus('Paused',false);updatePlayBtn();
+}
+
+function audioStop(resetAutoAdvance=true){
+  if(!AUDIO.supported)return;
+  window.speechSynthesis.cancel();
+  AUDIO.playing=false;
+  if(resetAutoAdvance)AUDIO.autoAdvancing=false;
+  document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
+  updatePlayBtn();
+}
+
+function audioToggle(){
+  if(!AUDIO.supported)return;
+  if(AUDIO.playing){AUDIO.autoAdvancing=false;audioPause();}
+  else{AUDIO.autoAdvancing=true;audioPlay();}
+}
+
+function audioSetStatus(msg,speaking){
+  const el=document.getElementById('audioStatus');
+  if(!el)return;
+  el.textContent=msg;
+  el.className='audio-status'+(speaking?' speaking':'');
+}
+
+function updatePlayBtn(){
+  const btn=document.getElementById('audioPlayBtn');
+  if(!btn)return;
+  btn.textContent=AUDIO.playing?'⏸':'▶';
+  btn.classList.toggle('playing',AUDIO.playing);
+}
+
+function setAudioSpeed(btn){
+  AUDIO.rate=parseFloat(btn.dataset.rate);
+  document.querySelectorAll('.audio-speed-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(AUDIO.playing){window.speechSynthesis.cancel();setTimeout(()=>audioPlay(),100);}
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    INIT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 renderChildBlocks();
+audioInit();
 </script>
 </body>
 </html>
-
