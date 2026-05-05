@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN });
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,7 +17,7 @@ export default async function handler(req, res) {
 
   // Save form data temporarily — retrieved after Stripe redirects back
   const tempKey = `form_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  await kv.set(tempKey, { children, selectedLocations, vibe, storyLength }, { ex: 7200 });
+  await redis.set(tempKey, { children, selectedLocations, vibe, storyLength }, { ex: 7200 });
 
   const childNames = children.map(c => c.name).filter(Boolean).join(' & ') || 'your child';
 

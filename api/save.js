@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { Resend } from 'resend';
+const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN });
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
   if (session.payment_status !== 'paid') return res.status(402).json({ error: 'Payment not verified' });
 
   // Idempotency — if already saved for this session, return the existing token
-  const existingToken = await kv.get(`saved_${sessionId}`);
+  const existingToken = await redis.get(`saved_${sessionId}`);
   if (existingToken) {
     return res.json({ token: existingToken, email: session.customer_details?.email });
   }
@@ -34,9 +35,9 @@ export default async function handler(req, res) {
   const magicLink = `${appUrl}/app?token=${token}`;
 
   // Save stories — 1 year TTL
-  await kv.set(`stories_${token}`, { stories, email, createdAt: Date.now() }, { ex: 31536000 });
+  await redis.set(`stories_${token}`, { stories, email, createdAt: Date.now() }, { ex: 31536000 });
   // Mark session as saved to prevent duplicate emails
-  await kv.set(`saved_${sessionId}`, token, { ex: 31536000 });
+  await redis.set(`saved_${sessionId}`, token, { ex: 31536000 });
 
   // Send email
   const resend = new Resend(process.env.RESEND_API_KEY);
