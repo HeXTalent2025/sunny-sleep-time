@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a4a78"/>
+      <stop offset="60%" stop-color="#306ca4"/>
+      <stop offset="100%" stop-color="#38a2c2"/>
+    </linearGradient>
+    <linearGradient id="sun-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbe8"/>
+      <stop offset="100%" stop-color="#ffeebb"/>
+    </linearGradient>
+    <clipPath id="circle-clip">
+      <circle cx="250" cy="250" r="250"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <circle cx="250" cy="250" r="250" fill="url(#bg)"/>
+
+  <g clip-path="url(#circle-clip)">
+
+    <!-- Sun rays -->
+    <g transform="translate(250,148)" stroke="#ffeebb" stroke-width="5" stroke-linecap="round" opacity="0.85">
+      <line x1="0" y1="-74" x2="0" y2="-90"/>
+      <line x1="52" y1="-52" x2="64" y2="-64"/>
+      <line x1="74" y1="0" x2="90" y2="0"/>
+      <line x1="52" y1="52" x2="64" y2="64"/>
+      <line x1="0" y1="74" x2="0" y2="90"/>
+      <line x1="-52" y1="52" x2="-64" y2="64"/>
+      <line x1="-74" y1="0" x2="-90" y2="0"/>
+      <line x1="-52" y1="-52" x2="-64" y2="-64"/>
+    </g>
+
+    <!-- Sun body -->
+    <circle cx="250" cy="148" r="60" fill="url(#sun-grad)"/>
+
+    <!-- Wave layer 1 — far back, faint -->
+    <path d="M-10,258 C62,222 122,294 190,258 C258,222 318,294 390,258 C452,228 480,270 510,260 L510,520 L-10,520 Z"
+          fill="white" opacity="0.10"/>
+
+    <!-- Wave layer 2 — mid -->
+    <path d="M-10,284 C55,248 118,318 188,284 C258,250 318,318 390,284 C448,256 480,292 510,284 L510,520 L-10,520 Z"
+          fill="white" opacity="0.18"/>
+
+    <!-- Wave layer 3 — front, solid -->
+    <path d="M-10,312 C52,276 118,346 188,312 C258,278 322,346 392,312 C448,284 480,316 510,310 L510,520 L-10,520 Z"
+          fill="white" opacity="0.95"/>
+
+    <!-- "Sunny Stories" wordmark in the white wave band -->
+    <text
+      x="250" y="408"
+      text-anchor="middle"
+      font-family="Georgia, 'Times New Roman', serif"
+      font-size="46"
+      font-weight="bold"
+      letter-spacing="1"
+      fill="#306ca4">Sunny Stories</text>
+
+  </g>
+</svg>

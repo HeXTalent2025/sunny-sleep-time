@@ -2,6 +2,10 @@
   "routes": [
     { "src": "/app", "dest": "/app.html" },
     { "src": "/api/generate", "dest": "/api/generate.js" },
+    { "src": "/api/checkout", "dest": "/api/checkout.js" },
+    { "src": "/api/session", "dest": "/api/session.js" },
+    { "src": "/api/save", "dest": "/api/save.js" },
+    { "src": "/api/stories", "dest": "/api/stories.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

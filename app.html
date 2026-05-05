@@ -509,6 +509,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <div class="stories-title">Your Story Collection</div>
     <div class="stories-sub" id="storiesSub">10 stories built just for your family</div>
   </div>
+  <div id="emailBanner" class="hidden" style="background:linear-gradient(135deg,#daffbb,#bbdeff);border-radius:14px;padding:14px 18px;margin:0 0 14px;text-align:center;">
+    <div style="font-size:20px;margin-bottom:4px;">✉️</div>
+    <div style="font-weight:700;color:#1a2e3a;font-size:14px;">Your stories are saved!</div>
+    <div id="emailBannerMsg" style="font-size:13px;color:#4a6070;margin-top:3px;line-height:1.5;"></div>
+  </div>
   <div id="storyList"></div>
   <button class="btn btn-ghost" style="margin-top:8px" onclick="go('s-form')">✨ Create Another Collection</button>
 </div>
@@ -602,6 +607,8 @@ const ST = {
   currentPage: 0,
   expFilter: 'all',
   userLocations: JSON.parse(localStorage.getItem('sst_user_locs')||'[]'),
+  pendingSessionId: null,
+  purchaseEmail: null,
 };
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1036,10 +1043,30 @@ function addUserLocation(){
 async function submitForm(){
   if(!ST.children.length){alert('Please add at least one child\'s name! ⭐');return;}
   if(ST.children.some(c=>!c.age)){alert('Please select an age for each child! 🎂');return;}
-  ST.blueprints=buildBlueprints();
-  go('s-loading');
-  startElapsedTimer();
-  await runGeneration();
+  if(!ST.selectedLocations.length){alert('Please pick at least one Sunshine Coast location! 🗺️');return;}
+
+  const btn=document.querySelector('button[onclick="submitForm()"]');
+  if(btn){btn.disabled=true;btn.textContent='Setting up payment…';}
+
+  try{
+    const res=await fetch('/api/checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        children:ST.children,
+        selectedLocations:ST.selectedLocations,
+        vibe:ST.vibe,
+        storyLength:ST.storyLength,
+      })
+    });
+    const {url,error}=await res.json();
+    if(error) throw new Error(error);
+    window.location.href=url;
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='✨ Create My Stories · $15';}
+    alert('Could not start checkout. Please try again.');
+    console.error(e);
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1078,8 +1105,13 @@ async function runGeneration(){
     clearInterval(stepTimer);clearInterval(msgTimer);
     document.getElementById('loadBar').style.width='100%';
     stopElapsedTimer();
+    if(ST.pendingSessionId){
+      await saveAndEmail(ST.pendingSessionId);
+      ST.pendingSessionId=null;
+    }
     await delay(600);
     go('s-list');
+    if(ST.purchaseEmail) showEmailBanner(ST.purchaseEmail);
   }catch(e){
     clearInterval(stepTimer);clearInterval(msgTimer);
     if(e.message==='No API key') return;
@@ -1536,10 +1568,94 @@ function setAudioSpeed(btn){
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAYMENT + MAGIC LINK FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function handlePaymentReturn(sessionId){
+  go('s-loading');
+  startElapsedTimer();
+  try{
+    const res=await fetch(`/api/session?id=${sessionId}`);
+    if(!res.ok){
+      const err=await res.json();
+      const msg=err.error||'Something went wrong — please contact stories@sunnystories.co with your receipt.';
+      alert(msg);
+      go('s-form');
+      return;
+    }
+    const {formData}=await res.json();
+    ST.children=formData.children||[];
+    ST.selectedLocations=formData.selectedLocations||[];
+    ST.vibe=formData.vibe||'gentle and sleepy';
+    ST.storyLength=formData.storyLength||3;
+    ST.pendingSessionId=sessionId;
+    ST.blueprints=buildBlueprints();
+    renderChildBlocks();
+    await runGeneration();
+  }catch(e){
+    console.error('Payment return error:',e);
+    alert('Something went wrong loading your session. Please contact stories@sunnystories.co.');
+    go('s-form');
+  }
+}
+
+async function loadFromToken(token){
+  go('s-loading');
+  document.getElementById('loadMsg').textContent='Loading your story collection…';
+  try{
+    const res=await fetch(`/api/stories?token=${token}`);
+    if(!res.ok){
+      alert('This link has expired or is invalid. Please contact stories@sunnystories.co if you need help.');
+      go('s-form');
+      return;
+    }
+    const {stories}=await res.json();
+    ST.stories=stories;
+    renderStoryList();
+    go('s-list');
+  }catch(e){
+    console.error('Token load error:',e);
+    go('s-form');
+  }
+}
+
+async function saveAndEmail(sessionId){
+  try{
+    const res=await fetch('/api/save',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({stories:ST.stories,sessionId})
+    });
+    if(!res.ok) throw new Error('Save failed');
+    const {email}=await res.json();
+    ST.purchaseEmail=email;
+  }catch(e){
+    console.error('Save/email error:',e);
+    // Non-fatal — stories are still readable in-session
+  }
+}
+
+function showEmailBanner(email){
+  const banner=document.getElementById('emailBanner');
+  if(!banner) return;
+  document.getElementById('emailBannerMsg').textContent=`A magic link has been sent to ${email} — click it any time to reopen your collection.`;
+  banner.classList.remove('hidden');
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    INIT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 renderChildBlocks();
 audioInit();
+
+// Route based on URL params
+(function initRoute(){
+  const p=new URLSearchParams(location.search);
+  const token=p.get('token');
+  const session=p.get('session');
+  if(token) loadFromToken(token);
+  else if(session) handlePaymentReturn(session);
+  // else: s-form is the default visible screen
+})();
 </script>
 </body>
 </html>
