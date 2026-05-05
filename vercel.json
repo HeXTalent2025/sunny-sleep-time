@@ -8,6 +8,7 @@
     { "src": "/api/stories", "dest": "/api/stories.js" },
     { "src": "/logo.svg", "dest": "/logo.svg" },
     { "src": "/og-image.svg", "dest": "/og-image.svg" },
+    { "src": "/og-image.png", "dest": "/og-image.png" },
     { "src": "/favicon.ico", "dest": "/favicon.ico" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
