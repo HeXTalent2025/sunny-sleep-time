@@ -275,6 +275,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .price-stories{color:var(--ocean);font-size:15px;font-weight:600;margin-top:6px;}
 .price-detail{color:var(--text-soft);font-size:12px;margin-top:4px;}
 
+/* STORY LENGTH SELECTOR */
+.length-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+.length-btn{padding:16px 12px;border-radius:16px;border:2px solid rgba(56,162,194,.2);background:var(--bg-soft);cursor:pointer;transition:all .2s;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;}
+.length-btn:hover{border-color:rgba(56,162,194,.4);background:var(--bg-section);}
+.length-btn.active{border-color:var(--ocean);background:rgba(56,162,194,.1);box-shadow:0 0 0 3px rgba(56,162,194,.12);}
+.length-btn-time{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--ocean-deep);line-height:1;}
+.length-btn-label{font-size:12px;font-weight:600;color:var(--text-soft);margin-top:4px;}
+.length-btn-detail{font-size:11px;color:var(--text-low);margin-top:3px;line-height:1.4;}
+.length-btn.active .length-btn-label{color:var(--ocean-deep);}
+
 @media(max-width:380px){.hero-title{font-size:30px;}.story-body{font-size:16px;}.exp-add-grid{grid-template-columns:1fr;}.dna-rows{grid-template-columns:1fr;}.bp-grid{grid-template-columns:1fr;}}
 
 /* ═══ AUDIO PLAYER ═══ */
@@ -387,6 +397,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
       <div class="chip" data-g="vibe" data-v="mysterious and suspenseful" onclick="singleChip(this,'sel-sun')">🔍 Mystery</div>
       <div class="chip" data-g="vibe" data-v="educational and curious" onclick="singleChip(this,'sel-sun')">🔬 Curious & Clever</div>
       <div class="chip" data-g="vibe" data-v="sporty and energetic" onclick="singleChip(this,'sel-sun')">⚡ Sporty & Active</div>
+    </div>
+  </div>
+
+  <!-- Step 5: Story length -->
+  <div class="panel">
+    <div class="panel-title">⏱ How long should each story be?</div>
+    <div class="length-selector">
+      <button class="length-btn active" id="len-3" onclick="setStoryLength(3)">
+        <div class="length-btn-time">3 min</div>
+        <div class="length-btn-label">Quick & cosy</div>
+        <div class="length-btn-detail">~270 words · 3 pages<br>Perfect for little ones</div>
+      </button>
+      <button class="length-btn" id="len-5" onclick="setStoryLength(5)">
+        <div class="length-btn-time">5 min</div>
+        <div class="length-btn-label">Full adventure</div>
+        <div class="length-btn-detail">~475 words · 5 pages<br>Great for ages 5+</div>
+      </button>
     </div>
   </div>
 
@@ -567,6 +594,7 @@ const ST = {
   children: [],        // [{name, interests:[]}]
   ages: [],
   vibe: 'gentle and sleepy',
+  storyLength: 3,      // 3 or 5 minutes
   selectedLocations: [],
   blueprints: [],      // pre-computed per-story briefs
   stories: [],
@@ -757,6 +785,13 @@ function toggleChip(el,cls){
   else{el.classList.add(cls);if(!ST[g])ST[g]=[];ST[g].push(v);}
   updateBlueprintPreview();
 }
+function setStoryLength(mins){
+  ST.storyLength = mins;
+  document.getElementById('len-3').classList.toggle('active', mins===3);
+  document.getElementById('len-5').classList.toggle('active', mins===5);
+  updateBlueprintPreview();
+}
+
 function singleChip(el,cls){
   const g=el.dataset.g;
   document.querySelectorAll(`[data-g="${g}"]`).forEach(c=>c.className='chip');
@@ -870,7 +905,7 @@ function updateBlueprintPreview(){
   if(locCount > 0 && locCount < 10) note += `Your ${locCount} location${locCount>1?'s are':' is'} each used in ${Math.ceil(10/locCount)} stories. `;
   if(locCount >= 10) note += `Each of your ${locCount} locations gets its own story. `;
   if(intCount > 0) note += `All interests are woven in throughout. `;
-  note += `No story will leave any child out.`;
+  note += `No story will leave any child out. Each story is approximately ${ST.storyLength} minutes long.`;
 
   document.getElementById('bpNote').textContent = note;
   preview.classList.remove('hidden');
@@ -1054,6 +1089,10 @@ function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 async function callAPI(){
   const agesStr=ST.children.map(c=>`${c.name} (age ${c.age||'unknown'})`).join(', ');
+  const isLong = ST.storyLength === 5;
+  const wordTarget = isLong ? '450–500' : '250–300';
+  const pageCount = isLong ? 5 : 3;
+  const readTime = isLong ? '5 min' : '3 min';
   const includeNames=true; // can wire to toggle
 
   // Build a per-story brief from blueprints
@@ -1076,7 +1115,7 @@ PER-STORY BRIEFS (follow exactly):
 ${storyBriefs}
 
 WRITING RULES:
-- Each story 300–400 words long (3–5 min reading time)
+- Each story exactly ${wordTarget} words long (${readTime} reading time)
 - The HERO child must appear by name within the first 2 sentences
 - The LOCATION must be described with real, specific sensory details (what you can see, hear, smell there)
 - The MAIN INTEREST must drive the plot — it's not a background detail, it's why the story happens
@@ -1084,7 +1123,7 @@ WRITING RULES:
 - If a costar is listed, they appear meaningfully (not just a mention)
 - Warm, joyful endings — the child feels seen, proud, and loved
 - Stories work at bedtime, on the couch, in the car, at the beach — write them for any moment
-- Split into exactly 3 pages using the separator [PAGE]
+- Split into exactly ${pageCount} pages using the separator [PAGE]
 - Writing tone: lyrical, warm, vivid. Language simple but beautiful.
 
 AGE-APPROPRIATE LANGUAGE (match to the HERO child's age for each story):
@@ -1107,7 +1146,7 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
     "emoji": "🌊",
     "location": "Location name",
     "area": "Suburb/area",
-    "readTime": "4 min",
+    "readTime": "${readTime}",
     "hero": "Child name",
     "costar": "Second child name or null",
     "interest": "Main interest",
@@ -1220,7 +1259,8 @@ function openStory(idx){
     <div class="dna-row">
       <div class="dna-row-label">🌙 Vibe</div>
       <div class="dna-row-value vibe">${s.vibe||ST.vibe||'gentle & calming'}</div>
-    </div>`;
+    </div>
+    <div class="dna-row" style="grid-column:1/-1"><div class="dna-row-label">⏱ Read time</div><div class="dna-row-value" style="color:var(--ocean-deep)">${s.readTime||ST.storyLength+' min'}</div></div>`;
 
   document.getElementById('dnaPromise').innerHTML=`
     <span class="dna-promise-icon">✅</span>
