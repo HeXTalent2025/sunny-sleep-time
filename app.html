@@ -1129,7 +1129,7 @@ async function runGeneration(){
       ST.pendingSessionId=null;
     }
     await delay(600);
-    if(ST.giftMode && ST.giftToken){
+    if(ST.giftMode){
       renderGiftReady();
       go('s-gift-ready');
     } else {
@@ -1664,7 +1664,7 @@ async function saveAndEmail(sessionId){
     const res=await fetch('/api/save',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({stories:ST.stories,sessionId})
+      body:JSON.stringify({stories:ST.stories,sessionId,giftRecipient:ST.giftRecipient||null})
     });
     if(!res.ok) throw new Error('Save failed');
     const {email,token}=await res.json();
@@ -1679,9 +1679,9 @@ async function saveAndEmail(sessionId){
 function renderGiftReady(){
   const appUrl='https://sunnystories.co';
   const name=ST.giftRecipient;
-  const link=name
-    ? `${appUrl}/gift?token=${ST.giftToken}&name=${encodeURIComponent(name)}`
-    : `${appUrl}/gift?token=${ST.giftToken}`;
+  const link=ST.giftToken
+    ? (name ? `${appUrl}/gift?token=${ST.giftToken}&name=${encodeURIComponent(name)}` : `${appUrl}/gift?token=${ST.giftToken}`)
+    : null;
   ST._giftLink=link;
   document.getElementById('giftReadyHeading').textContent=
     name ? `${name}'s gift is ready! 🎁` : 'Your gift is ready! 🎁';
@@ -1689,7 +1689,12 @@ function renderGiftReady(){
     name
       ? `Share the link below with ${name} — they'll see a beautiful gift page with all 10 stories waiting inside.`
       : 'Share the link below — they\'ll see a beautiful gift page with all 10 stories waiting inside.';
-  document.getElementById('giftLinkText').textContent=link;
+  if(link){
+    document.getElementById('giftLinkText').textContent=link;
+  } else {
+    document.getElementById('giftLinkText').textContent='Check your email — the gift link is included there.';
+    document.getElementById('copyBtn').style.display='none';
+  }
 }
 
 function copyGiftLink(){

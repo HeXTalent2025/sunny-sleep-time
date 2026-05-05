@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { stories, sessionId } = req.body;
+  const { stories, sessionId, giftRecipient } = req.body;
   if (!stories?.length || !sessionId) return res.status(400).json({ error: 'Missing stories or sessionId' });
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -33,6 +33,9 @@ export default async function handler(req, res) {
   const token = crypto.randomUUID();
   const appUrl = process.env.APP_URL || 'https://sunnystories.co';
   const magicLink = `${appUrl}/app?token=${token}`;
+  const giftLink = giftRecipient
+    ? `${appUrl}/gift?token=${token}&name=${encodeURIComponent(giftRecipient)}`
+    : `${appUrl}/gift?token=${token}`;
 
   // Save stories — 1 year TTL
   await redis.set(`stories_${token}`, { stories, email, createdAt: Date.now() }, { ex: 31536000 });
@@ -109,6 +112,36 @@ export default async function handler(req, res) {
           This link opens your full collection instantly — no password needed.<br>
           <strong>Save this email</strong> so you can come back to read them any time.
         </p>
+
+        ${giftRecipient ? `
+        <!-- Gift link -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0;">
+          <tr>
+            <td bgcolor="#fff5f3" style="border-radius:14px;padding:20px 24px;border:1px solid #f0c8bc;">
+              <div style="font-size:11px;font-weight:700;color:#d86e59;letter-spacing:1px;margin-bottom:10px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">🎁 GIFT LINK FOR ${giftRecipient.toUpperCase()}</div>
+              <p style="margin:0 0 16px;font-size:14px;color:#4a6070;line-height:1.6;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+                Share this link with ${giftRecipient} — they'll see a beautiful gift page with all 10 stories waiting inside.
+              </p>
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+                <tr>
+                  <td align="center">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td bgcolor="#d86e59" style="border-radius:50px;padding:14px 32px;">
+                          <a href="${giftLink}" style="color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;display:block;white-space:nowrap;">🎁 Open ${giftRecipient}'s gift</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:12px 0 0;font-size:11px;color:#4a6070;text-align:center;line-height:1.6;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+                Or copy this link: <span style="color:#d86e59;">${giftLink}</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+        ` : ''}
       </td>
     </tr>
 
