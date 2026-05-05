@@ -324,7 +324,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 
 <!-- ═══════════ API KEY SETUP ═══════════ -->
 <!-- ═══════════ HOME ═══════════ -->
-<div id="s-home" class="screen">
+<div id="s-home" class="screen hidden">
   <div class="hero">
     <span class="hero-moon">🌊</span>
     <div class="hero-title">Sunny Stories</div>
@@ -340,7 +340,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 </div>
 
 <!-- ═══════════ FORM ═══════════ -->
-<div id="s-form" class="screen hidden">
+<div id="s-form" class="screen">
   <div class="nav">
     <button class="nav-btn active" onclick="go('s-form')"><span class="ni">✍️</span>Our Story</button>
     <button class="nav-btn" onclick="go('s-explorer')"><span class="ni">🗺️</span>Locations</button>
@@ -405,7 +405,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <div class="price-detail">Each built from a unique combination of your family's picks</div>
   </div>
   <button class="btn btn-sun" onclick="submitForm()">✨ Generate My Stories · $10</button>
-  <button class="btn btn-ghost" onclick="go('s-home')">← Back</button>
+  <button class="btn btn-ghost" onclick="go('s-form')">← Back</button>
 </div>
 
 <!-- ═══════════ EXPLORER ═══════════ -->
@@ -1092,7 +1092,7 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
   }
 ]`;
 
-  // Calls our Netlify proxy — API key lives securely on the server
+  // Calls our Vercel serverless function — API key lives securely on the server
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
