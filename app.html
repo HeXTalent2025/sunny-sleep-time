@@ -242,23 +242,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 /* READER */
 .reader-top{display:flex;align-items:center;gap:10px;padding:14px 0 16px;}
 .reader-title-sm{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--text-dark);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.story-scene{width:100%;border-radius:24px;aspect-ratio:4/3;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.story-scene{width:100%;border-radius:24px;height:130px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
 .scene-gradient{position:absolute;inset:0;transition:background 1s ease;}
 .scene-blob{position:absolute;border-radius:50%;opacity:.15;animation:blobFloat var(--bd,6s) ease-in-out infinite var(--bdelay,0s);}
 @keyframes blobFloat{0%,100%{transform:scale(1) translate(0,0)}50%{transform:scale(1.3) translate(10px,-10px)}}
-.scene-icon{font-size:88px;position:relative;z-index:2;animation:sceneFloat 4s ease-in-out infinite;filter:drop-shadow(0 10px 30px rgba(56,162,194,.25));}
+.scene-icon{font-size:64px;position:relative;z-index:2;animation:sceneFloat 4s ease-in-out infinite;filter:drop-shadow(0 10px 30px rgba(56,162,194,.25));}
 @keyframes sceneFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.05)}}
 .scene-loc-badge{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--ocean-deep);white-space:nowrap;z-index:3;}
 .page-dots{display:flex;justify-content:center;gap:6px;margin:10px 0 14px;}
 .pdot{width:8px;height:8px;border-radius:4px;background:rgba(56,162,194,.2);transition:all .3s;cursor:pointer;}
 .pdot.active{background:var(--ocean);width:24px;}
-.text-panel{background:#ffffff;border:1px solid rgba(56,162,194,.15);border-radius:20px;padding:22px;margin-bottom:14px;box-shadow:0 2px 16px rgba(56,162,194,.08);transition:opacity .3s;}
-.text-chapter{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--ocean);margin-bottom:12px;}
+.story-pages{margin-bottom:14px;}
+.story-page-block{background:#ffffff;border:1px solid rgba(56,162,194,.15);border-radius:20px;padding:22px;box-shadow:0 2px 16px rgba(56,162,194,.08);}
+.page-divider{text-align:center;color:var(--ocean);font-size:18px;padding:18px 0;opacity:.5;}
 .story-body{font-family:'Fraunces',serif;font-size:17px;line-height:1.9;color:var(--text-dark);font-weight:400;}
 .story-body strong{color:var(--ocean-deep);font-weight:700;}
 .story-body em{color:var(--terracotta);font-style:normal;font-weight:600;}
-.reader-nav{display:flex;gap:10px;}
-.reader-nav .btn{flex:1;padding:13px;font-size:15px;}
 .the-end-wrap{text-align:center;padding:28px 0;}
 .the-end-icon{font-size:64px;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;}
 .the-end-title{font-family:'Fraunces',serif;font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
@@ -542,8 +541,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <div class="scene-loc-badge" id="sceneLoc">📍 Sunshine Coast</div>
   </div>
 
-  <div class="page-dots" id="pageDots"></div>
-
   <!-- Audio readback bar -->
   <div class="audio-bar" id="audioBar">
     <div id="audioUnsupported" class="audio-unsupported" style="display:none">
@@ -568,14 +565,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     </div>
   </div>
 
-  <div class="text-panel" id="textPanel">
-    <div class="text-chapter" id="textChapter">Page 1</div>
-    <div class="story-body" id="storyText">Loading…</div>
-  </div>
-  <div class="reader-nav">
-    <button class="btn btn-ghost" id="prevBtn" onclick="changePage(-1)">← Prev</button>
-    <button class="btn btn-sun" id="nextBtn" onclick="changePage(1)">Next →</button>
-  </div>
+  <div id="storyPages" class="story-pages"></div>
 </div>
 
 </div><!-- /app -->
@@ -1308,12 +1298,28 @@ function openStory(idx){
     <span class="dna-promise-icon">✅</span>
     <span>${costarPromise} The story is set at <strong>${s.location}</strong> and inspired by a love of <strong>${s.interest}</strong>.</span>`;
 
-  renderPageDots(s.pages.length+1);
-  renderPage();
+  renderStory();
   go('s-reader');
   audioStop(true);
-  audioSetStatus('Tap ▶ to listen to this page', false);
+  audioSetStatus('Tap ▶ to listen to this story', false);
   audioInit();
+}
+
+function renderStory(){
+  const s=ST.stories[ST.currentStory];
+  let html='';
+  s.pages.forEach((page,i)=>{
+    const formatted=fmtText(page,s);
+    if(i>0) html+=`<div class="page-divider">✦</div>`;
+    html+=`<div class="story-page-block"><div class="story-body" id="${i===0?'storyBodyEl':'storyBody'+i}">${wrapWords(formatted)}</div></div>`;
+  });
+  html+=`<div class="the-end-wrap">
+    <span class="the-end-icon">✨</span>
+    <div class="the-end-title">The End</div>
+    <div class="the-end-sub">Well done, ${s.hero||'little one'}.<br>Another adventure awaits whenever you're ready.</div>
+    <button class="btn btn-sun" onclick="go('s-list')" style="max-width:260px;margin:0 auto;display:block">📚 Back to Stories</button>
+  </div>`;
+  document.getElementById('storyPages').innerHTML=html;
 }
 
 function renderPageDots(total){
@@ -1472,9 +1478,8 @@ function audioInit(){
 
 function getPlainPageText(){
   const s=ST.stories[ST.currentStory];
-  const p=ST.currentPage;
-  if(!s||p>=s.pages.length)return'';
-  return s.pages[p].replace(/<[^>]*>/g,'');
+  if(!s)return'';
+  return s.pages.join(' ').replace(/<[^>]*>/g,'');
 }
 
 function audioPlay(){
@@ -1504,15 +1509,8 @@ function audioPlay(){
   utt.onstart=()=>{AUDIO.playing=true;audioSetStatus('Reading…',true);updatePlayBtn();};
   utt.onend=()=>{
     document.querySelectorAll('.tts-word.tts-active').forEach(el=>el.classList.remove('tts-active'));
-    const s=ST.stories[ST.currentStory];
-    if(AUDIO.autoAdvancing&&s&&ST.currentPage<s.pages.length-1){
-      ST.currentPage++;renderPage();
-    } else if(AUDIO.autoAdvancing&&s&&ST.currentPage>=s.pages.length-1){
-      ST.currentPage=s.pages.length;AUDIO.autoAdvancing=false;AUDIO.playing=false;renderPage();
-    } else {
-      AUDIO.playing=false;AUDIO.autoAdvancing=false;
-      audioSetStatus('Tap ▶ to listen again',false);updatePlayBtn();
-    }
+    AUDIO.playing=false;AUDIO.autoAdvancing=false;
+    audioSetStatus('Tap ▶ to listen again',false);updatePlayBtn();
   };
   utt.onerror=e=>{
     if(e.error==='interrupted')return;
@@ -1542,7 +1540,7 @@ function audioStop(resetAutoAdvance=true){
 
 function audioToggle(){
   if(!AUDIO.supported)return;
-  if(AUDIO.playing){AUDIO.autoAdvancing=false;audioPause();}
+  if(AUDIO.playing){audioPause();}
   else{AUDIO.autoAdvancing=true;audioPlay();}
 }
 
