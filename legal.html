@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Privacy &amp; Terms — Sunny Stories</title>
+  <meta name="description" content="Privacy policy and terms of service for Sunny Stories."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg"/>
+  <link rel="apple-touch-icon" href="/logo.svg"/>
+  <style>
+    :root {
+      --ocean-deep: #306ca4;
+      --ocean: #38a2c2;
+      --ocean-bright: #40dbe1;
+      --bg-primary: #ffffff;
+      --bg-soft: #f5fbfd;
+      --bg-section: #eef6fa;
+      --text-dark: #1a2e3a;
+      --text-soft: #4a6070;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-dark);
+      background: var(--bg-primary);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(48,108,164,0.1);
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--ocean-deep);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--ocean-bright); font-style: italic; }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+    .btn-ghost-nav {
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--ocean-deep);
+      text-decoration: none; padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .btn-ghost-nav:hover { background: var(--bg-section); }
+    .btn-nav {
+      font-size: 0.9rem; font-weight: 600;
+      background: var(--ocean); color: #fff;
+      text-decoration: none; padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .btn-nav:hover { background: var(--ocean-deep); }
+    @media (max-width: 600px) { .nav-links .btn-ghost-nav { display: none; } }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #1a4a78 0%, #306ca4 55%, #38a2c2 100%);
+      color: #fff;
+      text-align: center;
+      padding: 3.5rem 2rem 3rem;
+    }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+    }
+    .hero p { font-size: 0.95rem; opacity: 0.8; }
+
+    /* QUICK JUMP */
+    .jump-links {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      padding: 1.4rem 2rem;
+      background: var(--bg-soft);
+      border-bottom: 1px solid rgba(48,108,164,0.1);
+    }
+    .jump-links a {
+      font-size: 0.88rem; font-weight: 600;
+      color: var(--ocean-deep);
+      text-decoration: none;
+      padding: 0.35rem 0.9rem;
+      border-radius: 6px;
+      background: var(--bg-section);
+      transition: background 0.2s;
+    }
+    .jump-links a:hover { background: rgba(56,162,194,0.15); }
+
+    /* CONTENT */
+    .content {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    .section {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ocean);
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--ocean-deep);
+      margin-bottom: 1.2rem;
+      scroll-margin-top: 80px;
+    }
+
+    h3 {
+      font-size: 1rem; font-weight: 700;
+      color: var(--text-dark);
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+    }
+
+    ul {
+      list-style: disc;
+      padding-left: 1.4rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ul li {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      margin-bottom: 0.4rem;
+      line-height: 1.7;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(48,108,164,0.1);
+      margin: 3rem 0;
+    }
+
+    .updated {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      opacity: 0.7;
+      margin-bottom: 2rem;
+    }
+
+    a { color: var(--ocean-deep); }
+    a:hover { color: var(--ocean); }
+
+    /* FOOTER */
+    footer {
+      background: var(--ocean-deep);
+      color: rgba(255,255,255,0.75);
+      text-align: center;
+      padding: 2.5rem 2rem;
+    }
+    .footer-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: #fff; margin-bottom: 0.4rem;
+    }
+    .footer-logo span { color: var(--ocean-bright); font-style: italic; }
+    .footer-tagline { font-size: 0.88rem; margin-bottom: 1.2rem; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .footer-links a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none; font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--ocean-bright); }
+    .footer-copy { font-size: 0.8rem; opacity: 0.5; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Sunny <span>Stories</span></a>
+  <div class="nav-links">
+    <a href="/#how-it-works" class="btn-ghost-nav">How it works</a>
+    <a href="/stories" class="btn-ghost-nav">Sample stories</a>
+    <a href="/#pricing" class="btn-ghost-nav">Pricing</a>
+    <a href="/app" class="btn-nav">Create yours — $15</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Privacy &amp; Terms</h1>
+  <p>How we handle your information and what you agree to when using Sunny Stories.</p>
+</div>
+
+<div class="jump-links">
+  <a href="#privacy">Privacy Policy</a>
+  <a href="#terms">Terms of Service</a>
+  <a href="#contact-legal">Contact</a>
+</div>
+
+<div class="content">
+
+  <p class="updated">Last updated: May 2025</p>
+
+  <!-- PRIVACY POLICY -->
+  <div class="section" id="privacy">
+    <div class="section-label">Privacy Policy</div>
+    <h2>Your privacy matters</h2>
+
+    <p>Sunny Stories is operated by Jeff Teale, trading as Sunny Stories, Sunshine Coast, Queensland, Australia. We are committed to protecting your personal information in accordance with the <em>Privacy Act 1988</em> (Cth) and the Australian Privacy Principles (APPs).</p>
+
+    <h3>What information we collect</h3>
+    <p>To create your personalised stories, we ask you to provide:</p>
+    <ul>
+      <li>Your child or children's first names</li>
+      <li>Their approximate ages</li>
+      <li>Favourite Sunshine Coast locations</li>
+      <li>Your email address (to deliver your stories)</li>
+    </ul>
+    <p>We also receive your payment confirmation from Stripe, including a transaction ID. We do not store or handle your payment card details — these are processed entirely by Stripe.</p>
+
+    <h3>How we use your information</h3>
+    <p>Your information is used solely to:</p>
+    <ul>
+      <li>Generate your personalised story collection</li>
+      <li>Email you a link to access your stories</li>
+      <li>Allow you to revisit your stories via a secure magic link</li>
+    </ul>
+    <p>We do not use your information for marketing, profiling, or any purpose beyond delivering the service you paid for.</p>
+
+    <h3>AI story generation</h3>
+    <p>Your child's name, age, and chosen locations are sent to Anthropic's Claude API to generate your stories. Anthropic processes this data on our behalf and does not use it to train their models. For more information, see <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic's Privacy Policy</a>.</p>
+
+    <h3>How long we keep your data</h3>
+    <p>Your stories are stored securely in our database for up to <strong>12 months</strong> from the date of purchase, giving you ongoing access via your magic link. After this period, your stories and associated personal information are automatically deleted.</p>
+    <p>Your email address is retained only as needed to provide the service and is not added to any mailing list.</p>
+
+    <h3>Who we share data with</h3>
+    <p>We use the following third-party services to operate Sunny Stories:</p>
+    <ul>
+      <li><strong>Stripe</strong> — payment processing (<a href="https://stripe.com/au/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a>)</li>
+      <li><strong>Anthropic</strong> — AI story generation (<a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic Privacy Policy</a>)</li>
+      <li><strong>Upstash</strong> — secure data storage</li>
+      <li><strong>Resend</strong> — transactional email delivery</li>
+      <li><strong>Vercel</strong> — website hosting</li>
+    </ul>
+    <p>We do not sell, rent, or share your personal information with any other third parties.</p>
+
+    <h3>Security</h3>
+    <p>Your stories are accessed via a unique, unguessable token link. We do not require passwords. Data is stored encrypted at rest and transmitted over HTTPS.</p>
+
+    <h3>Accessing or deleting your information</h3>
+    <p>You have the right to access, correct, or request deletion of your personal information at any time. To make a request, email us at <a href="mailto:hello@sunnystories.co">hello@sunnystories.co</a>. We will respond within 30 days.</p>
+
+    <h3>Children's privacy</h3>
+    <p>Sunny Stories is a service for parents and guardians creating stories for their children. We do not knowingly collect personal information directly from children. By purchasing, you confirm that you are the parent or guardian of the children named in the stories.</p>
+
+    <h3>Changes to this policy</h3>
+    <p>We may update this Privacy Policy from time to time. Any significant changes will be noted on this page with an updated date.</p>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- TERMS OF SERVICE -->
+  <div class="section" id="terms">
+    <div class="section-label">Terms of Service</div>
+    <h2>Terms of Service</h2>
+
+    <p>By using Sunny Stories and completing a purchase, you agree to the following terms.</p>
+
+    <h3>The service</h3>
+    <p>Sunny Stories generates a collection of 10 AI-written, personalised children's stories based on the details you provide. Stories are delivered digitally via a secure link sent to your email address.</p>
+
+    <h3>Pricing and payment</h3>
+    <p>The current price is <strong>AUD $15.00</strong> for one collection of 10 stories. Payment is processed securely by Stripe. All prices are in Australian dollars and inclusive of GST where applicable.</p>
+
+    <h3>Delivery</h3>
+    <p>Stories are generated immediately after payment and your access link is emailed promptly. If you do not receive your email within 10 minutes, please check your spam folder or contact us at <a href="mailto:hello@sunnystories.co">hello@sunnystories.co</a>.</p>
+
+    <h3>Refund policy</h3>
+    <p>Because stories are generated and delivered digitally and immediately upon purchase, we are generally unable to offer refunds. If you experience a technical issue that prevents you from receiving or accessing your stories, please contact us at <a href="mailto:hello@sunnystories.co">hello@sunnystories.co</a> and we will make it right.</p>
+
+    <h3>Appropriate use</h3>
+    <p>Stories are generated for personal, family use. You may not resell, redistribute, or commercially exploit the generated content. The stories generated are for you and your family to enjoy.</p>
+
+    <h3>AI-generated content</h3>
+    <p>Stories are created using artificial intelligence and are unique to each order. While we take care to ensure quality and age-appropriateness, AI-generated content may occasionally require your own parental judgment. If a story contains anything you feel is inappropriate, please contact us.</p>
+
+    <h3>Intellectual property</h3>
+    <p>The Sunny Stories name, branding, and website design are the property of Sunny Stories. The personalised stories generated for you are provided for your private family use.</p>
+
+    <h3>Limitation of liability</h3>
+    <p>To the fullest extent permitted by Australian law, Sunny Stories is not liable for any indirect, incidental, or consequential damages arising from your use of the service. Our liability is limited to the amount you paid for your purchase.</p>
+
+    <h3>Governing law</h3>
+    <p>These terms are governed by the laws of Queensland, Australia. Any disputes will be subject to the jurisdiction of the courts of Queensland.</p>
+
+    <h3>Contact</h3>
+    <p id="contact-legal">For any questions about these terms or your privacy, please contact us:</p>
+    <p><a href="mailto:hello@sunnystories.co">hello@sunnystories.co</a><br/>
+    Sunny Stories · Sunshine Coast, Queensland, Australia</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Sunny <span>Stories</span></div>
+  <div class="footer-tagline">Personalised stories for Sunshine Coast families</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sunnystoriesco/" target="_blank" rel="noopener">Instagram</a>
+    <a href="/#how-it-works">How it works</a>
+    <a href="/stories">Sample stories</a>
+    <a href="mailto:hello@sunnystories.co">Contact</a>
+    <a href="/legal">Privacy &amp; Terms</a>
+  </div>
+  <div class="footer-copy">© 2025 Sunny Stories · Sunshine Coast, Queensland · sunnystories.co</div>
+</footer>
+
+</body>
+</html>

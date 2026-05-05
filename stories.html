@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sample Stories — Sunny Stories</title>
+  <meta name="description" content="Read sample Sunny Stories personalised for a 3, 5, and 7 year old — see how each story is written for your child's age and favourite Sunshine Coast spots."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg"/>
+  <link rel="apple-touch-icon" href="/logo.svg"/>
+  <meta property="og:title" content="Sample Stories — Sunny Stories"/>
+  <meta property="og:description" content="Personalised stories for Sunshine Coast families. See how we write for every age."/>
+  <meta property="og:image" content="https://sunnystories.co/og-image.png"/>
+  <meta property="og:url" content="https://sunnystories.co/stories"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <style>
+    :root {
+      --ocean-deep: #306ca4;
+      --ocean: #38a2c2;
+      --ocean-bright: #40dbe1;
+      --terracotta: #d86e59;
+      --bg-primary: #ffffff;
+      --bg-soft: #f5fbfd;
+      --bg-section: #eef6fa;
+      --text-dark: #1a2e3a;
+      --text-soft: #4a6070;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-dark);
+      background: var(--bg-primary);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(48,108,164,0.1);
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--ocean-deep);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--ocean-bright); font-style: italic; }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+    .btn-ghost-nav {
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--ocean-deep);
+      text-decoration: none; padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .btn-ghost-nav:hover { background: var(--bg-section); }
+    .btn-nav {
+      font-size: 0.9rem; font-weight: 600;
+      background: var(--ocean); color: #fff;
+      text-decoration: none; padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .btn-nav:hover { background: var(--ocean-deep); }
+    @media (max-width: 600px) { .nav-links .btn-ghost-nav { display: none; } }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #1a4a78 0%, #306ca4 55%, #38a2c2 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 2rem 3.5rem;
+    }
+    .hero-label {
+      display: inline-block;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px; padding: 0.3rem 0.9rem;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700; line-height: 1.15;
+      margin-bottom: 0.9rem;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      opacity: 0.88;
+      max-width: 560px; margin: 0 auto;
+    }
+
+    /* AGE TABS */
+    .tabs-wrap {
+      background: var(--bg-soft);
+      border-bottom: 1px solid rgba(48,108,164,0.1);
+      position: sticky; top: 57px; z-index: 90;
+    }
+    .tabs {
+      display: flex; gap: 0;
+      max-width: 800px; margin: 0 auto;
+      padding: 0 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--text-soft);
+      background: none; border: none;
+      border-bottom: 3px solid transparent;
+      padding: 1rem 1.4rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--ocean-deep);
+      border-bottom-color: var(--ocean);
+    }
+    .tab-btn:hover { color: var(--ocean-deep); }
+
+    /* STORY PANELS */
+    .story-panel { display: none; }
+    .story-panel.active { display: block; }
+
+    .story-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    .story-meta {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+    .age-badge {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #ffeebb; color: #7a5a00;
+      border-radius: 20px; padding: 0.3rem 0.85rem;
+    }
+    .story-title-block h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--ocean-deep);
+      line-height: 1.2;
+    }
+    .story-title-block .story-subtitle {
+      font-size: 0.88rem; color: var(--text-soft);
+      margin-top: 0.25rem;
+    }
+
+    /* READER */
+    .story-scene {
+      width: 100%;
+      height: 120px;
+      background: var(--bg-section);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 56px;
+      margin-bottom: 2rem;
+    }
+    .story-pages {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--text-dark);
+    }
+    .story-page { margin-bottom: 1.5rem; }
+    .page-divider {
+      text-align: center;
+      color: var(--ocean-bright);
+      font-size: 1rem;
+      letter-spacing: 0.5em;
+      margin: 2rem 0;
+      opacity: 0.6;
+    }
+
+    /* CTA STRIP */
+    .cta-strip {
+      background: linear-gradient(135deg, #1a4a78 0%, #306ca4 60%, #38a2c2 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .cta-strip h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700; margin-bottom: 0.8rem;
+    }
+    .cta-strip p {
+      font-size: 1rem; opacity: 0.88;
+      max-width: 480px; margin: 0 auto 1.8rem;
+    }
+    .btn-cta {
+      display: inline-block;
+      font-size: 1rem; font-weight: 700;
+      background: #fff; color: var(--ocean-deep);
+      text-decoration: none;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+    .cta-note { margin-top: 1rem; font-size: 0.83rem; opacity: 0.7; }
+
+    /* FOOTER */
+    footer {
+      background: var(--ocean-deep);
+      color: rgba(255,255,255,0.75);
+      text-align: center;
+      padding: 2.5rem 2rem;
+    }
+    .footer-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: #fff; margin-bottom: 0.4rem;
+    }
+    .footer-logo span { color: var(--ocean-bright); font-style: italic; }
+    .footer-tagline { font-size: 0.88rem; margin-bottom: 1.2rem; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1.2rem; }
+    .footer-links a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none; font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--ocean-bright); }
+    .footer-copy { font-size: 0.8rem; opacity: 0.5; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Sunny <span>Stories</span></a>
+  <div class="nav-links">
+    <a href="/#how-it-works" class="btn-ghost-nav">How it works</a>
+    <a href="/stories" class="btn-ghost-nav">Sample stories</a>
+    <a href="/#pricing" class="btn-ghost-nav">Pricing</a>
+    <a href="/app" class="btn-nav">Create yours — $15</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">Sample stories</div>
+  <h1>See how the magic works</h1>
+  <p>Every story is written for your child's age — simple and joyful at three, imaginative at five, rich and adventurous at seven.</p>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('age3')">Lily, age 3</button>
+    <button class="tab-btn" onclick="showTab('age5')">Oscar, age 5</button>
+    <button class="tab-btn" onclick="showTab('age7')">Maya, age 7</button>
+  </div>
+</div>
+
+<!-- AGE 3 -->
+<div id="age3" class="story-panel active">
+  <div class="story-wrap">
+    <div class="story-meta">
+      <span class="age-badge">Age 3</span>
+      <div class="story-title-block">
+        <h2>Lily and the Pink Shell</h2>
+        <div class="story-subtitle">A story set at Mooloolaba Beach</div>
+      </div>
+    </div>
+    <div class="story-scene">🐚</div>
+    <div class="story-pages">
+      <div class="story-page">
+        Lily loves the beach.<br><br>
+        She loves the big blue waves.<br>
+        She loves the warm, soft sand between her toes.<br><br>
+        Today, Lily is at Mooloolaba Beach — her very favourite place in the whole wide world.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        Lily runs down to the water.<br>
+        Splash! It is cold and bubbly and fun.<br><br>
+        Then she sees something shiny in the sand.<br>
+        It is small. It is pink. It is pretty.<br><br>
+        "What is this?" says Lily.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        It is a shell!<br><br>
+        Lily picks it up. She holds it close to her ear.<br>
+        Shhhhh.<br><br>
+        Can you hear it? The ocean is inside!<br>
+        The waves go whooooosh, right in her hand.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        Lily puts the shell in her pocket.<br>
+        She will keep it forever and ever.<br><br>
+        She runs back to the water and laughs.<br>
+        The waves laugh with her.<br><br>
+        Mooloolaba is the best place.<br>
+        And now Lily has a treasure to remember it by.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AGE 5 -->
+<div id="age5" class="story-panel">
+  <div class="story-wrap">
+    <div class="story-meta">
+      <span class="age-badge">Age 5</span>
+      <div class="story-title-block">
+        <h2>Oscar and the Currawong</h2>
+        <div class="story-subtitle">A story set in Noosa National Park</div>
+      </div>
+    </div>
+    <div class="story-scene">🦅</div>
+    <div class="story-pages">
+      <div class="story-page">
+        Oscar pulled on his hat and buckled up his sandals. Today was a Noosa day — the very best kind.<br><br>
+        The path into the national park was cool and shady, the trees tall and whispery above. Oscar ran ahead of Mum, then waited, then ran again.<br><br>
+        "Slow down," Mum called. "You'll miss everything."
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        That's when Oscar heard it — a long, wobbly call, rising and falling like a song that couldn't make up its mind.<br><br>
+        He stopped perfectly still. There, on a branch above the path, sat a currawong — shiny black feathers, bright yellow eye — watching him just as carefully as he was watching it.<br><br>
+        Oscar held his breath.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        "Hello," he said quietly. Not too loud. He didn't want to scare it.<br><br>
+        The currawong tilted its head. Then it sang — right at Oscar, as if it had something important to say.<br><br>
+        "I think he likes you," Mum whispered from behind.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        A moment later, the bird spread its wings and swooped away through the gum trees, its call floating back like a goodbye.<br><br>
+        All the way back to the car, Oscar kept humming it — that wobbly, wonderful currawong song.<br><br>
+        His very own Noosa sound.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AGE 7 -->
+<div id="age7" class="story-panel">
+  <div class="story-wrap">
+    <div class="story-meta">
+      <span class="age-badge">Age 7</span>
+      <div class="story-title-block">
+        <h2>Maya and the Ancient Mountains</h2>
+        <div class="story-subtitle">A story set at the Glass House Mountains</div>
+      </div>
+    </div>
+    <div class="story-scene">⛰️</div>
+    <div class="story-pages">
+      <div class="story-page">
+        There are some mornings when the Glass House Mountains look like they belong to another world entirely.<br><br>
+        Maya had seen them a hundred times from the car window — those ancient peaks rising suddenly from the flat green plains, each one a different shape, silent as old secrets. But today was different. Today she was going to walk right up to one.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        The track wound upward through scribbly gum and bottlebrush, the bark of the trees peeling away in long pale curls. Maya's legs ached in that good way — the way that meant she was working for something worth having.<br><br>
+        She paused at a clearing and looked back. The valley spread below like a rumpled green quilt, and beyond it, the faint shimmer of the ocean. Caloundra's headland, the curving bays, the glint of Mooloolaba in the distance — all of it laid out like a map of everywhere she'd ever loved.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        "The Jinibara people called these mountains home for thousands of years," Dad said beside her. "Can you imagine growing up with this view every single day?"<br><br>
+        Maya thought about that for a long while. She thought about what it would mean to know a place so well — every rock, every bird call, every shift of light across the valley — that it felt less like somewhere you visited and more like part of who you were.
+      </div>
+      <div class="page-divider">✦</div>
+      <div class="story-page">
+        At the summit, the wind was sharp and clean, and Maya stood with her arms out and her face to the sky. She felt impossibly small and completely alive at the same time — which, she thought, might actually be the best feeling there is.<br><br>
+        Below her, the mountains stretched in every direction: Beerwah, Tibrogargan, Coonowrin — each one watching over the Sunshine Coast in its own quiet, enduring way.<br><br>
+        She would come back. She already knew it. Some places get into your bones like that.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-strip">
+  <h2>Ready to write yours?</h2>
+  <p>Tell us about your child and their favourite Sunshine Coast spots. We'll create 10 stories, just for them.</p>
+  <a href="/app" class="btn-cta">Create your collection — $15</a>
+  <div class="cta-note">Delivered instantly · No subscription · 10 personalised stories</div>
+</div>
+
+<footer>
+  <div class="footer-logo">Sunny <span>Stories</span></div>
+  <div class="footer-tagline">Personalised stories for Sunshine Coast families</div>
+  <div class="footer-links">
+    <a href="https://www.instagram.com/sunnystoriesco/" target="_blank" rel="noopener">Instagram</a>
+    <a href="/#how-it-works">How it works</a>
+    <a href="/stories">Sample stories</a>
+    <a href="mailto:hello@sunnystories.co">Contact</a>
+    <a href="/legal">Privacy &amp; Terms</a>
+  </div>
+  <div class="footer-copy">© 2025 Sunny Stories · Sunshine Coast, Queensland · sunnystories.co</div>
+</footer>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.story-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

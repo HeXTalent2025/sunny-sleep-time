@@ -1,6 +1,8 @@
 {
   "routes": [
     { "src": "/app", "dest": "/app.html" },
+    { "src": "/stories", "dest": "/stories.html" },
+    { "src": "/legal", "dest": "/legal.html" },
     { "src": "/api/generate", "dest": "/api/generate.js" },
     { "src": "/api/checkout", "dest": "/api/checkout.js" },
     { "src": "/api/session", "dest": "/api/session.js" },
