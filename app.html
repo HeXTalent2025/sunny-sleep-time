@@ -770,11 +770,22 @@ function singleChip(el,cls){
    per-story, who is hero / what location /
    which interest — BEFORE the AI runs.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const ARCS = [
+  {name:'Discovery',   brief:'The child finds something unexpected — an animal, an object, a secret place — that changes the direction of their day.'},
+  {name:'Challenge',   brief:'A small obstacle stands in the way of what the child wants. They try, stumble, and find their own solution — feeling proud at the end.'},
+  {name:'Helper',      brief:'The child notices someone or something that needs help — an animal, a younger child, a lost thing — and quietly steps up.'},
+  {name:'Wonder',      brief:'The child encounters something so beautiful, strange, or enormous that they stop completely and simply take it in. The story lives in that feeling.'},
+  {name:'Friendship',  brief:'A connection forms — with another child, an animal, or even a place — that feels like it was always meant to be.'},
+  {name:'Mystery',     brief:'Something curious needs explaining. The child investigates, notices clues, and arrives at a satisfying (if wonderfully improbable) conclusion.'},
+  {name:'Learning',    brief:'The child attempts something they have never done before. They are nervous, they wobble, but they discover they are braver than they knew.'},
+  {name:'Homecoming',  brief:'Returning to a beloved spot, the child notices something they have never seen before — or sees the whole place differently this time.'},
+];
+
 function buildBlueprints(){
   const NUM = 10;
   const children = ST.children.length > 0
     ? ST.children
-    : [{name:'Your child', interests:[]}];
+    : [{name:'Your child', interests:[], age:null}];
 
   // Gather all interests as [{child, interest}] pairs
   let interestPairs = [];
@@ -792,23 +803,21 @@ function buildBlueprints(){
 
   const blueprints = [];
   for(let i=0;i<NUM;i++){
-    // Rotate through: child hero, interest, location — all independently
-    // This ensures every child appears, every interest appears, every location appears
     const childIdx    = i % children.length;
     const interestIdx = i % interestPairs.length;
     const locIdx      = i % locs.length;
-
-    // Co-star: the other child (if there are multiple children)
-    const costarIdx = (childIdx + 1) % children.length;
-    const costar = children.length > 1 ? children[costarIdx].name : null;
+    const costarIdx   = (childIdx + 1) % children.length;
+    const costar      = children.length > 1 ? children[costarIdx].name : null;
 
     blueprints.push({
-      storyNum:    i+1,
-      hero:        children[childIdx].name,
-      costar:      costar,
-      interest:    interestPairs[interestIdx].interest,
-      location:    locs[locIdx],
-      vibe:        ST.vibe || 'gentle and sleepy',
+      storyNum: i+1,
+      hero:     children[childIdx].name,
+      heroAge:  children[childIdx].age || null,
+      costar:   costar,
+      interest: interestPairs[interestIdx].interest,
+      location: locs[locIdx],
+      vibe:     ST.vibe || 'gentle and sleepy',
+      arc:      ARCS[i % ARCS.length],
     });
   }
   return blueprints;
@@ -1051,7 +1060,8 @@ async function callAPI(){
   const storyBriefs=ST.blueprints.map(bp=>{
     const locDetail=`${bp.location.name} (${bp.location.area||'Sunshine Coast'})${bp.location.desc?': '+bp.location.desc:''}`;
     const costarLine=bp.costar?`; ${bp.costar} also appears`:'';
-    return `Story ${bp.storyNum}: HERO = ${bp.hero}${costarLine} | LOCATION = ${locDetail} | MAIN INTEREST = ${bp.interest} | VIBE = ${bp.vibe}`;
+    const ageLabel=bp.heroAge?` (age ${bp.heroAge})`:'';
+    return `Story ${bp.storyNum}: HERO = ${bp.hero}${ageLabel}${costarLine} | LOCATION = ${locDetail} | MAIN INTEREST = ${bp.interest} | VIBE = ${bp.vibe} | ARC = ${bp.arc.name}: ${bp.arc.brief}`;
   }).join('\n');
 
   const prompt=`You are a warm, lyrical children's story author specialising in the Sunshine Coast of Queensland, Australia. You write for Sunny Stories — personalised stories for Sunshine Coast families.
@@ -1070,11 +1080,24 @@ WRITING RULES:
 - The HERO child must appear by name within the first 2 sentences
 - The LOCATION must be described with real, specific sensory details (what you can see, hear, smell there)
 - The MAIN INTEREST must drive the plot — it's not a background detail, it's why the story happens
+- The ARC shape must be followed — it defines the story's structure and emotional journey
 - If a costar is listed, they appear meaningfully (not just a mention)
 - Warm, joyful endings — the child feels seen, proud, and loved
 - Stories work at bedtime, on the couch, in the car, at the beach — write them for any moment
 - Split into exactly 3 pages using the separator [PAGE]
-- Writing tone: lyrical, warm, vivid. Language simple but beautiful — the kind that sounds wonderful read aloud.
+- Writing tone: lyrical, warm, vivid. Language simple but beautiful.
+
+AGE-APPROPRIATE LANGUAGE (match to the HERO child's age for each story):
+- Ages 2–4: Very short sentences (5–8 words). Only simple everyday words. Repetition is welcome. The world is safe and magical.
+- Ages 5–7: Short to medium sentences. A few longer words are fine if the meaning is clear from context. Mild peril ok. The child is curious and capable.
+- Ages 8–10: Richer vocabulary welcome. More complex plot. Genuine emotional depth — the child can feel conflicted, surprised, moved.
+- Ages 11+: Near-adult prose. Real challenges. Character growth. Metaphor and subtext welcome.
+
+VARIETY ACROSS THE 10 STORIES (this is critical — the collection must feel like 10 distinct experiences):
+- Each story must open with a DIFFERENT type of first sentence — rotate through: action, sensory observation, dialogue, question, time-of-day/weather, and the character's internal thought
+- No two stories may share the same emotional shape — vary the pacing, the obstacle, and the resolution across the set
+- Vary sentence rhythm: some stories should feel quick and bright; others slow and dreamy
+- Every title must be specific and evocative — never generic (not "Oscar's Adventure at the Beach" — something like "The Morning the Jellyfish Waved Back")
 
 OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no commentary.
 [
