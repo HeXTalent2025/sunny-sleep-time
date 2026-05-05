@@ -541,30 +541,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <div class="scene-loc-badge" id="sceneLoc">📍 Sunshine Coast</div>
   </div>
 
-  <!-- Audio readback bar -->
-  <div class="audio-bar" id="audioBar">
-    <div id="audioUnsupported" class="audio-unsupported" style="display:none">
-      🔇 Read-aloud isn't supported in this browser. Try Chrome or Safari.
-    </div>
-    <div id="audioControls">
-      <div class="audio-bar-top">
-        <button class="audio-play-btn" id="audioPlayBtn" onclick="audioToggle()" title="Play / Pause">▶</button>
-        <div class="audio-info">
-          <div class="audio-label">🔊 Read aloud</div>
-          <div class="audio-status" id="audioStatus">Tap ▶ to listen to this page</div>
-        </div>
-      </div>
-      <div class="audio-bar-bottom">
-        <div class="audio-speed-group">
-          <button class="audio-speed-btn" data-rate="0.8" onclick="setAudioSpeed(this)">Slow</button>
-          <button class="audio-speed-btn active" data-rate="1.0" onclick="setAudioSpeed(this)">Normal</button>
-          <button class="audio-speed-btn" data-rate="1.2" onclick="setAudioSpeed(this)">Fast</button>
-        </div>
-        <div class="audio-voice-note" id="audioVoiceName"></div>
-      </div>
-    </div>
-  </div>
-
   <div id="storyPages" class="story-pages"></div>
 </div>
 

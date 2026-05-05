@@ -6,7 +6,6 @@
     { "src": "/api/session", "dest": "/api/session.js" },
     { "src": "/api/save", "dest": "/api/save.js" },
     { "src": "/api/stories", "dest": "/api/stories.js" },
-    { "src": "/api/test-email", "dest": "/api/test-email.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
