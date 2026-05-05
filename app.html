@@ -1046,32 +1046,43 @@ async function submitForm(){
    GENERATION + LOADING ANIMATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 async function runGeneration(){
-  let stepIdx=0;
-  function advStep(){
-    if(stepIdx>0){const p=document.getElementById(`step${stepIdx-1}`);p.classList.remove('active');p.classList.add('done');}
-    const el=document.getElementById(`step${stepIdx}`);
-    if(el){el.classList.add('active');document.getElementById('loadBar').style.width=(stepIdx/5*90)+'%';}
-    stepIdx++;
-  }
-  advStep();
-  const timer=setInterval(advStep,2000);
   const msgs=['Mapping your favourite Sunshine Coast spots…','Writing your children into the stories…','Making sure every location gets its moment…','Weaving in your child\'s favourite things…','Final sprinkle of coastal magic…'];
   let mi=0;
   const msgEl=document.getElementById('loadMsg');
   const msgTimer=setInterval(()=>{
     msgEl.style.opacity=0;
     setTimeout(()=>{msgEl.innerHTML=msgs[mi%msgs.length];msgEl.style.opacity=1;msgEl.style.transition='opacity .4s';mi++;},300);
-  },2400);
+  },5000);
+  // Animate step indicators loosely over time
+  let stepIdx=0;
+  function advStep(){
+    if(stepIdx>0){const p=document.getElementById(`step${stepIdx-1}`);p.classList.remove('active');p.classList.add('done');}
+    const el=document.getElementById(`step${stepIdx}`);
+    if(el)el.classList.add('active');
+    stepIdx++;
+  }
+  advStep();
+  const stepTimer=setInterval(advStep,15000);
   try{
-    ST.stories=await callAPI();
-    clearInterval(timer);clearInterval(msgTimer);
+    // Split 10 blueprints into batches of 4 — keeps each API call under ~45 seconds
+    const bps=ST.blueprints;
+    const batchSize=4;
+    const batches=[];
+    for(let i=0;i<bps.length;i+=batchSize) batches.push(bps.slice(i,i+batchSize));
+    const allStories=[];
+    for(let b=0;b<batches.length;b++){
+      allStories.push(...await callAPI(batches[b]));
+      document.getElementById('loadBar').style.width=Math.round((b+1)/batches.length*90)+'%';
+    }
+    ST.stories=allStories;
+    clearInterval(stepTimer);clearInterval(msgTimer);
     document.getElementById('loadBar').style.width='100%';
     stopElapsedTimer();
     await delay(600);
     go('s-list');
   }catch(e){
-    clearInterval(timer);clearInterval(msgTimer);
-    if(e.message==='No API key') return; // already redirected to setup
+    clearInterval(stepTimer);clearInterval(msgTimer);
+    if(e.message==='No API key') return;
     console.error('Generation error:', e);
     const msg = e.message?.includes('401') ? 'API key invalid or expired — check your key in Settings.' :
                 e.message?.includes('429') ? 'Rate limit hit — wait a moment and try again.' :
@@ -1087,16 +1098,15 @@ function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    API CALL — blueprints drive the prompt
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-async function callAPI(){
+async function callAPI(blueprints){
   const agesStr=ST.children.map(c=>`${c.name} (age ${c.age||'unknown'})`).join(', ');
-  const isLong = ST.storyLength === 5;
-  const wordTarget = isLong ? '450–500' : '250–300';
-  const pageCount = isLong ? 5 : 3;
-  const readTime = isLong ? '5 min' : '3 min';
-  const includeNames=true; // can wire to toggle
+  const sl=ST.storyLength||3;
+  const wordTarget = sl>=8 ? '750–800' : sl>=5 ? '450–500' : '250–300';
+  const pageCount  = sl>=8 ? 8 : sl>=5 ? 5 : 3;
+  const readTime   = sl>=8 ? '8 min' : sl>=5 ? '5 min' : '3 min';
+  const n=blueprints.length;
 
-  // Build a per-story brief from blueprints
-  const storyBriefs=ST.blueprints.map(bp=>{
+  const storyBriefs=blueprints.map(bp=>{
     const locDetail=`${bp.location.name} (${bp.location.area||'Sunshine Coast'})${bp.location.desc?': '+bp.location.desc:''}`;
     const costarLine=bp.costar?`; ${bp.costar} also appears`:'';
     const ageLabel=bp.heroAge?` (age ${bp.heroAge})`:'';
@@ -1105,7 +1115,7 @@ async function callAPI(){
 
   const prompt=`You are a warm, lyrical children's story author specialising in the Sunshine Coast of Queensland, Australia. You write for Sunny Stories — personalised stories for Sunshine Coast families.
 
-Generate exactly 10 short stories. You have been given a specific brief for EACH story — follow each brief precisely. This ensures every child is featured, every location gets its own story, and every interest is explored.
+Generate exactly ${n} short stories. You have been given a specific brief for EACH story — follow each brief precisely.
 
 FAMILY PROFILE:
 - Children: ${ST.children.map(c=>`${c.name} (loves: ${c.interests.join(', ')||'exploring'})`).join('; ')}
@@ -1133,13 +1143,13 @@ AGE-APPROPRIATE LANGUAGE (match to the HERO child's age for each story):
 - Ages 11+: Near-adult prose. Real challenges. Character growth. Metaphor and subtext welcome.
 - If a younger child appears as a co-star in an older child's story, do not simplify the prose — write for the hero's age and portray the younger child naturally within that world.
 
-VARIETY ACROSS THE 10 STORIES (this is critical — the collection must feel like 10 distinct experiences):
+VARIETY ACROSS THESE STORIES:
 - Each story must open with a DIFFERENT type of first sentence — rotate through: action, sensory observation, dialogue, question, time-of-day/weather, and the character's internal thought
-- No two stories may share the same emotional shape — vary the pacing, the obstacle, and the resolution across the set
+- No two stories may share the same emotional shape — vary the pacing, the obstacle, and the resolution
 - Vary sentence rhythm: some stories should feel quick and bright; others slow and dreamy
 - Every title must be specific and evocative — never generic (not "Oscar's Adventure at the Beach" — something like "The Morning the Jellyfish Waved Back")
 
-OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no commentary.
+OUTPUT: Respond ONLY with a valid JSON array of exactly ${n} objects. No markdown, no backticks, no commentary.
 [
   {
     "title": "Story title",
@@ -1155,19 +1165,19 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
   }
 ]`;
 
-  // Calls our Vercel serverless function — streams the Anthropic SSE response
+  const maxTok = sl>=8 ? 12000 : sl>=5 ? 8000 : 5000;
+
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 8000,
+      max_tokens: maxTok,
       messages: [{ role: 'user', content: prompt }]
     })
   });
   if(!res.ok) throw new Error('API ' + res.status);
 
-  // Read the SSE stream — accumulate text_delta chunks into fullText
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let fullText = '';
@@ -1178,7 +1188,7 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
     if(done) break;
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n');
-    buffer = lines.pop(); // keep any incomplete line for next chunk
+    buffer = lines.pop();
     for(const line of lines){
       if(!line.startsWith('data: ')) continue;
       const data = line.slice(6).trim();
@@ -1188,7 +1198,7 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
         if(event.type === 'content_block_delta' && event.delta?.type === 'text_delta'){
           fullText += event.delta.text;
         }
-      }catch(e){ /* ignore malformed chunks */ }
+      }catch(e){}
     }
   }
 
