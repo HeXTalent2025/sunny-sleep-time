@@ -1092,7 +1092,7 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
   }
 ]`;
 
-  // Calls our Vercel serverless function — API key lives securely on the server
+  // Calls our Vercel serverless function — streams the Anthropic SSE response
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1103,9 +1103,33 @@ OUTPUT: Respond ONLY with a valid JSON array. No markdown, no backticks, no comm
     })
   });
   if(!res.ok) throw new Error('API ' + res.status);
-  const data = await res.json();
-  const text = data.content.map(i=>i.text||'').join('');
-  return JSON.parse(text.replace(/```json|```/g,'').trim());
+
+  // Read the SSE stream — accumulate text_delta chunks into fullText
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let buffer = '';
+
+  while(true){
+    const { done, value } = await reader.read();
+    if(done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop(); // keep any incomplete line for next chunk
+    for(const line of lines){
+      if(!line.startsWith('data: ')) continue;
+      const data = line.slice(6).trim();
+      if(data === '[DONE]') continue;
+      try{
+        const event = JSON.parse(data);
+        if(event.type === 'content_block_delta' && event.delta?.type === 'text_delta'){
+          fullText += event.delta.text;
+        }
+      }catch(e){ /* ignore malformed chunks */ }
+    }
+  }
+
+  return JSON.parse(fullText.replace(/```json|```/g,'').trim());
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
