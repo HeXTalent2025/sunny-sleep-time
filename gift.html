@@ -227,6 +227,23 @@
       font-size: 0.78rem;
       color: var(--text-soft);
     }
+    .story-dna {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.2rem;
+    }
+    .dna-chip {
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 20px;
+      padding: 0.2rem 0.6rem;
+      white-space: nowrap;
+    }
+    .dna-chip.hero  { background: #bbdeff; color: #1a3a6a; }
+    .dna-chip.costar { background: #d9bbff; color: #3a1a6a; }
+    .dna-chip.interest { background: #daffbb; color: #1a4a0a; }
+    .dna-chip.loc { background: #ffeebb; color: #5a3a00; }
 
     /* ── SINGLE STORY ── */
     #story-view {
@@ -425,13 +442,19 @@
     const heading = name ? `${name}'s Stories` : 'Your Stories';
     document.getElementById('readerHeading').textContent = heading;
     const grid = document.getElementById('storyGrid');
-    grid.innerHTML = stories.map((s, i) => `
-      <div class="story-card" onclick="openStory(${i})">
-        <div class="story-card-scene">${s.emoji || '📖'}</div>
-        <div class="story-card-title">${s.title || 'Story ' + (i+1)}</div>
-        <div class="story-card-loc">${s.location || ''}</div>
-      </div>
-    `).join('');
+    grid.innerHTML = stories.map((s, i) => {
+      const chips = [];
+      if (s.hero)     chips.push(`<span class="dna-chip hero">⭐ ${s.hero}</span>`);
+      if (s.costar)   chips.push(`<span class="dna-chip costar">👫 ${s.costar}</span>`);
+      if (s.interest) chips.push(`<span class="dna-chip interest">✦ ${s.interest}</span>`);
+      if (s.location) chips.push(`<span class="dna-chip loc">📍 ${s.location}</span>`);
+      return `
+        <div class="story-card" onclick="openStory(${i})">
+          <div class="story-card-scene">${s.emoji || '📖'}</div>
+          <div class="story-card-title">${s.title || 'Story ' + (i+1)}</div>
+          ${chips.length ? `<div class="story-dna">${chips.join('')}</div>` : ''}
+        </div>`;
+    }).join('');
     document.getElementById('reader').style.display = 'block';
   }
 
