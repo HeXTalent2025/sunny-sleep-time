@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { Redis } from '@upstash/redis';
 import { Resend } from 'resend';
-const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN });
+const redis = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN });
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
