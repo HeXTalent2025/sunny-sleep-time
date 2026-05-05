@@ -35,6 +35,7 @@ export default async function handler(req, res) {
       quantity: 1,
     }],
     mode: 'payment',
+    allow_promotion_codes: true,
     metadata: { tempKey },
     success_url: `${appUrl}/app?session={CHECKOUT_SESSION_ID}`,
     cancel_url: `${appUrl}/app`,
