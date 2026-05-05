@@ -495,6 +495,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
       <div id="elapsedTimer" style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ocean-deep);">0:00</div>
     </div>
     <p style="font-size:12px;color:var(--text-soft);text-align:center;margin-top:12px;line-height:1.6;">Writing 10 unique stories takes around 2 minutes.<br>Please keep this page open ✨</p>
+    <div id="genError" style="display:none;margin-top:18px;background:#fff8f7;border:1px solid rgba(216,110,89,.25);border-radius:14px;padding:18px 20px;text-align:center;">
+      <div style="font-size:15px;font-weight:700;color:#c0412c;margin-bottom:6px;">✨ Something went wrong</div>
+      <div id="genErrorMsg" style="font-size:13px;color:var(--text-soft);margin-bottom:14px;line-height:1.6;"></div>
+      <button onclick="retryGeneration()" style="background:var(--ocean);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">Try again</button>
+      <div style="font-size:12px;color:var(--text-soft);margin-top:4px;">Still stuck? Email <a href="mailto:hello@sunnystories.co" style="color:var(--ocean);">hello@sunnystories.co</a> with your receipt.</div>
+    </div>
   </div>
 </div>
 
@@ -1084,14 +1090,23 @@ async function runGeneration(){
     clearInterval(stepTimer);clearInterval(msgTimer);
     if(e.message==='No API key') return;
     console.error('Generation error:', e);
-    const msg = e.message?.includes('401') ? 'API key invalid or expired — check your key in Settings.' :
-                e.message?.includes('429') ? 'Rate limit hit — wait a moment and try again.' :
-                e.message?.includes('Failed to fetch') ? 'Network error — check your internet connection.' :
-                'Something went wrong generating your stories. Please try again!';
+    const msg = e.message?.includes('401') ? 'API key invalid or expired.' :
+                e.message?.includes('429') ? 'Rate limit hit — wait a moment then try again.' :
+                e.message?.includes('Failed to fetch') ? 'Network error — check your internet connection and try again.' :
+                'Something went wrong generating your stories.';
     stopElapsedTimer();
-    alert('✨ ' + msg);
-    go('s-form');
+    if(ST.pendingSessionId){
+      document.getElementById('genErrorMsg').textContent = msg;
+      document.getElementById('genError').style.display = 'block';
+    } else {
+      alert('✨ ' + msg + ' Please try again!');
+      go('s-form');
+    }
   }
+}
+async function retryGeneration(){
+  document.getElementById('genError').style.display = 'none';
+  await runGeneration();
 }
 function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 
