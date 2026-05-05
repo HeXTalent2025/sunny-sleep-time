@@ -6,6 +6,9 @@
     { "src": "/api/session", "dest": "/api/session.js" },
     { "src": "/api/save", "dest": "/api/save.js" },
     { "src": "/api/stories", "dest": "/api/stories.js" },
+    { "src": "/logo.svg", "dest": "/logo.svg" },
+    { "src": "/og-image.svg", "dest": "/og-image.svg" },
+    { "src": "/favicon.ico", "dest": "/favicon.ico" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

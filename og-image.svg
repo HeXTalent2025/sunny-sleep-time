@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a4a78"/>
+      <stop offset="60%" stop-color="#306ca4"/>
+      <stop offset="100%" stop-color="#38a2c2"/>
+    </linearGradient>
+    <linearGradient id="sun-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbe8"/>
+      <stop offset="100%" stop-color="#ffeebb"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Sun rays -->
+  <g transform="translate(240,185)" stroke="#ffeebb" stroke-width="7" stroke-linecap="round" opacity="0.75">
+    <line x1="0" y1="-95" x2="0" y2="-116"/>
+    <line x1="67" y1="-67" x2="82" y2="-82"/>
+    <line x1="95" y1="0" x2="116" y2="0"/>
+    <line x1="67" y1="67" x2="82" y2="82"/>
+    <line x1="0" y1="95" x2="0" y2="116"/>
+    <line x1="-67" y1="67" x2="-82" y2="82"/>
+    <line x1="-95" y1="0" x2="-116" y2="0"/>
+    <line x1="-67" y1="-67" x2="-82" y2="-82"/>
+  </g>
+
+  <!-- Sun body -->
+  <circle cx="240" cy="185" r="78" fill="url(#sun-grad)"/>
+
+  <!-- Sunny Stories wordmark -->
+  <text
+    x="600" y="300"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="112"
+    font-weight="bold"
+    letter-spacing="2"
+    fill="#ffffff">Sunny Stories</text>
+
+  <!-- Tagline -->
+  <text
+    x="600" y="368"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="30"
+    font-style="italic"
+    fill="rgba(255,255,255,0.82)"
+    letter-spacing="0.5">Your child. Their favourite place. Their very own story.</text>
+
+  <!-- Waves -->
+  <path d="M-10,500 C120,464 240,534 380,500 C520,466 640,534 780,500 C920,466 1040,534 1210,500 L1210,630 L-10,630 Z"
+        fill="white" opacity="0.10"/>
+  <path d="M-10,528 C120,492 240,562 380,528 C520,494 640,562 780,528 C920,494 1040,562 1210,528 L1210,630 L-10,630 Z"
+        fill="white" opacity="0.18"/>
+  <path d="M-10,556 C120,520 240,590 380,556 C520,522 640,590 780,556 C920,522 1040,590 1210,556 L1210,630 L-10,630 Z"
+        fill="white" opacity="0.96"/>
+
+  <!-- URL in wave band -->
+  <text
+    x="600" y="606"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="26"
+    font-weight="bold"
+    fill="#306ca4">10 personalised stories · sunnystories.co</text>
+</svg>
