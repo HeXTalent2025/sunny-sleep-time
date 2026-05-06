@@ -625,7 +625,7 @@
     GAUDIO.el.src = url;
     GAUDIO.el.play().catch(() => {
       GAUDIO.playing = false;
-      gSetStatus('Narration unavailable — tap to retry', 'error');
+      gSetStatus('Ready — tap ▶ to listen', '');
       gUpdateBtn();
     });
     GAUDIO.playing = true;

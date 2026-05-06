@@ -2004,7 +2004,7 @@ function startAudioFromUrl(url){
   if(vid&&vid.src&&vid.style.display!=='none')vid.play().catch(()=>{});
   AUDIO.audioEl.play().catch(()=>{
     AUDIO.playing=false;
-    audioSetStatus('Narration unavailable — tap to retry','error');
+    audioSetStatus('Ready — tap ▶ to listen','');
     updatePlayBtn();
   });
   AUDIO.playing=true;
