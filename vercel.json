@@ -1,19 +1,26 @@
 {
-  "routes": [
-    { "src": "/app", "dest": "/app.html" },
-    { "src": "/stories", "dest": "/stories.html" },
-    { "src": "/legal", "dest": "/legal.html" },
-    { "src": "/gift", "dest": "/gift.html" },
-    { "src": "/give", "dest": "/give.html" },
-    { "src": "/api/generate", "dest": "/api/generate.js" },
-    { "src": "/api/checkout", "dest": "/api/checkout.js" },
-    { "src": "/api/session", "dest": "/api/session.js" },
-    { "src": "/api/save", "dest": "/api/save.js" },
-    { "src": "/api/stories", "dest": "/api/stories.js" },
-    { "src": "/logo.svg", "dest": "/logo.svg" },
-    { "src": "/og-image.svg", "dest": "/og-image.svg" },
-    { "src": "/og-image.png", "dest": "/og-image.png" },
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "functions": {
+    "api/generate.js": { "maxDuration": 120 },
+    "api/narrate.js":  { "maxDuration": 30  },
+    "api/video.js":    { "maxDuration": 120 }
+  },
+  "rewrites": [
+    { "source": "/api/generate", "destination": "/api/generate.js" },
+    { "source": "/api/checkout", "destination": "/api/checkout.js" },
+    { "source": "/api/session",  "destination": "/api/session.js"  },
+    { "source": "/api/save",     "destination": "/api/save.js"     },
+    { "source": "/api/stories",  "destination": "/api/stories.js"  },
+    { "source": "/api/narrate",  "destination": "/api/narrate.js"  },
+    { "source": "/api/video",    "destination": "/api/video.js"    },
+    { "source": "/app",          "destination": "/app.html"        },
+    { "source": "/stories",      "destination": "/stories.html"    },
+    { "source": "/legal",        "destination": "/legal.html"      },
+    { "source": "/gift",         "destination": "/gift.html"       },
+    { "source": "/give",         "destination": "/give.html"       },
+    { "source": "/logo.svg",     "destination": "/logo.svg"        },
+    { "source": "/og-image.svg", "destination": "/og-image.svg"    },
+    { "source": "/og-image.png", "destination": "/og-image.png"    },
+    { "source": "/favicon.ico",  "destination": "/favicon.ico"     },
+    { "source": "/(.*)",         "destination": "/index.html"      }
   ]
 }
