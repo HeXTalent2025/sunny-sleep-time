@@ -1,6 +1,6 @@
 import { fal } from '@fal-ai/client';
 
-export const config = { maxDuration: 120 };
+export const config = { maxDuration: 300 };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,16 +17,10 @@ export default async function handler(req, res) {
 
   const {
     hero,
-    costar,
     location,
     locationDesc,
-    interest,
     pages,
     storyLength,
-    childPhotos,
-    childDescriptions,
-    childAge,
-    childInterests,
   } = req.body;
 
   if (!hero || !pages?.length) {
@@ -34,77 +28,41 @@ export default async function handler(req, res) {
   }
 
   const clipDuration = storyLength === '5min' ? '10' : '5';
-  const ageLabel = childAge ? `${childAge}-year-old` : 'young';
-  const interestsStr = (childInterests || []).join(', ') || 'exploring and discovering';
+
+  const locationStr = locationDesc
+    ? `${location} on the Sunshine Coast, Queensland — ${locationDesc}`
+    : `${location} on the Sunshine Coast, Queensland`;
+
+  // Scene moods cycle across the 3 pages
+  const sceneMoods = [
+    'gentle waves lapping the shore, golden morning light, soft mist, birds gliding overhead',
+    'sunlight filtering through trees, a warm breeze, butterflies drifting, flowers swaying',
+    'late afternoon golden hour, long shadows, sparkling water, peaceful and magical atmosphere',
+  ];
 
   try {
-    // ── STEP 1: Resolve character image ───────────────────────────────────
-
-    let characterImageUrl;
-
-    if (childPhotos?.[hero]) {
-      const { base64, mimeType } = childPhotos[hero];
-      const buf = Buffer.from(base64, 'base64');
-      characterImageUrl = await fal.storage.upload(buf, {
-        contentType: mimeType,
-        filename: `${hero.toLowerCase().replace(/\s+/g, '-')}-photo.jpg`,
-      });
-    } else {
-      const descPrompt = childDescriptions?.[hero]
-        ? `smiling ${ageLabel} child, ${childDescriptions[hero]}`
-        : `smiling ${ageLabel} child named ${hero} who loves ${interestsStr}`;
-
-      const fluxResult = await fal.subscribe('fal-ai/flux/schnell', {
-        input: {
-          prompt: `warm watercolour children's book illustration, ${descPrompt}, set against a simple soft Sunshine Coast backdrop, full face clearly visible, friendly warm expression, pastel colours, gentle lighting, storybook style, simple background`,
-          image_size: 'portrait_4_3',
-          num_inference_steps: 4,
-        },
-      });
-
-      const fluxUrl = fluxResult?.data?.images?.[0]?.url;
-      if (!fluxUrl) throw new Error('Character image generation failed');
-      // Re-upload to fal storage so the URL doesn't expire across multiple Kling calls
-      const imgRes = await fetch(fluxUrl);
-      const imgBuf = Buffer.from(await imgRes.arrayBuffer());
-      characterImageUrl = await fal.storage.upload(imgBuf, {
-        contentType: 'image/jpeg',
-        filename: `${hero.toLowerCase().replace(/\s+/g, '-')}-character.jpg`,
-      });
-    }
-
-    // ── STEP 2: Generate one Kling clip per page (sequential) ─────────────
-
     const videoUrls = [];
-    const locationStr = locationDesc
-      ? `${location} on the Sunshine Coast, Queensland — ${locationDesc}`
-      : `${location} on the Sunshine Coast, Queensland`;
-
-    const sceneVariants = [
-      `exploring and playing outdoors with a big smile`,
-      `running along the beach with arms wide open, full of joy`,
-      `looking out at the horizon, curious and adventurous`,
-    ];
 
     for (let p = 0; p < pages.length; p++) {
       if (p > 0) await new Promise(r => setTimeout(r, 3000));
-      const scene = sceneVariants[p % sceneVariants.length];
 
-      const klingResult = await fal.subscribe('fal-ai/kling-video/v2.6/pro/image-to-video', {
+      const mood = sceneMoods[p % sceneMoods.length];
+      const prompt = `${locationStr}. ${mood}. Cinematic children's book watercolour animation style, gentle fluid movement, soft pastel colours, warm golden light, magical storybook atmosphere, no people, no text.`;
+
+      const result = await fal.subscribe('fal-ai/kling-video/v2.6/pro/text-to-video', {
         input: {
-          image_url: characterImageUrl,
-          prompt: `${locationStr}. A young child ${scene}. Warm golden light, children's book watercolour animation, gentle fluid movement, soft pastel colours, joyful storybook atmosphere.`,
+          prompt,
           duration: clipDuration,
           aspect_ratio: '16:9',
         },
       });
 
-      const videoUrl = klingResult?.data?.video?.url;
+      const videoUrl = result?.data?.video?.url;
       if (!videoUrl) throw new Error(`Video generation failed for page ${p + 1}`);
       videoUrls.push(videoUrl);
     }
 
-    return res.status(200).json({ videoUrls, characterImageUrl });
+    return res.status(200).json({ videoUrls });
   } catch (e) {
     console.error('Video generation error:', JSON.stringify(e, Object.getOwnPropertyNames(e)));
     const detail = e?.body ?? e?.cause ?? e?.message ?? String(e);
