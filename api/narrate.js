@@ -1,4 +1,8 @@
+import { Redis } from '@upstash/redis';
+
 export const config = { maxDuration: 30 };
+
+const redis = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN });
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,10 +12,19 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { text, storyLength } = req.body;
+  const { text, storyLength, token, storyIdx } = req.body;
 
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'text is required' });
+  }
+
+  // Check Redis cache first
+  if (token && storyIdx !== undefined) {
+    const cacheKey = `narration_${token}_${storyIdx}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.status(200).json({ audioBase64: cached, mimeType: 'audio/mpeg', cached: true });
+    }
   }
 
   const voiceId = process.env.ELEVENLABS_VOICE_ID;
@@ -52,6 +65,12 @@ export default async function handler(req, res) {
 
     const audioBuffer = await response.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+
+    // Persist to Redis so repeat listens are free
+    if (token && storyIdx !== undefined) {
+      const cacheKey = `narration_${token}_${storyIdx}`;
+      await redis.set(cacheKey, audioBase64, { ex: 31536000 });
+    }
 
     return res.status(200).json({ audioBase64, mimeType: 'audio/mpeg' });
   } catch (e) {

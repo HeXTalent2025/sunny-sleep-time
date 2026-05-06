@@ -323,7 +323,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   transition:all .2s;box-shadow:0 4px 16px rgba(56,162,194,.35);
 }
 .audio-play-btn:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(56,162,194,.5);}
-.audio-play-btn.playing{background:linear-gradient(135deg,var(--terracotta),#b85040);}
+.audio-play-btn.playing{background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));}
 .audio-info{flex:1;min-width:0;}
 .audio-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ocean-deep);margin-bottom:3px;}
 .audio-status{font-size:12px;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -515,8 +515,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   <div class="bundle-card" id="bundleCard" onclick="toggleBundle()">
     <div class="bundle-toggle" id="bundleToggle"></div>
     <div class="bundle-card-body">
-      <div class="bundle-card-title">✨ Add Illustrations & Narration</div>
-      <div class="bundle-card-desc">Watercolour scene per page + Australian voice narration for every story</div>
+      <div class="bundle-card-title">✨ Add Australian Narration</div>
+      <div class="bundle-card-desc">Warm Australian voice narration for every story — just press play</div>
     </div>
     <div class="bundle-card-price">+$10</div>
   </div>
@@ -1973,6 +1973,8 @@ async function playFullStory(){
       body:JSON.stringify({
         text:fullText,
         storyLength:ST.storyLength===5?'5min':'3min',
+        token:ST.storyToken||undefined,
+        storyIdx,
       }),
     });
     const data=await res.json();
