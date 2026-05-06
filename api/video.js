@@ -96,6 +96,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ videoUrls, characterImageUrl });
   } catch (e) {
     console.error('Video generation error:', e);
-    return res.status(500).json({ error: 'Something went wrong generating the video — please try again' });
+    return res.status(500).json({ error: e?.message || String(e) });
   }
 }
