@@ -7,6 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Sunny Stories ✨</title>
+<script>if(new URLSearchParams(location.search).get('token'))document.documentElement.style.opacity='0';</script>
 <link rel="icon" type="image/svg+xml" href="/logo.svg">
 <link rel="apple-touch-icon" href="/logo.svg">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -2321,16 +2322,15 @@ async function handlePaymentReturn(sessionId){
 }
 
 async function loadFromToken(token, upgradeSessionId=null){
-  go('s-loading');
-  document.getElementById('loadMsg').textContent='Loading your story collection…';
+  const reveal=()=>{document.documentElement.style.transition='opacity .25s';document.documentElement.style.opacity='1';};
   try{
-    // Verify narration upgrade payment if returning from Stripe
     if(upgradeSessionId){
       try{ await fetch(`/api/narration-upgrade?id=${upgradeSessionId}`); }
       catch(e){ console.error('Upgrade verification error:',e); }
     }
     const res=await fetch(`/api/stories?token=${token}`);
     if(!res.ok){
+      reveal();
       alert('This link has expired or is invalid. Please contact stories@sunnystories.co if you need help.');
       go('s-form');
       return;
@@ -2341,6 +2341,7 @@ async function loadFromToken(token, upgradeSessionId=null){
     ST.bundleUpgrade=!!data.bundleUpgrade;
     renderStoryList();
     go('s-list');
+    reveal();
     if(upgradeSessionId&&ST.bundleUpgrade){
       const banner=document.getElementById('emailBanner');
       const bannerMsg=document.getElementById('emailBannerMsg');
@@ -2348,6 +2349,7 @@ async function loadFromToken(token, upgradeSessionId=null){
     }
   }catch(e){
     console.error('Token load error:',e);
+    reveal();
     go('s-form');
   }
 }
