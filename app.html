@@ -1531,7 +1531,7 @@ function renderStoryList(){
 
 function renderVideoUpsell(){
   const card = document.getElementById('videoUpsellCard');
-  if(!ST.stories.length){ card.style.display='none'; return; }
+  card.style.display='none'; return;
   const allHaveVideo = ST.stories.every(s=>s.videoUrls);
   if(allHaveVideo){ card.style.display='none'; return; }
 
@@ -1871,6 +1871,7 @@ function audioInit(){
       updatePlayBtn();
     };
     AUDIO.audioEl.onerror=()=>{
+      if(!AUDIO.playing)return;
       AUDIO.playing=false;
       audioSetStatus('Narration unavailable — tap to retry','error');
       updatePlayBtn();

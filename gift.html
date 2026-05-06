@@ -155,8 +155,41 @@
       font-size: 1.2rem;
       font-weight: 700;
       color: #fff;
+      text-decoration: none;
     }
     .reader-brand span { color: var(--ocean-bright); font-style: italic; }
+    .home-btn {
+      background: rgba(255,255,255,0.15);
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 0.82rem; font-weight: 600;
+      padding: 0.35rem 0.85rem; cursor: pointer;
+      text-decoration: none; transition: background 0.2s; flex-shrink: 0;
+    }
+    .home-btn:hover { background: rgba(255,255,255,0.28); }
+
+    /* Audio bar */
+    .gift-audio-bar {
+      display: none;
+      align-items: center; gap: 12px;
+      background: #fff;
+      border-top: 1px solid rgba(48,108,164,0.1);
+      padding: 12px 16px;
+      position: sticky; bottom: 0;
+      box-shadow: 0 -2px 14px rgba(48,108,164,0.1);
+    }
+    .g-play-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, #38a2c2, #306ca4);
+      color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .g-play-btn:hover { transform: scale(1.08); box-shadow: 0 6px 22px rgba(56,162,194,.45); }
+    .g-audio-info { flex: 1; min-width: 0; }
+    .g-audio-label { font-size: 12px; font-weight: 600; color: var(--ocean-deep); }
+    .g-audio-status { font-size: 11px; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .g-audio-status.error { color: var(--terracotta); }
+    .g-audio-status.loading { animation: gPulse 1.5s ease-in-out infinite; }
+    @keyframes gPulse { 0%,100%{opacity:.45} 50%{opacity:1} }
     .mothers-day-badge {
       font-size: 0.72rem;
       font-weight: 700;
@@ -388,7 +421,7 @@
 <!-- READER (story list) -->
 <div id="reader">
   <div class="reader-header">
-    <div class="reader-brand">Sunny <span>Stories</span></div>
+    <a href="/" class="reader-brand">Sunny <span>Stories</span></a>
     <div class="mothers-day-badge">Mother's Day 🌸</div>
   </div>
   <div class="stories-intro">
@@ -403,19 +436,31 @@
   <div class="story-view-header">
     <button class="back-btn" onclick="backToList()">← Stories</button>
     <div class="story-view-title" id="storyViewTitle"></div>
+    <a href="/" class="home-btn">Home</a>
   </div>
   <div class="story-body">
     <div class="story-scene-large" id="storyViewScene"></div>
     <div class="story-pages" id="storyViewPages"></div>
+  </div>
+  <div class="gift-audio-bar" id="giftAudioBar">
+    <button class="g-play-btn" id="gPlayBtn" onclick="gAudioToggle()">▶</button>
+    <div class="g-audio-info">
+      <div class="g-audio-label">🎙️ Australian narration</div>
+      <div class="g-audio-status" id="gAudioStatus">Tap ▶ to listen to this story</div>
+    </div>
   </div>
 </div>
 
 <script>
   const params = new URLSearchParams(location.search);
   const token = params.get('token');
-  const name = params.get('name'); // optional: ?token=X&name=Claire
+  const name = params.get('name');
 
   let stories = [];
+  let bundleUpgrade = false;
+  let currentStoryIdx = 0;
+  const audioCache = {};
+  const GAUDIO = { playing: false, el: null };
 
   if (name) {
     document.getElementById('recipientHeading').textContent = `Happy Mother's Day, ${name} 🌸`;
@@ -430,6 +475,7 @@
       if (!res.ok) throw new Error('Not found');
       const data = await res.json();
       stories = data.stories || data;
+      bundleUpgrade = !!(data.bundleUpgrade);
       if (!stories?.length) throw new Error('Empty');
       renderList();
     } catch(e) {
@@ -459,6 +505,7 @@
   }
 
   function openStory(i) {
+    currentStoryIdx = i;
     const s = stories[i];
     document.getElementById('storyViewTitle').textContent = s.title || '';
     document.getElementById('storyViewScene').textContent = s.emoji || '📖';
@@ -468,10 +515,16 @@
       .join('<div class="page-divider">✦</div>');
     document.getElementById('reader').style.display = 'none';
     document.getElementById('story-view').style.display = 'block';
+    // Audio bar
+    gAudioStop();
+    const bar = document.getElementById('giftAudioBar');
+    bar.style.display = bundleUpgrade ? 'flex' : 'none';
+    gSetStatus('Tap ▶ to listen to this story', '');
     window.scrollTo(0, 0);
   }
 
   function backToList() {
+    gAudioStop();
     document.getElementById('story-view').style.display = 'none';
     document.getElementById('reader').style.display = 'block';
     window.scrollTo(0, 0);
@@ -481,6 +534,103 @@
     document.getElementById('cover').style.display = 'none';
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error-view').style.display = 'flex';
+  }
+
+  // ── Audio engine ──
+  function gAudioInit() {
+    if (!GAUDIO.el) {
+      GAUDIO.el = new Audio();
+      GAUDIO.el.onended = () => {
+        GAUDIO.playing = false;
+        gSetStatus('Story complete ✨', '');
+        gUpdateBtn();
+      };
+      GAUDIO.el.onerror = () => {
+        if (!GAUDIO.playing) return;
+        GAUDIO.playing = false;
+        gSetStatus('Narration unavailable — tap to retry', 'error');
+        gUpdateBtn();
+      };
+    }
+  }
+
+  function gSetStatus(msg, cls) {
+    const el = document.getElementById('gAudioStatus');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'g-audio-status' + (cls ? ' ' + cls : '');
+  }
+
+  function gUpdateBtn() {
+    const btn = document.getElementById('gPlayBtn');
+    if (!btn) return;
+    btn.textContent = GAUDIO.playing ? '⏸' : '▶';
+  }
+
+  function gAudioStop() {
+    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.src = ''; }
+    GAUDIO.playing = false;
+    gUpdateBtn();
+  }
+
+  function gAudioToggle() {
+    if (GAUDIO.playing) {
+      if (GAUDIO.el) GAUDIO.el.pause();
+      GAUDIO.playing = false;
+      gSetStatus('Tap ▶ to continue', '');
+      gUpdateBtn();
+    } else {
+      gPlayFullStory();
+    }
+  }
+
+  async function gPlayFullStory() {
+    const s = stories[currentStoryIdx];
+    if (!s) return;
+
+    if (audioCache[currentStoryIdx]) {
+      gStartAudio(audioCache[currentStoryIdx]);
+      return;
+    }
+
+    gSetStatus('Generating narration…', 'loading');
+
+    try {
+      const fullText = s.pages ? s.pages.join('\n\n') : (s.text || '');
+      const res = await fetch('/api/narrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: fullText, token, storyIdx: currentStoryIdx }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const bytes = atob(data.audioBase64);
+      const buf = new Uint8Array(bytes.length);
+      for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+      const blob = new Blob([buf], { type: data.mimeType });
+      const url = URL.createObjectURL(blob);
+
+      audioCache[currentStoryIdx] = url;
+      gStartAudio(url);
+    } catch(e) {
+      GAUDIO.playing = false;
+      gSetStatus('Narration unavailable — tap to retry', 'error');
+      gUpdateBtn();
+    }
+  }
+
+  function gStartAudio(url) {
+    gAudioInit();
+    GAUDIO.el.src = url;
+    GAUDIO.el.play().catch(() => {
+      GAUDIO.playing = false;
+      gSetStatus('Narration unavailable — tap to retry', 'error');
+      gUpdateBtn();
+    });
+    GAUDIO.playing = true;
+    gSetStatus('Playing…', '');
+    gUpdateBtn();
   }
 </script>
 </body>
