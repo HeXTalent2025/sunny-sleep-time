@@ -28,10 +28,10 @@ export default async function handler(req, res) {
         currency: 'aud',
         product_data: {
           name: bundleUpgrade
-            ? 'Sunny Stories — 10 Personalised Stories + Illustrations & Narration'
+            ? 'Sunny Stories — 10 Personalised Stories + Australian Narration'
             : 'Sunny Stories — 10 Personalised Stories',
           description: bundleUpgrade
-            ? `A personalised illustrated collection starring ${childNames} — watercolour scenes and Australian narration for every page.`
+            ? `A personalised collection starring ${childNames} — 10 stories with warm Australian voice narration for every page.`
             : `A personalised collection starring ${childNames}, set in their favourite Sunshine Coast spots.`,
         },
         unit_amount: bundleUpgrade ? 2500 : 1500,
