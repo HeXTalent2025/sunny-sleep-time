@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'hero and pages are required' });
   }
 
-  const clipDuration = storyLength === '5min' ? 10 : 6;
+  const clipDuration = storyLength === '5min' ? '10' : '5';
   const ageLabel = childAge ? `${childAge}-year-old` : 'young';
   const interestsStr = (childInterests || []).join(', ') || 'exploring and discovering';
 
@@ -83,8 +83,6 @@ export default async function handler(req, res) {
           prompt: `${locationStr}. ${summary} Warm golden light, children's book animation style, gentle fluid movement, ${hero} exploring and discovering, soft watercolour aesthetic.`,
           duration: clipDuration,
           aspect_ratio: '16:9',
-          cfg_scale: 0.5,
-          negative_prompt: 'realistic photography, dark colours, scary, violent, adult content, text overlays, logos',
         },
       });
 
