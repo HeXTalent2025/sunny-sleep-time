@@ -62,8 +62,15 @@ export default async function handler(req, res) {
         },
       });
 
-      characterImageUrl = fluxResult?.data?.images?.[0]?.url;
-      if (!characterImageUrl) throw new Error('Character image generation failed');
+      const fluxUrl = fluxResult?.data?.images?.[0]?.url;
+      if (!fluxUrl) throw new Error('Character image generation failed');
+      // Re-upload to fal storage so the URL doesn't expire across multiple Kling calls
+      const imgRes = await fetch(fluxUrl);
+      const imgBuf = Buffer.from(await imgRes.arrayBuffer());
+      characterImageUrl = await fal.storage.upload(imgBuf, {
+        contentType: 'image/jpeg',
+        filename: `${hero.toLowerCase().replace(/\s+/g, '-')}-character.jpg`,
+      });
     }
 
     // ── STEP 2: Generate one Kling clip per page (sequential) ─────────────
