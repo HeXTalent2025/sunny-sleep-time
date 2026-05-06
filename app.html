@@ -46,6 +46,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 
 /* LAYOUT */
 .app{position:relative;z-index:2;max-width:520px;margin:0 auto;padding:0 16px 80px;min-height:100vh;}
+#app-brand-bar{text-align:center;padding:10px 0 4px;}
+#app-brand-bar a{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--ocean-deep);text-decoration:none;opacity:0.55;transition:opacity 0.2s;}
+#app-brand-bar a:hover{opacity:1;}
+#app-brand-bar a span{color:var(--ocean-bright);font-style:italic;}
 .screen{animation:fadeUp .45s ease both;}
 .screen.hidden{display:none;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
@@ -332,6 +336,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 <div class="moon-fixed" title="Sunny Stories">☀️</div>
 
 <div class="app">
+
+<div id="app-brand-bar"><a href="/">Sunny <span>Stories</span></a></div>
 
 <!-- ═══════════ API KEY SETUP ═══════════ -->
 <!-- ═══════════ HOME ═══════════ -->
