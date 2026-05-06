@@ -80,15 +80,20 @@ export default async function handler(req, res) {
       ? `${location} on the Sunshine Coast, Queensland — ${locationDesc}`
       : `${location} on the Sunshine Coast, Queensland`;
 
+    const sceneVariants = [
+      `exploring and playing outdoors with a big smile`,
+      `running along the beach with arms wide open, full of joy`,
+      `looking out at the horizon, curious and adventurous`,
+    ];
+
     for (let p = 0; p < pages.length; p++) {
       if (p > 0) await new Promise(r => setTimeout(r, 3000));
-      const pageText = pages[p];
-      const summary = pageText.replace(/\s+/g, ' ').slice(0, 200).trim();
+      const scene = sceneVariants[p % sceneVariants.length];
 
       const klingResult = await fal.subscribe('fal-ai/kling-video/v2.6/pro/image-to-video', {
         input: {
           image_url: characterImageUrl,
-          prompt: `${locationStr}. ${summary} Warm golden light, children's book animation style, gentle fluid movement, ${hero} exploring and discovering, soft watercolour aesthetic.`,
+          prompt: `${locationStr}. A young child ${scene}. Warm golden light, children's book watercolour animation, gentle fluid movement, soft pastel colours, joyful storybook atmosphere.`,
           duration: clipDuration,
           aspect_ratio: '16:9',
         },
