@@ -274,7 +274,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .hero-moon{font-size:64px;display:block;margin-bottom:10px;animation:float 4s ease-in-out infinite;}
 .hero-title{font-family:'Fraunces',serif;font-size:clamp(34px,8vw,46px);font-weight:700;background:linear-gradient(135deg,var(--ocean-deep) 0%,var(--ocean) 50%,var(--ocean-bright) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;margin-bottom:8px;}
 .hero-coast{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-bottom:28px;}
-.price-card{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:20px;}
+.price-card{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:12px;}
+.bundle-card{display:flex;align-items:center;gap:12px;background:#f0f8fc;border:2px solid rgba(56,162,194,.2);border-radius:16px;padding:14px 16px;cursor:pointer;transition:all .2s;margin-bottom:16px;user-select:none;}
+.bundle-card.active{background:var(--pastel-blue);border-color:var(--ocean);}
+.bundle-toggle{width:40px;height:22px;border-radius:11px;background:#cbd5e0;transition:all .2s;position:relative;flex-shrink:0;}
+.bundle-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:all .2s;}
+.bundle-card.active .bundle-toggle{background:var(--ocean);}
+.bundle-card.active .bundle-toggle::after{left:21px;}
+.bundle-card-body{flex:1;}
+.bundle-card-title{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--ocean-deep);}
+.bundle-card-desc{font-size:12px;color:var(--text-soft);margin-top:2px;line-height:1.4;}
+.bundle-card-price{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ocean-deep);white-space:nowrap;}
+.scene-illustration{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:24px;opacity:0;transition:opacity .6s;}
 .price-num{font-family:'Fraunces',serif;font-size:56px;font-weight:700;color:var(--ocean-deep);line-height:1;}
 .price-num sup{font-size:24px;vertical-align:super;}
 .price-stories{color:var(--ocean);font-size:15px;font-weight:600;margin-top:6px;}
@@ -493,6 +504,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <div class="price-stories">10 personalised stories</div>
     <div class="price-detail">Each built from a unique combination of your family's picks</div>
   </div>
+  <div class="bundle-card" id="bundleCard" onclick="toggleBundle()">
+    <div class="bundle-toggle" id="bundleToggle"></div>
+    <div class="bundle-card-body">
+      <div class="bundle-card-title">✨ Add Illustrations & Narration</div>
+      <div class="bundle-card-desc">Watercolour scene per page + Australian voice narration for every story</div>
+    </div>
+    <div class="bundle-card-price">+$10</div>
+  </div>
   <button class="btn btn-sun" id="submitBtn" onclick="submitForm()">✨ Generate My Stories · $15</button>
   <button class="btn btn-ghost" onclick="go('s-form')">← Back</button>
 </div>
@@ -649,6 +668,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <div class="scene-icon" id="sceneIcon">🌊</div>
     <div class="scene-loc-badge" id="sceneLoc">📍 Sunshine Coast</div>
     <video id="storyVideo" muted playsinline></video>
+    <img id="sceneIllustration" class="scene-illustration" alt="">
   </div>
 
   <!-- ElevenLabs audio bar -->
@@ -787,6 +807,8 @@ const ST = {
   giftRecipient: '',
   giftToken: null,
   audioCache: {},
+  illustrationCache: {},
+  bundleUpgrade: false,
   childPhotos: {},
   childDescriptions: {},
   pendingVideoStories: [],
@@ -1238,6 +1260,7 @@ async function submitForm(){
         selectedLocations:ST.selectedLocations,
         vibe:ST.vibe,
         storyLength:ST.storyLength,
+        bundleUpgrade:ST.bundleUpgrade,
       })
     });
     const {url,error}=await res.json();
@@ -1249,10 +1272,23 @@ async function submitForm(){
     }
     window.location.href=url;
   }catch(e){
-    if(btn){btn.disabled=false;btn.textContent= ST.giftMode ? '🎁 Create Gift Stories · $15' : '✨ Create My Stories · $15';}
+    if(btn){btn.disabled=false;updateSubmitBtn();}
     alert('Could not start checkout. Please try again.');
     console.error(e);
   }
+}
+
+function toggleBundle(){
+  ST.bundleUpgrade=!ST.bundleUpgrade;
+  document.getElementById('bundleCard')?.classList.toggle('active',ST.bundleUpgrade);
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  const btn=document.getElementById('submitBtn');
+  if(!btn)return;
+  const price=ST.bundleUpgrade?25:15;
+  btn.textContent=ST.giftMode?`🎁 Create Gift Stories · $${price}`:`✨ Generate My Stories · $${price}`;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1650,16 +1686,43 @@ function renderPage(){
   const vid=document.getElementById('storyVideo');
   const blobs=document.querySelectorAll('.scene-blob');
 
+  const illEl=document.getElementById('sceneIllustration');
+  const audioBar=document.getElementById('audioBar');
+  if(audioBar) audioBar.style.display=ST.bundleUpgrade?'flex':'none';
+
   if(s.videoUrls && p<total){
     vid.style.display='block';
+    if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
     iconEl.style.display='none';
     gradEl.style.display='none';
     blobs.forEach(b=>b.style.display='none');
     vid.src=s.videoUrls[p]||'';
     vid.load();
     vid.play().catch(()=>{});
+  } else if(ST.bundleUpgrade && p<total){
+    vid.style.display='none';
+    iconEl.style.display='none';
+    gradEl.style.display='none';
+    blobs.forEach(b=>b.style.display='none');
+    if(illEl){
+      const cached=(ST.illustrationCache[ST.currentStory]||{})[p];
+      if(cached){
+        illEl.src=cached;
+        illEl.style.display='block';
+        setTimeout(()=>illEl.style.opacity='1',50);
+      } else {
+        illEl.style.display='none';
+        illEl.style.opacity='0';
+        iconEl.style.display='flex';
+        gradEl.style.display='block';
+        blobs.forEach(b=>b.style.display='block');
+        iconEl.textContent=icons[p%icons.length];
+        generateIllustration(ST.currentStory,p);
+      }
+    }
   } else {
     vid.style.display='none';
+    if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
     iconEl.style.display='flex';
     gradEl.style.display='block';
     blobs.forEach(b=>b.style.display='block');
@@ -1812,6 +1875,41 @@ function audioInit(){
       audioSetStatus('Narration unavailable — tap to retry','error');
       updatePlayBtn();
     };
+  }
+}
+
+async function generateIllustration(storyIdx,pageIdx){
+  const story=ST.stories[storyIdx];
+  if(!story)return;
+  const bp=ST.blueprints[storyIdx]||{};
+  try{
+    const res=await fetch('/api/illustrate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({location:story.location,locationDesc:bp.location?.desc||'',pageIndex:pageIdx}),
+    });
+    const data=await res.json();
+    if(!data.imageUrl)return;
+    if(!ST.illustrationCache[storyIdx])ST.illustrationCache[storyIdx]={};
+    ST.illustrationCache[storyIdx][pageIdx]=data.imageUrl;
+    if(ST.currentStory===storyIdx&&ST.currentPage===pageIdx){
+      const illEl=document.getElementById('sceneIllustration');
+      const iconEl=document.getElementById('sceneIcon');
+      const gradEl=document.getElementById('sceneGradient');
+      const blobs=document.querySelectorAll('.scene-blob');
+      if(illEl){
+        illEl.src=data.imageUrl;
+        illEl.style.display='block';
+        setTimeout(()=>{
+          illEl.style.opacity='1';
+          iconEl.style.display='none';
+          gradEl.style.display='none';
+          blobs.forEach(b=>b.style.display='none');
+        },50);
+      }
+    }
+  }catch(e){
+    console.error('Illustration error:',e);
   }
 }
 
@@ -2154,6 +2252,7 @@ async function handlePaymentReturn(sessionId){
     ST.selectedLocations=formData.selectedLocations||[];
     ST.vibe=formData.vibe||'gentle and sleepy';
     ST.storyLength=formData.storyLength||3;
+    ST.bundleUpgrade=!!formData.bundleUpgrade;
     ST.pendingSessionId=sessionId;
     ST.blueprints=buildBlueprints();
     renderChildBlocks();
@@ -2175,9 +2274,10 @@ async function loadFromToken(token){
       go('s-form');
       return;
     }
-    const {stories}=await res.json();
-    ST.stories=stories;
+    const data=await res.json();
+    ST.stories=data.stories;
     ST.storyToken=token;
+    ST.bundleUpgrade=!!data.bundleUpgrade;
     renderStoryList();
     go('s-list');
   }catch(e){
@@ -2191,7 +2291,7 @@ async function saveAndEmail(sessionId){
     const res=await fetch('/api/save',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({stories:ST.stories,sessionId,giftRecipient:ST.giftRecipient||null})
+      body:JSON.stringify({stories:ST.stories,sessionId,giftRecipient:ST.giftRecipient||null,bundleUpgrade:ST.bundleUpgrade})
     });
     if(!res.ok) throw new Error('Save failed');
     const {email,token}=await res.json();

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { stories, sessionId, giftRecipient } = req.body;
+  const { stories, sessionId, giftRecipient, bundleUpgrade } = req.body;
   if (!stories?.length || !sessionId) return res.status(400).json({ error: 'Missing stories or sessionId' });
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     : `${appUrl}/gift?token=${token}`;
 
   // Save stories — 1 year TTL
-  await redis.set(`stories_${token}`, { stories, email, createdAt: Date.now() }, { ex: 31536000 });
+  await redis.set(`stories_${token}`, { stories, email, bundleUpgrade: !!bundleUpgrade, createdAt: Date.now() }, { ex: 31536000 });
   // Mark session as saved to prevent duplicate emails
   await redis.set(`saved_${sessionId}`, token, { ex: 31536000 });
 

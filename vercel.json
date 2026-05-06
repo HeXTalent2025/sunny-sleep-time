@@ -10,6 +10,7 @@
     { "source": "/api/session",  "destination": "/api/session.js"  },
     { "source": "/api/save",     "destination": "/api/save.js"     },
     { "source": "/api/stories",  "destination": "/api/stories.js"  },
+    { "source": "/api/illustrate",     "destination": "/api/illustrate.js"    },
     { "source": "/api/narrate",        "destination": "/api/narrate.js"        },
     { "source": "/api/video",          "destination": "/api/video.js"          },
     { "source": "/api/video-checkout", "destination": "/api/video-checkout.js" },
