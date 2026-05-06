@@ -2,7 +2,7 @@
   "functions": {
     "api/generate.js": { "maxDuration": 120 },
     "api/narrate.js":  { "maxDuration": 30  },
-    "api/video.js":    { "maxDuration": 120 }
+    "api/video.js":    { "maxDuration": 300 }
   },
   "rewrites": [
     { "source": "/api/generate", "destination": "/api/generate.js" },
