@@ -1863,23 +1863,6 @@ function wrapWords(html){
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const AUDIO={playing:false,autoAdvancing:false,rate:1.0,audioEl:null};
 
-function audioInit(){
-  if(!AUDIO.audioEl){
-    AUDIO.audioEl=new Audio();
-    AUDIO.audioEl.onended=()=>{
-      AUDIO.playing=false;
-      audioSetStatus('Story complete ✨','');
-      updatePlayBtn();
-    };
-    AUDIO.audioEl.onerror=()=>{
-      if(!AUDIO.playing)return;
-      AUDIO.playing=false;
-      audioSetStatus('Narration unavailable — tap to retry','error');
-      updatePlayBtn();
-    };
-  }
-}
-
 async function generateIllustration(storyIdx){
   const story=ST.stories[storyIdx];
   if(!story)return;
@@ -1998,16 +1981,25 @@ async function playFullStory(){
 }
 
 function startAudioFromUrl(url){
-  audioInit();
-  AUDIO.audioEl.src=url;
-  AUDIO.audioEl.playbackRate=AUDIO.rate;
-  const vid=document.getElementById('storyVideo');
-  if(vid&&vid.src&&vid.style.display!=='none')vid.play().catch(()=>{});
-  AUDIO.audioEl.play().catch(()=>{
+  // Always create a fresh element — avoids stuck error state from a previous attempt
+  if(AUDIO.audioEl){AUDIO.audioEl.pause();AUDIO.audioEl.onended=null;AUDIO.audioEl.onerror=null;AUDIO.audioEl.src='';}
+  const el=AUDIO.audioEl=new Audio();
+  let settled=false;
+
+  const done=(isAutoplay)=>{
+    if(settled)return; settled=true;
     AUDIO.playing=false;
-    audioSetStatus('Ready — tap ▶ to listen','');
+    audioSetStatus(isAutoplay?'Ready — tap ▶ to listen':'Narration unavailable — tap to retry', isAutoplay?'':'error');
     updatePlayBtn();
-  });
+  };
+
+  el.onended=()=>{AUDIO.playing=false;audioSetStatus('Story complete ✨','');updatePlayBtn();};
+  el.onerror=()=>{if(AUDIO.playing)done(false);};
+
+  el.src=url;
+  el.playbackRate=AUDIO.rate;
+  el.play().catch(err=>done(err?.name==='NotAllowedError'||err?.name==='AbortError'));
+
   AUDIO.playing=true;
   audioSetStatus('Playing…','playing');
   updatePlayBtn();

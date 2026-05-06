@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis';
 
-export const config = { maxDuration: 30 };
+export const config = { maxDuration: 60 };
 
 const redis = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN });
 
