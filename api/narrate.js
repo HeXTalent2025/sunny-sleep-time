@@ -18,12 +18,17 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'text is required' });
   }
 
-  // Check Redis cache first
-  if (token && storyIdx !== undefined) {
-    const cacheKey = `narration_${token}_${storyIdx}`;
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return res.status(200).json({ audioBase64: cached, mimeType: 'audio/mpeg', cached: true });
+  const cacheKey = (token && storyIdx !== undefined) ? `narration_${token}_${storyIdx}` : null;
+
+  // Check Redis cache first — fail silently so ElevenLabs is always the fallback
+  if (cacheKey) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return res.status(200).json({ audioBase64: cached, mimeType: 'audio/mpeg', cached: true });
+      }
+    } catch (e) {
+      console.error('Redis cache read error (non-fatal):', e);
     }
   }
 
@@ -66,10 +71,11 @@ export default async function handler(req, res) {
     const audioBuffer = await response.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString('base64');
 
-    // Persist to Redis so repeat listens are free
-    if (token && storyIdx !== undefined) {
-      const cacheKey = `narration_${token}_${storyIdx}`;
-      await redis.set(cacheKey, audioBase64, { ex: 31536000 });
+    // Persist to Redis — fail silently so the audio is always returned even if caching fails
+    if (cacheKey) {
+      redis.set(cacheKey, audioBase64, { ex: 31536000 }).catch(e =>
+        console.error('Redis cache write error (non-fatal):', e)
+      );
     }
 
     return res.status(200).json({ audioBase64, mimeType: 'audio/mpeg' });
