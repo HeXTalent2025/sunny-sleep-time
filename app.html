@@ -345,6 +345,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .audio-status.playing{color:var(--ocean);}
 .audio-status.error{color:var(--terracotta);}
 @keyframes narratePulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes slideInRight{from{transform:translateX(32px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideInLeft{from{transform:translateX(-32px);opacity:0}to{transform:translateX(0);opacity:1}}
+.slide-in-right{animation:slideInRight .25s ease forwards;}
+.slide-in-left{animation:slideInLeft .25s ease forwards;}
 
 /* ═══ VIDEO ELEMENT IN SCENE ═══ */
 #storyVideo{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:24px;}
@@ -809,6 +813,7 @@ const ST = {
   audioCache: {},
   illustrationCache: {},
   bundleUpgrade: false,
+  pageDir: 0,
   childPhotos: {},
   childDescriptions: {},
   pendingVideoStories: [],
@@ -1651,24 +1656,42 @@ function openStory(idx){
     <span class="dna-promise-icon">✅</span>
     <span>${costarPromise} The story is set at <strong>${s.location}</strong> and inspired by a love of <strong>${s.interest}</strong>.</span>`;
 
-  // Page dots
-  const total=s.pages.length;
-  document.getElementById('pageDots').innerHTML=Array.from({length:total},(_,i)=>
-    `<div class="pdot ${i===0?'active':''}" onclick="jumpPage(${i})"></div>`).join('');
-
   go('s-reader');
   audioStop(true);
-  audioSetStatus('Tap ▶ to listen to this page','');
-  renderPage();
+  ST.currentPage=0;
+  ST.pageDir=0;
+
+  if(ST.bundleUpgrade){
+    // Paginated bundle reader — illustrations + narration
+    const total=s.pages.length;
+    document.getElementById('pageDots').style.display='flex';
+    document.getElementById('readerNav').style.display='flex';
+    document.getElementById('audioBar').style.display='flex';
+    document.getElementById('pageDots').innerHTML=Array.from({length:total},(_,i)=>
+      `<div class="pdot ${i===0?'active':''}" onclick="jumpPage(${i})"></div>`).join('');
+    audioSetStatus('Tap ▶ to listen to this page','');
+    // Trigger hero illustration if not cached
+    if(!ST.illustrationCache[idx]) generateIllustration(idx);
+    renderPage();
+  } else {
+    // Scrolling reader for base buyers
+    document.getElementById('pageDots').style.display='none';
+    document.getElementById('readerNav').style.display='none';
+    document.getElementById('audioBar').style.display='none';
+    renderScrollingReader(s);
+  }
 }
 
 function updateDots(){
   document.querySelectorAll('.pdot').forEach((d,i)=>d.classList.toggle('active',i===ST.currentPage));
 }
-function jumpPage(i){ST.currentPage=i;audioStop(false);renderPage();}
+function jumpPage(i){ST.pageDir=i>ST.currentPage?1:-1;ST.currentPage=i;audioStop(false);renderPage();}
 function changePage(dir){
   const s=ST.stories[ST.currentStory];
-  ST.currentPage=Math.max(0,Math.min(s.pages.length,ST.currentPage+dir));
+  const next=Math.max(0,Math.min(s.pages.length,ST.currentPage+dir));
+  if(next===ST.currentPage)return;
+  ST.pageDir=dir;
+  ST.currentPage=next;
   audioStop(false);
   renderPage();
 }
@@ -1687,8 +1710,6 @@ function renderPage(){
   const blobs=document.querySelectorAll('.scene-blob');
 
   const illEl=document.getElementById('sceneIllustration');
-  const audioBar=document.getElementById('audioBar');
-  if(audioBar) audioBar.style.display=ST.bundleUpgrade?'flex':'none';
 
   if(s.videoUrls && p<total){
     vid.style.display='block';
@@ -1699,26 +1720,23 @@ function renderPage(){
     vid.src=s.videoUrls[p]||'';
     vid.load();
     vid.play().catch(()=>{});
-  } else if(ST.bundleUpgrade && p<total){
+  } else if(ST.bundleUpgrade){
     vid.style.display='none';
-    iconEl.style.display='none';
-    gradEl.style.display='none';
-    blobs.forEach(b=>b.style.display='none');
-    if(illEl){
-      const cached=(ST.illustrationCache[ST.currentStory]||{})[p];
-      if(cached){
-        illEl.src=cached;
-        illEl.style.display='block';
-        setTimeout(()=>illEl.style.opacity='1',50);
-      } else {
-        illEl.style.display='none';
-        illEl.style.opacity='0';
-        iconEl.style.display='flex';
-        gradEl.style.display='block';
-        blobs.forEach(b=>b.style.display='block');
-        iconEl.textContent=icons[p%icons.length];
-        generateIllustration(ST.currentStory,p);
-      }
+    // Hero illustration — story-level, shown on all pages
+    const cached=ST.illustrationCache[ST.currentStory];
+    if(cached && illEl){
+      illEl.src=cached;
+      illEl.style.display='block';
+      setTimeout(()=>illEl.style.opacity='1',50);
+      iconEl.style.display='none';
+      gradEl.style.display='none';
+      blobs.forEach(b=>b.style.display='none');
+    } else {
+      if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
+      iconEl.style.display='flex';
+      gradEl.style.display='block';
+      blobs.forEach(b=>b.style.display='block');
+      if(p<total) iconEl.textContent=icons[p%icons.length];
     }
   } else {
     vid.style.display='none';
@@ -1729,7 +1747,9 @@ function renderPage(){
     if(p<total) iconEl.textContent=icons[p%icons.length];
   }
 
-  panel.style.opacity=0;
+  panel.classList.remove('slide-in-right','slide-in-left');
+  void panel.offsetWidth;
+  panel.classList.add(ST.pageDir>=0?'slide-in-right':'slide-in-left');
   setTimeout(()=>{
     if(p>=total){
       // "The End" screen
@@ -1768,7 +1788,7 @@ function renderPage(){
       document.getElementById('prevBtn').style.display=p===0?'none':'block';
       document.getElementById('nextBtn').textContent=p>=total-1?'✨ The End':'Next →';
     }
-    panel.style.opacity=1; panel.style.transition='opacity .3s';
+    panel.style.opacity=1;
     if(AUDIO.autoAdvancing && p<total) setTimeout(()=>playCurrentPage(),350);
   },200);
 }
@@ -1878,21 +1898,24 @@ function audioInit(){
   }
 }
 
-async function generateIllustration(storyIdx,pageIdx){
+async function generateIllustration(storyIdx){
   const story=ST.stories[storyIdx];
   if(!story)return;
-  const bp=ST.blueprints[storyIdx]||{};
   try{
     const res=await fetch('/api/illustrate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({location:story.location,locationDesc:bp.location?.desc||'',pageIndex:pageIdx}),
+      body:JSON.stringify({
+        location:story.location,
+        interest:story.interest,
+        vibe:story.vibe||ST.vibe||'gentle and sleepy',
+      }),
     });
     const data=await res.json();
     if(!data.imageUrl)return;
-    if(!ST.illustrationCache[storyIdx])ST.illustrationCache[storyIdx]={};
-    ST.illustrationCache[storyIdx][pageIdx]=data.imageUrl;
-    if(ST.currentStory===storyIdx&&ST.currentPage===pageIdx){
+    ST.illustrationCache[storyIdx]=data.imageUrl;
+    // Show immediately if still reading this story
+    if(ST.currentStory===storyIdx){
       const illEl=document.getElementById('sceneIllustration');
       const iconEl=document.getElementById('sceneIcon');
       const gradEl=document.getElementById('sceneGradient');
@@ -1911,6 +1934,32 @@ async function generateIllustration(storyIdx,pageIdx){
   }catch(e){
     console.error('Illustration error:',e);
   }
+}
+
+function renderScrollingReader(s){
+  const illEl=document.getElementById('sceneIllustration');
+  const iconEl=document.getElementById('sceneIcon');
+  const gradEl=document.getElementById('sceneGradient');
+  const blobs=document.querySelectorAll('.scene-blob');
+  const vid=document.getElementById('storyVideo');
+  vid.style.display='none';
+  if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
+  iconEl.style.display='flex';
+  iconEl.textContent=s.emoji||'🌊';
+  gradEl.style.display='block';
+  blobs.forEach(b=>b.style.display='block');
+
+  const panel=document.getElementById('textPanel');
+  panel.style.opacity=1;
+  panel.innerHTML=s.pages.map((page,i)=>{
+    const formatted=fmtText(page,s);
+    return`<div class="story-page-block" style="margin-bottom:16px;"><div class="story-body">${wrapWords(formatted)}</div></div>`;
+  }).join('')+`<div class="the-end-wrap">
+    <span class="the-end-icon">✨</span>
+    <div class="the-end-title">The End</div>
+    <div class="the-end-sub">Well done, ${s.hero||'little one'}.<br>Another adventure awaits whenever you're ready.</div>
+    <button class="btn btn-ghost" onclick="go('s-list')" style="max-width:260px;margin:16px auto 0;display:block">← Back to all stories</button>
+  </div>`;
 }
 
 async function playCurrentPage(){
@@ -2345,6 +2394,17 @@ function showEmailBanner(email){
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 renderChildBlocks();
 audioInit();
+
+// Swipe gestures for bundle reader
+let _touchX=0,_touchY=0;
+document.addEventListener('touchstart',e=>{_touchX=e.touches[0].clientX;_touchY=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(!ST.bundleUpgrade)return;
+  if(document.getElementById('s-reader')?.classList.contains('hidden'))return;
+  const dx=e.changedTouches[0].clientX-_touchX;
+  const dy=e.changedTouches[0].clientY-_touchY;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>48) changePage(dx<0?1:-1);
+},{passive:true});
 
 // Route based on URL params
 (function initRoute(){

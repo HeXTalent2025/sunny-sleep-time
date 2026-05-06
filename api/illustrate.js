@@ -14,24 +14,24 @@ export default async function handler(req, res) {
 
   fal.config({ credentials: falKey });
 
-  const { location, locationDesc, pageIndex = 0 } = req.body;
+  const { location, interest, vibe } = req.body;
   if (!location) return res.status(400).json({ error: 'location is required' });
 
-  const locationStr = locationDesc
-    ? `${location} on the Sunshine Coast, Queensland — ${locationDesc}`
-    : `${location} on the Sunshine Coast, Queensland`;
+  const moodMap = {
+    'gentle and sleepy': 'soft dreamy twilight, warm glowing sunset, calm and tranquil',
+    'exciting and adventurous': 'bright golden sunlight, dramatic clouds, vibrant and energetic',
+    'funny and silly': 'cheerful midday light, colourful and playful, lighthearted',
+    'magical and whimsical': 'soft purple-gold light, shimmering sparkles, ethereal and enchanting',
+    'curious and educational': 'clear morning light, sharp detail, warm and inviting',
+  };
+  const mood = moodMap[vibe] || 'warm golden afternoon light, soft and inviting';
 
-  const moods = [
-    'soft morning light, gentle mist, birds gliding, calm and tranquil',
-    'bright midday sunshine, sparkling water, warm golden tones, cheerful and vibrant',
-    'late afternoon golden hour, long shadows, magical warm glow, dreamy and serene',
-  ];
-  const mood = moods[pageIndex % moods.length];
+  const prompt = `warm watercolour children's book illustration, ${location} on the Sunshine Coast Queensland, ${mood}, inspired by a love of ${interest || 'adventure'}, lush coastal landscape, soft pastel colours, no people, no text, no characters, gentle brushstrokes, painterly, children's picture book style`;
 
   try {
     const result = await fal.subscribe('fal-ai/flux/schnell', {
       input: {
-        prompt: `warm watercolour children's book illustration, ${locationStr}, ${mood}, soft pastel colours, storybook landscape, no people, no text, no characters, gentle brushstrokes, painterly, children's picture book style`,
+        prompt,
         image_size: 'landscape_16_9',
         num_inference_steps: 4,
       },
