@@ -1861,7 +1861,7 @@ function wrapWords(html){
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    AUDIO ENGINE — ElevenLabs narration
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const AUDIO={playing:false,autoAdvancing:false,rate:1.0,audioEl:null};
+const AUDIO={playing:false,autoAdvancing:false,rate:1.0,audioEl:null,hasAudio:false};
 
 async function generateIllustration(storyIdx){
   const story=ST.stories[storyIdx];
@@ -1993,7 +1993,7 @@ function startAudioFromUrl(url){
     updatePlayBtn();
   };
 
-  el.onended=()=>{AUDIO.playing=false;audioSetStatus('Story complete ✨','');updatePlayBtn();};
+  el.onended=()=>{AUDIO.playing=false;AUDIO.hasAudio=false;audioSetStatus('Story complete ✨','');updatePlayBtn();};
   el.onerror=()=>{if(AUDIO.playing)done(false);};
 
   el.src=url;
@@ -2001,6 +2001,7 @@ function startAudioFromUrl(url){
   el.play().catch(err=>done(err?.name==='NotAllowedError'||err?.name==='AbortError'));
 
   AUDIO.playing=true;
+  AUDIO.hasAudio=true;
   audioSetStatus('Playing…','playing');
   updatePlayBtn();
 }
@@ -2008,6 +2009,7 @@ function startAudioFromUrl(url){
 function audioStop(){
   if(AUDIO.audioEl){AUDIO.audioEl.pause();AUDIO.audioEl.src='';}
   AUDIO.playing=false;
+  AUDIO.hasAudio=false;
   AUDIO.autoAdvancing=false;
   updatePlayBtn();
 }
@@ -2018,7 +2020,7 @@ function audioToggle(){
     AUDIO.playing=false;
     audioSetStatus('Tap ▶ to continue','');
     updatePlayBtn();
-  } else if(AUDIO.audioEl && AUDIO.audioEl.src && !AUDIO.audioEl.ended){
+  } else if(AUDIO.hasAudio && AUDIO.audioEl){
     // Resume from paused position — don't create a new element
     AUDIO.audioEl.play().catch(()=>{});
     AUDIO.playing=true;
