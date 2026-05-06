@@ -2156,7 +2156,7 @@ async function generateVideos(){
       clearInterval(stepTimer);
       clearInterval(videoElapsedInterval);
       const errMsg=document.getElementById('videoGenErrorMsg');
-      if(errMsg)errMsg.textContent='Something went sideways animating this story. Please try again.';
+      if(errMsg)errMsg.textContent=`Error: ${e.message||'Unknown error'}`;
       const errDiv=document.getElementById('videoGenError');
       if(errDiv)errDiv.style.display='block';
       return;
