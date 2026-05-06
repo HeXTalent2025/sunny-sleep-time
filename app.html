@@ -275,6 +275,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .hero-title{font-family:'Fraunces',serif;font-size:clamp(34px,8vw,46px);font-weight:700;background:linear-gradient(135deg,var(--ocean-deep) 0%,var(--ocean) 50%,var(--ocean-bright) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;margin-bottom:8px;}
 .hero-coast{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-bottom:28px;}
 .price-card{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:12px;}
+.narration-upgrade-cta{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:24px 20px;text-align:center;margin-top:24px;}
+.narration-upgrade-icon{font-size:32px;margin-bottom:8px;}
+.narration-upgrade-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ocean-deep);margin-bottom:6px;}
+.narration-upgrade-desc{font-size:13px;color:var(--text-soft);line-height:1.5;}
 .bundle-card{display:flex;align-items:center;gap:12px;background:#f0f8fc;border:2px solid rgba(56,162,194,.2);border-radius:16px;padding:14px 16px;cursor:pointer;transition:all .2s;margin-bottom:16px;user-select:none;}
 .bundle-card.active{background:var(--pastel-blue);border-color:var(--ocean);}
 .bundle-toggle{width:40px;height:22px;border-radius:11px;background:#cbd5e0;transition:all .2s;position:relative;flex-shrink:0;}
@@ -1657,42 +1661,25 @@ function openStory(idx){
     <span>${costarPromise} The story is set at <strong>${s.location}</strong> and inspired by a love of <strong>${s.interest}</strong>.</span>`;
 
   go('s-reader');
-  audioStop(true);
-  ST.currentPage=0;
-  ST.pageDir=0;
-
-  if(ST.bundleUpgrade){
-    // Paginated bundle reader — illustrations + narration
-    const total=s.pages.length;
-    document.getElementById('pageDots').style.display='flex';
-    document.getElementById('readerNav').style.display='flex';
-    document.getElementById('audioBar').style.display='flex';
-    document.getElementById('pageDots').innerHTML=Array.from({length:total},(_,i)=>
-      `<div class="pdot ${i===0?'active':''}" onclick="jumpPage(${i})"></div>`).join('');
-    audioSetStatus('Tap ▶ to listen to this page','');
-    // Trigger hero illustration if not cached
-    if(!ST.illustrationCache[idx]) generateIllustration(idx);
-    renderPage();
-  } else {
-    // Scrolling reader for base buyers
-    document.getElementById('pageDots').style.display='none';
-    document.getElementById('readerNav').style.display='none';
-    document.getElementById('audioBar').style.display='none';
-    renderScrollingReader(s);
-  }
+  audioStop();
+  document.getElementById('pageDots').style.display='none';
+  document.getElementById('readerNav').style.display='none';
+  document.getElementById('audioBar').style.display=ST.bundleUpgrade?'flex':'none';
+  if(ST.bundleUpgrade) audioSetStatus('Tap ▶ to listen to this story','');
+  renderScrollingReader(s);
 }
 
 function updateDots(){
   document.querySelectorAll('.pdot').forEach((d,i)=>d.classList.toggle('active',i===ST.currentPage));
 }
-function jumpPage(i){ST.pageDir=i>ST.currentPage?1:-1;ST.currentPage=i;audioStop(false);renderPage();}
+function jumpPage(i){ST.pageDir=i>ST.currentPage?1:-1;ST.currentPage=i;audioStop();renderPage();}
 function changePage(dir){
   const s=ST.stories[ST.currentStory];
   const next=Math.max(0,Math.min(s.pages.length,ST.currentPage+dir));
   if(next===ST.currentPage)return;
   ST.pageDir=dir;
   ST.currentPage=next;
-  audioStop(false);
+  audioStop();
   renderPage();
 }
 
@@ -1789,7 +1776,6 @@ function renderPage(){
       document.getElementById('nextBtn').textContent=p>=total-1?'✨ The End':'Next →';
     }
     panel.style.opacity=1;
-    if(AUDIO.autoAdvancing && p<total) setTimeout(()=>playCurrentPage(),350);
   },200);
 }
 
@@ -1881,17 +1867,11 @@ function audioInit(){
     AUDIO.audioEl=new Audio();
     AUDIO.audioEl.onended=()=>{
       AUDIO.playing=false;
-      const s=ST.stories[ST.currentStory];
-      if(AUDIO.autoAdvancing&&s&&ST.currentPage<s.pages.length-1){
-        changePage(1);
-      } else {
-        AUDIO.autoAdvancing=false;
-        audioSetStatus('Tap ▶ to listen to this page','');
-        updatePlayBtn();
-      }
+      audioSetStatus('Story complete ✨','');
+      updatePlayBtn();
     };
     AUDIO.audioEl.onerror=()=>{
-      AUDIO.playing=false;AUDIO.autoAdvancing=false;
+      AUDIO.playing=false;
       audioSetStatus('Narration unavailable — tap to retry','error');
       updatePlayBtn();
     };
@@ -1937,11 +1917,11 @@ async function generateIllustration(storyIdx){
 }
 
 function renderScrollingReader(s){
-  const illEl=document.getElementById('sceneIllustration');
   const iconEl=document.getElementById('sceneIcon');
   const gradEl=document.getElementById('sceneGradient');
   const blobs=document.querySelectorAll('.scene-blob');
   const vid=document.getElementById('storyVideo');
+  const illEl=document.getElementById('sceneIllustration');
   vid.style.display='none';
   if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
   iconEl.style.display='flex';
@@ -1949,9 +1929,17 @@ function renderScrollingReader(s){
   gradEl.style.display='block';
   blobs.forEach(b=>b.style.display='block');
 
+  const upgradeFooter=!ST.bundleUpgrade?`
+    <div class="narration-upgrade-cta">
+      <div class="narration-upgrade-icon">🎙️</div>
+      <div class="narration-upgrade-title">Hear this story read aloud</div>
+      <div class="narration-upgrade-desc">Add Australian narration for all 10 of your stories — just $10</div>
+      <button class="btn btn-sun" style="max-width:260px;margin:12px auto 0;display:block" onclick="startNarrationUpgrade()">Add narration — $10</button>
+    </div>`:'';
+
   const panel=document.getElementById('textPanel');
   panel.style.opacity=1;
-  panel.innerHTML=s.pages.map((page,i)=>{
+  panel.innerHTML=s.pages.map(page=>{
     const formatted=fmtText(page,s);
     return`<div class="story-page-block" style="margin-bottom:16px;"><div class="story-body">${wrapWords(formatted)}</div></div>`;
   }).join('')+`<div class="the-end-wrap">
@@ -1959,18 +1947,18 @@ function renderScrollingReader(s){
     <div class="the-end-title">The End</div>
     <div class="the-end-sub">Well done, ${s.hero||'little one'}.<br>Another adventure awaits whenever you're ready.</div>
     <button class="btn btn-ghost" onclick="go('s-list')" style="max-width:260px;margin:16px auto 0;display:block">← Back to all stories</button>
+    ${upgradeFooter}
   </div>`;
 }
 
-async function playCurrentPage(){
+async function playFullStory(){
   const storyIdx=ST.currentStory;
-  const pageIdx=ST.currentPage;
   const s=ST.stories[storyIdx];
-  if(!s||pageIdx>=s.pages.length)return;
+  if(!s)return;
 
-  // Cache hit
-  if(ST.audioCache[storyIdx]?.[pageIdx]){
-    startAudioFromUrl(ST.audioCache[storyIdx][pageIdx]);
+  // Cache hit — story-level
+  if(ST.audioCache[storyIdx]){
+    startAudioFromUrl(ST.audioCache[storyIdx]);
     return;
   }
 
@@ -1978,26 +1966,25 @@ async function playCurrentPage(){
   updatePlayBtn();
 
   try{
+    const fullText=s.pages.join('\n\n');
     const res=await fetch('/api/narrate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        text:s.pages[pageIdx],
+        text:fullText,
         storyLength:ST.storyLength===5?'5min':'3min',
       }),
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
 
-    // base64 → Blob → Object URL
     const bytes=atob(data.audioBase64);
     const buf=new Uint8Array(bytes.length);
     for(let i=0;i<bytes.length;i++)buf[i]=bytes.charCodeAt(i);
     const blob=new Blob([buf],{type:data.mimeType});
     const url=URL.createObjectURL(blob);
 
-    if(!ST.audioCache[storyIdx])ST.audioCache[storyIdx]={};
-    ST.audioCache[storyIdx][pageIdx]=url;
+    ST.audioCache[storyIdx]=url;
     startAudioFromUrl(url);
   }catch(e){
     AUDIO.playing=false;
@@ -2022,26 +2009,21 @@ function startAudioFromUrl(url){
   updatePlayBtn();
 }
 
-function audioStop(resetAutoAdvance=true){
+function audioStop(){
   if(AUDIO.audioEl){AUDIO.audioEl.pause();AUDIO.audioEl.src='';}
-  const vid=document.getElementById('storyVideo');
-  if(vid)vid.pause();
   AUDIO.playing=false;
-  if(resetAutoAdvance)AUDIO.autoAdvancing=false;
+  AUDIO.autoAdvancing=false;
   updatePlayBtn();
 }
 
 function audioToggle(){
   if(AUDIO.playing){
     if(AUDIO.audioEl)AUDIO.audioEl.pause();
-    const vid=document.getElementById('storyVideo');
-    if(vid)vid.pause();
     AUDIO.playing=false;
-    audioSetStatus('Tap ▶ to listen to this page','');
+    audioSetStatus('Tap ▶ to continue','');
     updatePlayBtn();
   } else {
-    AUDIO.autoAdvancing=true;
-    playCurrentPage();
+    playFullStory();
   }
 }
 
@@ -2155,6 +2137,28 @@ function handlePhotoUpload(heroIdx, input){
 
 function confirmVideoConversion(){
   showWaitlistModal();
+}
+
+async function startNarrationUpgrade(){
+  if(!ST.storyToken){
+    alert('Please use your magic link email to access your stories, then try upgrading again.');
+    return;
+  }
+  const btn=event?.target;
+  if(btn){btn.disabled=true;btn.textContent='Redirecting to payment…';}
+  try{
+    const res=await fetch('/api/narration-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({storyToken:ST.storyToken}),
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    window.location.href=data.url;
+  }catch(e){
+    alert('Could not start upgrade — please try again.');
+    if(btn){btn.disabled=false;btn.textContent='Add narration — $10';}
+  }
 }
 
 function showWaitlistModal(){
@@ -2313,10 +2317,15 @@ async function handlePaymentReturn(sessionId){
   }
 }
 
-async function loadFromToken(token){
+async function loadFromToken(token, upgradeSessionId=null){
   go('s-loading');
   document.getElementById('loadMsg').textContent='Loading your story collection…';
   try{
+    // Verify narration upgrade payment if returning from Stripe
+    if(upgradeSessionId){
+      try{ await fetch(`/api/narration-upgrade?id=${upgradeSessionId}`); }
+      catch(e){ console.error('Upgrade verification error:',e); }
+    }
     const res=await fetch(`/api/stories?token=${token}`);
     if(!res.ok){
       alert('This link has expired or is invalid. Please contact stories@sunnystories.co if you need help.');
@@ -2329,6 +2338,11 @@ async function loadFromToken(token){
     ST.bundleUpgrade=!!data.bundleUpgrade;
     renderStoryList();
     go('s-list');
+    if(upgradeSessionId&&ST.bundleUpgrade){
+      const banner=document.getElementById('emailBanner');
+      const bannerMsg=document.getElementById('emailBannerMsg');
+      if(banner&&bannerMsg){bannerMsg.textContent='🎙️ Narration unlocked! Tap any story and hit ▶ to listen.';banner.classList.remove('hidden');}
+    }
   }catch(e){
     console.error('Token load error:',e);
     go('s-form');
@@ -2423,7 +2437,7 @@ document.addEventListener('touchend',e=>{
     showGiftMode();
   }
 
-  if(token) loadFromToken(token);
+  if(token) loadFromToken(token, p.get('nsession')||null);
   else if(session) handlePaymentReturn(session);
   else if(p.get('videosession')) handleVideoPaymentReturn(p.get('videosession'));
   // else: s-form is the default visible screen
