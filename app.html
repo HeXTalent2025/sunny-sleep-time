@@ -2006,48 +2006,8 @@ function handlePhotoUpload(heroIdx, input){
   reader.readAsDataURL(file);
 }
 
-async function confirmVideoConversion(){
-  if(!ST.storyToken){
-    alert('Story collection not saved yet — please wait for generation to complete.');
-    return;
-  }
-  const price=getVideoPrice(ST.pendingVideoStories.length);
-  const storyLength=ST.storyLength===5?'5min':'3min';
-
-  // Save photos to localStorage so they survive the Stripe redirect
-  if(Object.keys(ST.childPhotos).length){
-    localStorage.setItem('sst_video_photos',JSON.stringify(ST.childPhotos));
-  }
-  if(Object.keys(ST.childDescriptions).length){
-    localStorage.setItem('sst_video_descs',JSON.stringify(ST.childDescriptions));
-  }
-  localStorage.setItem('sst_video_pending',JSON.stringify(ST.pendingVideoStories));
-  localStorage.setItem('sst_video_length',storyLength);
-
-  const btn=document.getElementById('videoConfirmBtn');
-  if(btn){btn.disabled=true;btn.textContent='Redirecting to payment…';}
-
-  try{
-    const res=await fetch('/api/video-checkout',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        storyToken:ST.storyToken,
-        pendingVideoStories:ST.pendingVideoStories,
-        storyLength,
-        price,
-        childPhotos:ST.childPhotos,
-        childDescriptions:ST.childDescriptions,
-      }),
-    });
-    const data=await res.json();
-    if(data.error)throw new Error(data.error);
-    window.location.href=data.url;
-  }catch(e){
-    console.error('Video checkout error:',e);
-    alert('Could not start payment — please try again.');
-    if(btn){btn.disabled=false;btn.textContent=`Generate animated video${ST.pendingVideoStories.length>1?'s':''} — $${price}`;}
-  }
+function confirmVideoConversion(){
+  showWaitlistModal();
 }
 
 function showWaitlistModal(){
