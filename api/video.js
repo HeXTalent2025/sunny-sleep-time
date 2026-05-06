@@ -81,6 +81,7 @@ export default async function handler(req, res) {
       : `${location} on the Sunshine Coast, Queensland`;
 
     for (let p = 0; p < pages.length; p++) {
+      if (p > 0) await new Promise(r => setTimeout(r, 3000));
       const pageText = pages[p];
       const summary = pageText.replace(/\s+/g, ' ').slice(0, 200).trim();
 
@@ -100,7 +101,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ videoUrls, characterImageUrl });
   } catch (e) {
-    console.error('Video generation error:', e);
-    return res.status(500).json({ error: e?.message || String(e) });
+    console.error('Video generation error:', JSON.stringify(e, Object.getOwnPropertyNames(e)));
+    const detail = e?.body ?? e?.cause ?? e?.message ?? String(e);
+    return res.status(500).json({ error: typeof detail === 'object' ? JSON.stringify(detail) : String(detail) });
   }
 }
