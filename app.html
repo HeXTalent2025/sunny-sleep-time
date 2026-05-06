@@ -2018,6 +2018,12 @@ function audioToggle(){
     AUDIO.playing=false;
     audioSetStatus('Tap ▶ to continue','');
     updatePlayBtn();
+  } else if(AUDIO.audioEl && AUDIO.audioEl.src && !AUDIO.audioEl.ended){
+    // Resume from paused position — don't create a new element
+    AUDIO.audioEl.play().catch(()=>{});
+    AUDIO.playing=true;
+    audioSetStatus('Playing…','playing');
+    updatePlayBtn();
   } else {
     playFullStory();
   }
