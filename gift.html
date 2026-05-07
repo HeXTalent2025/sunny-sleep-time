@@ -22,12 +22,12 @@
       --text-soft: #4a6070;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: var(--text-dark);
       min-height: 100vh;
       background: linear-gradient(160deg, #1a3a5c 0%, #2d6a9f 40%, #38a2c2 75%, #7ed6c8 100%);
+      background-attachment: fixed;
     }
 
     /* ── FLOATING KIDS (desktop) ── */
@@ -103,8 +103,10 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
-      padding: 4px 16px 8px;
-      max-width: 100%;
+      /* padding ensures first/last items aren't clipped against screen edge */
+      padding: 4px 20px 8px;
+      width: 100%;
+      box-sizing: border-box;
     }
     #claireStrip::-webkit-scrollbar { display: none; }
     .strip-kid {
@@ -157,14 +159,16 @@
       #claireStrip   { gap: 16px; margin-bottom: 1.8rem; }
     }
 
-    /* Tighter vertical spacing on mobile so button stays on screen */
+    /* Mobile — tighten spacing so button stays on screen */
     @media (max-width: 640px) {
-      #cover { padding: 1.2rem 1.2rem; justify-content: flex-start; padding-top: 1.2rem; }
-      .gift-icon { font-size: 52px; margin-bottom: 0.8rem; }
-      .gift-heading { font-size: clamp(1.7rem, 7vw, 2.4rem); margin-bottom: 0.6rem; }
-      .gift-sub { margin-bottom: 1.4rem; font-size: 0.9rem; }
-      .card-wrap { padding: 1.2rem 1.4rem; margin-bottom: 1.4rem; }
-      #claireStrip { margin-bottom: 0.8rem; }
+      #cover        { min-height: 100svh; padding: 1.4rem 1.5rem; }
+      #claireStrip  { margin-bottom: 0.7rem; }
+      .gift-icon    { font-size: 48px; margin-bottom: 0.7rem; }
+      .from-label   { margin-bottom: 0.3rem; }
+      .gift-heading { margin-bottom: 0.5rem; }
+      .gift-sub     { margin-bottom: 1rem; font-size: 0.88rem; }
+      .card-wrap    { padding: 1rem 1.4rem; margin-bottom: 1rem; }
+      .btn-open     { margin-bottom: 0.6rem; padding: 0.9rem 2rem; }
     }
 
     /* ── COVER ── */
