@@ -167,28 +167,39 @@
     }
     .home-btn:hover { background: rgba(255,255,255,0.28); }
 
-    /* Audio bar */
-    .gift-audio-bar {
+    /* Audio player card */
+    .gift-audio-card {
       display: none;
-      align-items: center; gap: 12px;
-      background: #fff;
-      border-top: 1px solid rgba(48,108,164,0.1);
-      padding: 12px 16px;
-      position: sticky; bottom: 0;
-      box-shadow: 0 -2px 14px rgba(48,108,164,0.1);
+      background: linear-gradient(135deg, #1a4a78 0%, #306ca4 55%, #38a2c2 100%);
+      border-radius: 20px;
+      padding: 1.8rem 1.5rem 1.6rem;
+      text-align: center;
+      margin-bottom: 2rem;
     }
-    .g-play-btn {
-      width: 44px; height: 44px; border-radius: 50%; border: none;
-      background: linear-gradient(135deg, #38a2c2, #306ca4);
-      color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0;
-      transition: transform 0.15s, box-shadow 0.15s;
+    .gac-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 1.1rem;
     }
-    .g-play-btn:hover { transform: scale(1.08); box-shadow: 0 6px 22px rgba(56,162,194,.45); }
-    .g-audio-info { flex: 1; min-width: 0; }
-    .g-audio-label { font-size: 12px; font-weight: 600; color: var(--ocean-deep); }
-    .g-audio-status { font-size: 11px; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .g-audio-status.error { color: var(--terracotta); }
-    .g-audio-status.loading { animation: gPulse 1.5s ease-in-out infinite; }
+    .gac-play-btn {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 26px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.1rem;
+      transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .gac-play-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.25); box-shadow: 0 8px 28px rgba(0,0,0,0.22); }
+    .gac-status { font-size: 0.84rem; color: rgba(255,255,255,0.78); }
+    .gac-status.error { color: #ffbbce; }
+    .gac-status.loading { animation: gPulse 1.5s ease-in-out infinite; }
     @keyframes gPulse { 0%,100%{opacity:.45} 50%{opacity:1} }
     .mothers-day-badge {
       font-size: 0.72rem;
@@ -315,7 +326,7 @@
     .story-body {
       max-width: 660px;
       margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
+      padding: 2rem 1.5rem 6rem;
     }
     .story-scene-large {
       height: 120px;
@@ -440,15 +451,13 @@
     <a href="/" class="home-btn">Home</a>
   </div>
   <div class="story-body">
+    <div class="gift-audio-card" id="giftAudioCard">
+      <div class="gac-label">🎙️ Australian narration</div>
+      <button class="gac-play-btn" id="gPlayBtn" onclick="gAudioToggle()">▶</button>
+      <div class="gac-status" id="gAudioStatus">Loading narration…</div>
+    </div>
     <div class="story-scene-large" id="storyViewScene"></div>
     <div class="story-pages" id="storyViewPages"></div>
-  </div>
-  <div class="gift-audio-bar" id="giftAudioBar">
-    <button class="g-play-btn" id="gPlayBtn" onclick="gAudioToggle()">▶</button>
-    <div class="g-audio-info">
-      <div class="g-audio-label">🎙️ Australian narration</div>
-      <div class="g-audio-status" id="gAudioStatus">Tap ▶ to listen to this story</div>
-    </div>
   </div>
 </div>
 
@@ -461,7 +470,7 @@
   let bundleUpgrade = false;
   let currentStoryIdx = 0;
   const audioCache = {};
-  const GAUDIO = { playing: false, el: null };
+  const GAUDIO = { playing: false, el: null, hasAudio: false };
 
   if (name) {
     document.getElementById('recipientHeading').textContent = `Happy Mother's Day, ${name} 🌸`;
@@ -516,11 +525,12 @@
       .join('<div class="page-divider">✦</div>');
     document.getElementById('reader').style.display = 'none';
     document.getElementById('story-view').style.display = 'block';
-    // Audio bar
+    // Audio card — always show, start prefetch
     gAudioStop();
-    const bar = document.getElementById('giftAudioBar');
-    bar.style.display = bundleUpgrade ? 'flex' : 'none';
-    gSetStatus('Tap ▶ to listen to this story', '');
+    const card = document.getElementById('giftAudioCard');
+    card.style.display = 'block';
+    gSetStatus('Loading narration…', 'loading');
+    gPrefetchNarration(i);
     window.scrollTo(0, 0);
   }
 
@@ -538,28 +548,11 @@
   }
 
   // ── Audio engine ──
-  function gAudioInit() {
-    if (!GAUDIO.el) {
-      GAUDIO.el = new Audio();
-      GAUDIO.el.onended = () => {
-        GAUDIO.playing = false;
-        gSetStatus('Story complete ✨', '');
-        gUpdateBtn();
-      };
-      GAUDIO.el.onerror = () => {
-        if (!GAUDIO.playing) return;
-        GAUDIO.playing = false;
-        gSetStatus('Narration unavailable — tap to retry', 'error');
-        gUpdateBtn();
-      };
-    }
-  }
-
   function gSetStatus(msg, cls) {
     const el = document.getElementById('gAudioStatus');
     if (!el) return;
     el.textContent = msg;
-    el.className = 'g-audio-status' + (cls ? ' ' + cls : '');
+    el.className = 'gac-status' + (cls ? ' ' + cls : '');
   }
 
   function gUpdateBtn() {
@@ -569,8 +562,29 @@
   }
 
   function gAudioStop() {
-    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.src = ''; }
+    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.onended = null; GAUDIO.el.onerror = null; GAUDIO.el.src = ''; }
     GAUDIO.playing = false;
+    GAUDIO.hasAudio = false;
+    gUpdateBtn();
+  }
+
+  function gStartAudioFromUrl(url) {
+    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.onended = null; GAUDIO.el.onerror = null; GAUDIO.el.src = ''; }
+    const el = GAUDIO.el = new Audio();
+    let settled = false;
+    const done = (isAutoplay) => {
+      if (settled) return; settled = true;
+      GAUDIO.playing = false;
+      gSetStatus(isAutoplay ? 'Ready — tap ▶ to listen' : 'Narration unavailable — tap to retry', isAutoplay ? '' : 'error');
+      gUpdateBtn();
+    };
+    el.onended = () => { GAUDIO.playing = false; GAUDIO.hasAudio = false; gSetStatus('Story complete ✨', ''); gUpdateBtn(); };
+    el.onerror = () => { if (GAUDIO.playing) done(false); };
+    el.src = url;
+    el.play().catch(err => done(err?.name === 'NotAllowedError' || err?.name === 'AbortError'));
+    GAUDIO.playing = true;
+    GAUDIO.hasAudio = true;
+    gSetStatus('Playing…', '');
     gUpdateBtn();
   }
 
@@ -580,58 +594,75 @@
       GAUDIO.playing = false;
       gSetStatus('Tap ▶ to continue', '');
       gUpdateBtn();
+    } else if (GAUDIO.hasAudio && GAUDIO.el) {
+      GAUDIO.el.play().catch(() => {});
+      GAUDIO.playing = true;
+      gSetStatus('Playing…', '');
+      gUpdateBtn();
     } else {
       gPlayFullStory();
     }
   }
 
-  async function gPlayFullStory() {
-    const s = stories[currentStoryIdx];
-    if (!s) return;
-
-    if (audioCache[currentStoryIdx]) {
-      gStartAudio(audioCache[currentStoryIdx]);
+  async function gPrefetchNarration(storyIdx) {
+    const s = stories[storyIdx];
+    if (!s || audioCache[storyIdx]) {
+      if (audioCache[storyIdx] && currentStoryIdx === storyIdx && !GAUDIO.playing) {
+        gSetStatus('Tap ▶ to listen to this story', '');
+      }
       return;
     }
-
-    gSetStatus('Generating narration…', 'loading');
-
     try {
       const fullText = s.pages ? s.pages.join('\n\n') : (s.text || '');
       const res = await fetch('/api/narrate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullText, token, storyIdx: currentStoryIdx }),
+        body: JSON.stringify({ text: fullText, token, storyIdx }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-
       const bytes = atob(data.audioBase64);
       const buf = new Uint8Array(bytes.length);
       for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
       const blob = new Blob([buf], { type: data.mimeType });
-      const url = URL.createObjectURL(blob);
+      audioCache[storyIdx] = URL.createObjectURL(blob);
+      if (currentStoryIdx === storyIdx && !GAUDIO.playing) {
+        gSetStatus('Tap ▶ to listen to this story', '');
+      }
+    } catch(e) {
+      if (currentStoryIdx === storyIdx && !GAUDIO.playing) {
+        gSetStatus('Narration unavailable — tap to retry', 'error');
+      }
+    }
+  }
 
-      audioCache[currentStoryIdx] = url;
-      gStartAudio(url);
+  async function gPlayFullStory() {
+    const storyIdx = currentStoryIdx;
+    const s = stories[storyIdx];
+    if (!s) return;
+    if (audioCache[storyIdx]) { gStartAudioFromUrl(audioCache[storyIdx]); return; }
+    gSetStatus('Loading narration…', 'loading');
+    gUpdateBtn();
+    try {
+      const fullText = s.pages ? s.pages.join('\n\n') : (s.text || '');
+      const res = await fetch('/api/narrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: fullText, token, storyIdx }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const bytes = atob(data.audioBase64);
+      const buf = new Uint8Array(bytes.length);
+      for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+      const blob = new Blob([buf], { type: data.mimeType });
+      audioCache[storyIdx] = URL.createObjectURL(blob);
+      gStartAudioFromUrl(audioCache[storyIdx]);
     } catch(e) {
       GAUDIO.playing = false;
       gSetStatus('Narration unavailable — tap to retry', 'error');
       gUpdateBtn();
     }
-  }
-
-  function gStartAudio(url) {
-    gAudioInit();
-    GAUDIO.el.src = url;
-    GAUDIO.el.play().catch(() => {
-      GAUDIO.playing = false;
-      gSetStatus('Ready — tap ▶ to listen', '');
-      gUpdateBtn();
-    });
-    GAUDIO.playing = true;
-    gSetStatus('Playing…', '');
-    gUpdateBtn();
   }
 </script>
 </body>
