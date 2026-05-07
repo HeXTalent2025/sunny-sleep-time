@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { children, selectedLocations, vibe, storyLength, bundleUpgrade } = req.body;
+  const { children, selectedLocations, vibe, storyLength } = req.body;
   if (!children?.length) return res.status(400).json({ error: 'No children provided' });
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
   // Save form data temporarily — retrieved after Stripe redirects back
   const tempKey = `form_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  await redis.set(tempKey, { children, selectedLocations, vibe, storyLength, bundleUpgrade: !!bundleUpgrade }, { ex: 7200 });
+  await redis.set(tempKey, { children, selectedLocations, vibe, storyLength, bundleUpgrade: true }, { ex: 7200 });
 
   const childNames = children.map(c => c.name).filter(Boolean).join(' & ') || 'your child';
 
@@ -27,14 +27,10 @@ export default async function handler(req, res) {
       price_data: {
         currency: 'aud',
         product_data: {
-          name: bundleUpgrade
-            ? 'Sunny Stories — 10 Personalised Stories + Australian Narration'
-            : 'Sunny Stories — 10 Personalised Stories',
-          description: bundleUpgrade
-            ? `A personalised collection starring ${childNames} — 10 stories with warm Australian voice narration for every page.`
-            : `A personalised collection starring ${childNames}, set in their favourite Sunshine Coast spots.`,
+          name: 'Sunny Stories — 10 Personalised Audio Stories',
+          description: `10 personalised audio stories for ${childNames}, set in their favourite Sunshine Coast spots — narrated in an Australian accent.`,
         },
-        unit_amount: bundleUpgrade ? 2500 : 1500,
+        unit_amount: 2500,
       },
       quantity: 1,
     }],

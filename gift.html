@@ -392,12 +392,13 @@
   <span class="gift-icon">🌸</span>
   <div class="from-label">A Mother's Day gift</div>
   <h1 class="gift-heading" id="recipientHeading">Happy Mother's Day</h1>
-  <p class="gift-sub">10 personalised stories, crafted especially for your family — set in the Sunshine Coast places you love most.</p>
+  <p class="gift-sub">10 personalised audio stories, crafted especially for your family — set in the Sunshine Coast places you love most.</p>
 
   <div class="card-wrap">
     <div class="card-detail"><span class="dot">✦</span> 10 unique stories, just for you</div>
     <div class="card-detail"><span class="dot">✦</span> Your children, your favourite places</div>
-    <div class="card-detail"><span class="dot">✦</span> Yours to read, anytime, anywhere</div>
+    <div class="card-detail"><span class="dot">✦</span> Narrated in an Australian accent — listen in the car, at bedtime</div>
+    <div class="card-detail"><span class="dot">✦</span> Yours to listen to, anytime, anywhere</div>
   </div>
 
   <button class="btn-open" onclick="openGift()">Open your gift 🎁</button>
@@ -426,7 +427,7 @@
   </div>
   <div class="stories-intro">
     <h2 id="readerHeading">Your stories</h2>
-    <p>Tap a story to start reading</p>
+    <p>Tap a story to start listening</p>
   </div>
   <div class="story-grid" id="storyGrid"></div>
 </div>
@@ -475,7 +476,7 @@
       if (!res.ok) throw new Error('Not found');
       const data = await res.json();
       stories = data.stories || data;
-      bundleUpgrade = !!(data.bundleUpgrade);
+      bundleUpgrade = true;
       if (!stories?.length) throw new Error('Empty');
       renderList();
     } catch(e) {

@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     : `${appUrl}/gift?token=${token}`;
 
   // Save stories — 1 year TTL
-  await redis.set(`stories_${token}`, { stories, email, bundleUpgrade: !!bundleUpgrade, createdAt: Date.now() }, { ex: 31536000 });
+  await redis.set(`stories_${token}`, { stories, email, bundleUpgrade: true, createdAt: Date.now() }, { ex: 31536000 });
   // Mark session as saved to prevent duplicate emails
   await redis.set(`saved_${sessionId}`, token, { ex: 31536000 });
 

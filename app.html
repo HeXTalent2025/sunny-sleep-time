@@ -276,10 +276,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .hero-title{font-family:'Fraunces',serif;font-size:clamp(34px,8vw,46px);font-weight:700;background:linear-gradient(135deg,var(--ocean-deep) 0%,var(--ocean) 50%,var(--ocean-bright) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;margin-bottom:8px;}
 .hero-coast{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-bottom:28px;}
 .price-card{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:20px;text-align:center;margin-bottom:12px;}
-.narration-upgrade-cta{background:linear-gradient(135deg,rgba(56,162,194,.08),rgba(64,219,225,.06));border:1px solid rgba(56,162,194,.2);border-radius:20px;padding:24px 20px;text-align:center;margin-top:24px;}
-.narration-upgrade-icon{font-size:32px;margin-bottom:8px;}
-.narration-upgrade-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ocean-deep);margin-bottom:6px;}
-.narration-upgrade-desc{font-size:13px;color:var(--text-soft);line-height:1.5;}
 .bundle-card{display:flex;align-items:center;gap:12px;background:#f0f8fc;border:2px solid rgba(56,162,194,.2);border-radius:16px;padding:14px 16px;cursor:pointer;transition:all .2s;margin-bottom:16px;user-select:none;}
 .bundle-card.active{background:var(--pastel-blue);border-color:var(--ocean);}
 .bundle-toggle{width:40px;height:22px;border-radius:11px;background:#cbd5e0;transition:all .2s;position:relative;flex-shrink:0;}
@@ -340,6 +336,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 }
 .audio-speed-btn.active{background:rgba(56,162,194,.15);border-color:var(--ocean);color:var(--ocean-deep);}
 .audio-voice-note{font-size:10px;color:var(--text-soft);font-style:italic;text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.audio-dl-btn{background:none;border:none;color:var(--ocean);font-size:18px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:background .2s;flex-shrink:0;}
+.audio-dl-btn:hover{background:rgba(56,162,194,.12);}
 /* word highlight */
 .tts-word{transition:background .08s,color .08s;border-radius:3px;padding:0 1px;}
 .tts-word.tts-active{background:rgba(56,162,194,.25);color:var(--ocean-deep);}
@@ -509,19 +507,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   </div>
 
   <div class="price-card">
-    <div class="price-num"><sup>$</sup>15</div>
-    <div class="price-stories">10 personalised stories</div>
-    <div class="price-detail">Each built from a unique combination of your family's picks</div>
+    <div class="price-num"><sup>$</sup>25</div>
+    <div class="price-stories">10 personalised audio stories</div>
+    <div class="price-detail">Each story narrated in an Australian accent — listen in the car, at bedtime, anywhere</div>
   </div>
-  <div class="bundle-card" id="bundleCard" onclick="toggleBundle()">
-    <div class="bundle-toggle" id="bundleToggle"></div>
-    <div class="bundle-card-body">
-      <div class="bundle-card-title">✨ Add Australian Narration</div>
-      <div class="bundle-card-desc">Warm Australian voice narration for every story — just press play</div>
-    </div>
-    <div class="bundle-card-price">+$10</div>
-  </div>
-  <button class="btn btn-sun" id="submitBtn" onclick="submitForm()">✨ Generate My Stories · $15</button>
+  <button class="btn btn-sun" id="submitBtn" onclick="submitForm()">✨ Get My Audio Stories · $25</button>
   <button class="btn btn-ghost" onclick="go('s-form')">← Back</button>
 </div>
 
@@ -603,7 +593,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   <div class="stories-hero">
     <span class="stories-emoji">✨</span>
     <div class="stories-title">Your Story Collection</div>
-    <div class="stories-sub" id="storiesSub">10 stories built just for your family</div>
+    <div class="stories-sub" id="storiesSub">10 personalised audio stories, just for your family</div>
   </div>
   <div id="emailBanner" class="hidden" style="background:linear-gradient(135deg,#daffbb,#bbdeff);border-radius:14px;padding:14px 18px;margin:0 0 14px;text-align:center;">
     <div style="font-size:20px;margin-bottom:4px;">✉️</div>
@@ -686,8 +676,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
       <button class="audio-play-btn" id="audioPlayBtn" onclick="audioToggle()">▶</button>
       <div class="audio-info">
         <div class="audio-label">🎙️ Australian narration</div>
-        <div class="audio-status" id="audioStatus">Tap ▶ to listen to this page</div>
+        <div class="audio-status" id="audioStatus">Loading narration…</div>
       </div>
+      <button class="audio-dl-btn" id="audioDlBtn" onclick="downloadNarration()" title="Download mp3" style="display:none;">⬇</button>
     </div>
     <div class="audio-bar-bottom">
       <div class="audio-speed-group">
@@ -817,7 +808,6 @@ const ST = {
   giftToken: null,
   audioCache: {},
   illustrationCache: {},
-  bundleUpgrade: false,
   pageDir: 0,
   childPhotos: {},
   childDescriptions: {},
@@ -1270,7 +1260,6 @@ async function submitForm(){
         selectedLocations:ST.selectedLocations,
         vibe:ST.vibe,
         storyLength:ST.storyLength,
-        bundleUpgrade:ST.bundleUpgrade,
       })
     });
     const {url,error}=await res.json();
@@ -1288,17 +1277,10 @@ async function submitForm(){
   }
 }
 
-function toggleBundle(){
-  ST.bundleUpgrade=!ST.bundleUpgrade;
-  document.getElementById('bundleCard')?.classList.toggle('active',ST.bundleUpgrade);
-  updateSubmitBtn();
-}
-
 function updateSubmitBtn(){
   const btn=document.getElementById('submitBtn');
   if(!btn)return;
-  const price=ST.bundleUpgrade?25:15;
-  btn.textContent=ST.giftMode?`🎁 Create Gift Stories · $${price}`:`✨ Generate My Stories · $${price}`;
+  btn.textContent=ST.giftMode?'🎁 Create Gift Audio Stories · $25':'✨ Get My Audio Stories · $25';
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1414,6 +1396,8 @@ WRITING RULES:
 - Split into exactly ${pageCount} pages using the separator [PAGE]
 - Writing tone: lyrical, warm, vivid. Language simple but beautiful.
 
+Write each story for reading aloud. Use rhythm, repetition, and sensory detail. Sentences should sound beautiful when spoken. Vary sentence length — mix short punchy sentences with longer flowing ones. Avoid tongue-twisters or hard consonant clusters. Write the way a warm storyteller speaks, not the way a book is typeset.
+
 AGE-APPROPRIATE LANGUAGE (match to the HERO child's age for each story):
 - Ages 2–4: Very short sentences (5–8 words). Only simple everyday words. Repetition is welcome. The world is safe and magical.
 - Ages 5–7: Short to medium sentences. A few longer words are fine if the meaning is clear from context. Mild peril ok. The child is curious and capable.
@@ -1492,7 +1476,7 @@ let videoPendingPrice = 0;
 
 function renderStoryList(){
   const names=ST.children.map(c=>c.name).join(' & ')||'Your family';
-  document.getElementById('storiesSub').textContent=`${names}'s personal story collection`;
+  document.getElementById('storiesSub').textContent=`Your family's audio story collection`;
   if(!ST.stories.length){
     document.getElementById('storyList').innerHTML=`
       <div style="text-align:center;padding:40px 20px;color:var(--text-soft)">
@@ -1665,9 +1649,12 @@ function openStory(idx){
   audioStop();
   document.getElementById('pageDots').style.display='none';
   document.getElementById('readerNav').style.display='none';
-  document.getElementById('audioBar').style.display=ST.bundleUpgrade?'flex':'none';
-  if(ST.bundleUpgrade) audioSetStatus('Tap ▶ to listen to this story','');
+  document.getElementById('audioBar').style.display='flex';
+  audioSetStatus('Loading narration…','loading');
+  const dlBtn=document.getElementById('audioDlBtn');
+  if(dlBtn)dlBtn.style.display='none';
   renderScrollingReader(s);
+  prefetchNarration(idx);
 }
 
 function updateDots(){
@@ -1708,24 +1695,6 @@ function renderPage(){
     vid.src=s.videoUrls[p]||'';
     vid.load();
     vid.play().catch(()=>{});
-  } else if(ST.bundleUpgrade){
-    vid.style.display='none';
-    // Hero illustration — story-level, shown on all pages
-    const cached=ST.illustrationCache[ST.currentStory];
-    if(cached && illEl){
-      illEl.src=cached;
-      illEl.style.display='block';
-      setTimeout(()=>illEl.style.opacity='1',50);
-      iconEl.style.display='none';
-      gradEl.style.display='none';
-      blobs.forEach(b=>b.style.display='none');
-    } else {
-      if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
-      iconEl.style.display='flex';
-      gradEl.style.display='block';
-      blobs.forEach(b=>b.style.display='block');
-      if(p<total) iconEl.textContent=icons[p%icons.length];
-    }
   } else {
     vid.style.display='none';
     if(illEl){illEl.style.display='none';illEl.style.opacity='0';}
@@ -1914,14 +1883,6 @@ function renderScrollingReader(s){
   gradEl.style.display='block';
   blobs.forEach(b=>b.style.display='block');
 
-  const upgradeFooter=!ST.bundleUpgrade?`
-    <div class="narration-upgrade-cta">
-      <div class="narration-upgrade-icon">🎙️</div>
-      <div class="narration-upgrade-title">Hear this story read aloud</div>
-      <div class="narration-upgrade-desc">Add Australian narration for all 10 of your stories — just $10</div>
-      <button class="btn btn-sun" style="max-width:260px;margin:12px auto 0;display:block" onclick="startNarrationUpgrade()">Add narration — $10</button>
-    </div>`:'';
-
   const panel=document.getElementById('textPanel');
   panel.style.opacity=1;
   panel.innerHTML=s.pages.map(page=>{
@@ -1932,8 +1893,51 @@ function renderScrollingReader(s){
     <div class="the-end-title">The End</div>
     <div class="the-end-sub">Well done, ${s.hero||'little one'}.<br>Another adventure awaits whenever you're ready.</div>
     <button class="btn btn-ghost" onclick="go('s-list')" style="max-width:260px;margin:16px auto 0;display:block">← Back to all stories</button>
-    ${upgradeFooter}
   </div>`;
+}
+
+async function prefetchNarration(storyIdx){
+  const s=ST.stories[storyIdx];
+  if(!s||ST.audioCache[storyIdx])return;
+  try{
+    const fullText=s.pages.join('\n\n');
+    const res=await fetch('/api/narrate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:fullText,storyLength:ST.storyLength===5?'5min':'3min',token:ST.storyToken||undefined,storyIdx}),
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    const bytes=atob(data.audioBase64);
+    const buf=new Uint8Array(bytes.length);
+    for(let i=0;i<bytes.length;i++)buf[i]=bytes.charCodeAt(i);
+    const blob=new Blob([buf],{type:data.mimeType});
+    const url=URL.createObjectURL(blob);
+    ST.audioCache[storyIdx]=url;
+    const dlBtn=document.getElementById('audioDlBtn');
+    if(dlBtn)dlBtn.style.display='block';
+    // Only update status if this is still the current story and user hasn't tapped play
+    if(ST.currentStory===storyIdx&&!AUDIO.playing){
+      audioSetStatus('Tap ▶ to listen to this story','');
+    }
+  }catch(e){
+    if(ST.currentStory===storyIdx&&!AUDIO.playing){
+      audioSetStatus('Narration unavailable — tap to retry','error');
+    }
+  }
+}
+
+function downloadNarration(){
+  const storyIdx=ST.currentStory;
+  const url=ST.audioCache[storyIdx];
+  if(!url)return;
+  const s=ST.stories[storyIdx];
+  const hero=(s.hero||'story').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const loc=(s.location||'sunshine-coast').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`${hero}-${loc}-${storyIdx+1}.mp3`;
+  a.click();
 }
 
 async function playFullStory(){
@@ -1941,13 +1945,16 @@ async function playFullStory(){
   const s=ST.stories[storyIdx];
   if(!s)return;
 
-  // Cache hit — story-level
   if(ST.audioCache[storyIdx]){
     startAudioFromUrl(ST.audioCache[storyIdx]);
     return;
   }
 
-  audioSetStatus('Generating narration…','loading');
+  // Track retry count per story
+  if(!ST.narrateRetry)ST.narrateRetry={};
+  const retries=ST.narrateRetry[storyIdx]||0;
+
+  audioSetStatus('Loading narration…','loading');
   updatePlayBtn();
 
   try{
@@ -1955,27 +1962,28 @@ async function playFullStory(){
     const res=await fetch('/api/narrate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        text:fullText,
-        storyLength:ST.storyLength===5?'5min':'3min',
-        token:ST.storyToken||undefined,
-        storyIdx,
-      }),
+      body:JSON.stringify({text:fullText,storyLength:ST.storyLength===5?'5min':'3min',token:ST.storyToken||undefined,storyIdx}),
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-
     const bytes=atob(data.audioBase64);
     const buf=new Uint8Array(bytes.length);
     for(let i=0;i<bytes.length;i++)buf[i]=bytes.charCodeAt(i);
     const blob=new Blob([buf],{type:data.mimeType});
     const url=URL.createObjectURL(blob);
-
     ST.audioCache[storyIdx]=url;
+    ST.narrateRetry[storyIdx]=0;
+    const dlBtn=document.getElementById('audioDlBtn');
+    if(dlBtn)dlBtn.style.display='block';
     startAudioFromUrl(url);
   }catch(e){
     AUDIO.playing=false;
-    audioSetStatus('Narration unavailable — tap to retry','error');
+    ST.narrateRetry[storyIdx]=(retries+1);
+    if(retries>=1){
+      audioSetStatus('Narration unavailable for this story.','error');
+    } else {
+      audioSetStatus('Narration unavailable — tap to retry','error');
+    }
     updatePlayBtn();
   }
 }
@@ -2143,27 +2151,6 @@ function confirmVideoConversion(){
   showWaitlistModal();
 }
 
-async function startNarrationUpgrade(){
-  if(!ST.storyToken){
-    alert('Please use your magic link email to access your stories, then try upgrading again.');
-    return;
-  }
-  const btn=event?.target;
-  if(btn){btn.disabled=true;btn.textContent='Redirecting to payment…';}
-  try{
-    const res=await fetch('/api/narration-checkout',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({storyToken:ST.storyToken}),
-    });
-    const data=await res.json();
-    if(data.error)throw new Error(data.error);
-    window.location.href=data.url;
-  }catch(e){
-    alert('Could not start upgrade — please try again.');
-    if(btn){btn.disabled=false;btn.textContent='Add narration — $10';}
-  }
-}
 
 function showWaitlistModal(){
   const modal=document.getElementById('waitlistModal');
@@ -2309,7 +2296,6 @@ async function handlePaymentReturn(sessionId){
     ST.selectedLocations=formData.selectedLocations||[];
     ST.vibe=formData.vibe||'gentle and sleepy';
     ST.storyLength=formData.storyLength||3;
-    ST.bundleUpgrade=!!formData.bundleUpgrade;
     ST.pendingSessionId=sessionId;
     ST.blueprints=buildBlueprints();
     renderChildBlocks();
@@ -2321,13 +2307,9 @@ async function handlePaymentReturn(sessionId){
   }
 }
 
-async function loadFromToken(token, upgradeSessionId=null){
+async function loadFromToken(token){
   const reveal=()=>{document.documentElement.style.transition='opacity .25s';document.documentElement.style.opacity='1';};
   try{
-    if(upgradeSessionId){
-      try{ await fetch(`/api/narration-upgrade?id=${upgradeSessionId}`); }
-      catch(e){ console.error('Upgrade verification error:',e); }
-    }
     const res=await fetch(`/api/stories?token=${token}`);
     if(!res.ok){
       reveal();
@@ -2338,15 +2320,9 @@ async function loadFromToken(token, upgradeSessionId=null){
     const data=await res.json();
     ST.stories=data.stories;
     ST.storyToken=token;
-    ST.bundleUpgrade=!!data.bundleUpgrade;
     renderStoryList();
     go('s-list');
     reveal();
-    if(upgradeSessionId&&ST.bundleUpgrade){
-      const banner=document.getElementById('emailBanner');
-      const bannerMsg=document.getElementById('emailBannerMsg');
-      if(banner&&bannerMsg){bannerMsg.textContent='🎙️ Narration unlocked! Tap any story and hit ▶ to listen.';banner.classList.remove('hidden');}
-    }
   }catch(e){
     console.error('Token load error:',e);
     reveal();
@@ -2359,7 +2335,7 @@ async function saveAndEmail(sessionId){
     const res=await fetch('/api/save',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({stories:ST.stories,sessionId,giftRecipient:ST.giftRecipient||null,bundleUpgrade:ST.bundleUpgrade})
+      body:JSON.stringify({stories:ST.stories,sessionId,giftRecipient:ST.giftRecipient||null})
     });
     if(!res.ok) throw new Error('Save failed');
     const {email,token}=await res.json();
@@ -2417,7 +2393,6 @@ renderChildBlocks();
 let _touchX=0,_touchY=0;
 document.addEventListener('touchstart',e=>{_touchX=e.touches[0].clientX;_touchY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',e=>{
-  if(!ST.bundleUpgrade)return;
   if(document.getElementById('s-reader')?.classList.contains('hidden'))return;
   const dx=e.changedTouches[0].clientX-_touchX;
   const dy=e.changedTouches[0].clientY-_touchY;
@@ -2441,7 +2416,7 @@ document.addEventListener('touchend',e=>{
     showGiftMode();
   }
 
-  if(token) loadFromToken(token, p.get('nsession')||null);
+  if(token) loadFromToken(token);
   else if(session) handlePaymentReturn(session);
   else if(p.get('videosession')) handleVideoPaymentReturn(p.get('videosession'));
   // else: s-form is the default visible screen
@@ -2490,7 +2465,7 @@ function showGiftMode(){
   const inp=document.getElementById('giftRecipientInput');
   if(inp&&ST.giftRecipient) inp.value=ST.giftRecipient;
   const btn=document.getElementById('submitBtn');
-  if(btn) btn.textContent='🎁 Create Gift Stories · $15';
+  if(btn) btn.textContent='🎁 Create Gift Audio Stories · $25';
 }
 </script>
 </body>
