@@ -292,15 +292,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .price-stories{color:var(--ocean);font-size:15px;font-weight:600;margin-top:6px;}
 .price-detail{color:var(--text-soft);font-size:12px;margin-top:4px;}
 
-/* STORY LENGTH SELECTOR */
-.length-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
-.length-btn{padding:16px 12px;border-radius:16px;border:2px solid rgba(56,162,194,.2);background:var(--bg-soft);cursor:pointer;transition:all .2s;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;}
-.length-btn:hover{border-color:rgba(56,162,194,.4);background:var(--bg-section);}
-.length-btn.active{border-color:var(--ocean);background:rgba(56,162,194,.1);box-shadow:0 0 0 3px rgba(56,162,194,.12);}
-.length-btn-time{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--ocean-deep);line-height:1;}
-.length-btn-label{font-size:12px;font-weight:600;color:var(--text-soft);margin-top:4px;}
-.length-btn-detail{font-size:11px;color:var(--text-low);margin-top:3px;line-height:1.4;}
-.length-btn.active .length-btn-label{color:var(--ocean-deep);}
 
 @media(max-width:380px){.hero-title{font-size:30px;}.story-body{font-size:16px;}.exp-add-grid{grid-template-columns:1fr;}.dna-rows{grid-template-columns:1fr;}.bp-grid{grid-template-columns:1fr;}}
 
@@ -481,19 +472,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
       <div class="chip" data-g="vibe" data-v="mysterious and suspenseful" onclick="singleChip(this,'sel-sun')">🔍 Mystery</div>
       <div class="chip" data-g="vibe" data-v="educational and curious" onclick="singleChip(this,'sel-sun')">🔬 Curious & Clever</div>
       <div class="chip" data-g="vibe" data-v="sporty and energetic" onclick="singleChip(this,'sel-sun')">⚡ Sporty & Active</div>
-    </div>
-    <label class="f-label" style="margin-top:16px;margin-bottom:10px;">How long should each story be?</label>
-    <div class="length-selector">
-      <button class="length-btn active" id="len-3" onclick="setStoryLength(3)">
-        <div class="length-btn-time">3 min</div>
-        <div class="length-btn-label">Quick & cosy</div>
-        <div class="length-btn-detail">~350 words · 3 pages<br>Perfect for bedtime</div>
-      </button>
-      <button class="length-btn" id="len-5" onclick="setStoryLength(5)">
-        <div class="length-btn-time">5 min</div>
-        <div class="length-btn-label">Full adventure</div>
-        <div class="length-btn-detail">~600 words · 3 pages<br>Great for lazy afternoons</div>
-      </button>
     </div>
   </div>
 
@@ -793,7 +771,6 @@ const ST = {
   children: [],
   ages: [],
   vibe: 'gentle and sleepy',
-  storyLength: 3,
   selectedLocations: [],
   blueprints: [],
   stories: [],
@@ -996,9 +973,6 @@ function toggleChip(el,cls){
   updateBlueprintPreview();
 }
 function setStoryLength(mins){
-  ST.storyLength = mins;
-  document.getElementById('len-3').classList.toggle('active', mins===3);
-  document.getElementById('len-5').classList.toggle('active', mins===5);
   updateBlueprintPreview();
 }
 
@@ -1115,7 +1089,7 @@ function updateBlueprintPreview(){
   if(locCount > 0 && locCount < 10) note += `Your ${locCount} location${locCount>1?'s are':' is'} each used in ${Math.ceil(10/locCount)} stories. `;
   if(locCount >= 10) note += `Each of your ${locCount} locations gets its own story. `;
   if(intCount > 0) note += `All interests are woven in throughout. `;
-  note += `No story will leave any child out. Each story is approximately ${ST.storyLength} minutes long.`;
+  note += `No story will leave any child out.`;
 
   document.getElementById('bpNote').textContent = note;
   preview.classList.remove('hidden');
@@ -1259,7 +1233,7 @@ async function submitForm(){
         children:ST.children,
         selectedLocations:ST.selectedLocations,
         vibe:ST.vibe,
-        storyLength:ST.storyLength,
+        storyLength:'5min',
       })
     });
     const {url,error}=await res.json();
@@ -1360,10 +1334,7 @@ function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 async function callAPI(blueprints){
   const agesStr=ST.children.map(c=>`${c.name} (age ${c.age||'unknown'})`).join(', ');
-  const sl=ST.storyLength||3;
-  const wordTarget = sl===5 ? '550–700' : '300–400';
   const pageCount  = 3;
-  const readTime   = sl===5 ? '5 min' : '3 min';
   const n=blueprints.length;
 
   const storyBriefs=blueprints.map(bp=>{
@@ -1385,7 +1356,7 @@ PER-STORY BRIEFS (follow exactly):
 ${storyBriefs}
 
 WRITING RULES:
-- Each story exactly ${wordTarget} words long (${readTime} reading time)
+- Each story should be 550–700 words. Write for reading aloud — use rhythm, repetition, and sensory detail. Sentences should sound beautiful spoken. Vary sentence length — mix short punchy sentences with longer flowing ones.
 - The HERO child must appear by name within the first 2 sentences
 - The LOCATION must be described with real, specific sensory details (what you can see, hear, smell there)
 - The MAIN INTEREST must drive the plot — it's not a background detail, it's why the story happens
@@ -1395,8 +1366,6 @@ WRITING RULES:
 - Stories work at bedtime, on the couch, in the car, at the beach — write them for any moment
 - Split into exactly ${pageCount} pages using the separator [PAGE]
 - Writing tone: lyrical, warm, vivid. Language simple but beautiful.
-
-Write each story for reading aloud. Use rhythm, repetition, and sensory detail. Sentences should sound beautiful when spoken. Vary sentence length — mix short punchy sentences with longer flowing ones. Avoid tongue-twisters or hard consonant clusters. Write the way a warm storyteller speaks, not the way a book is typeset.
 
 AGE-APPROPRIATE LANGUAGE (match to the HERO child's age for each story):
 - Ages 2–4: Very short sentences (5–8 words). Only simple everyday words. Repetition is welcome. The world is safe and magical.
@@ -1418,7 +1387,6 @@ OUTPUT: Respond ONLY with a valid JSON array of exactly ${n} objects. No markdow
     "emoji": "🌊",
     "location": "Location name",
     "area": "Suburb/area",
-    "readTime": "${readTime}",
     "hero": "Child name",
     "costar": "Second child name or null",
     "interest": "Main interest",
@@ -1427,7 +1395,7 @@ OUTPUT: Respond ONLY with a valid JSON array of exactly ${n} objects. No markdow
   }
 ]`;
 
-  const maxTok = sl>=8 ? 12000 : sl>=5 ? 8000 : 5000;
+  const maxTok = 8000;
 
   const res = await fetch('/api/generate', {
     method: 'POST',
@@ -1521,8 +1489,7 @@ function renderVideoUpsell(){
   if(allHaveVideo){ card.style.display='none'; return; }
 
   const heroName = ST.children.length===1 ? ST.children[0].name : 'your family';
-  const is5 = ST.storyLength===5;
-  const p1 = is5?8:6, p3=is5?20:15, p10=is5?45:29;
+  const p1 = 8, p3 = 20, p10 = 45;
 
   document.getElementById('videoUpsellSub').textContent =
     `Watch ${heroName} animated through their favourite Sunshine Coast spots, narrated in an Australian accent. Pick one to try, or animate the whole collection.`;
@@ -1639,7 +1606,7 @@ function openStory(idx){
     <div class="dna-row"><div class="dna-row-label">📍 Set in</div><div class="dna-row-value where">${s.location||'Sunshine Coast'}</div></div>
     <div class="dna-row"><div class="dna-row-label">💛 About</div><div class="dna-row-value what">${s.interest||'adventure'}</div></div>
     <div class="dna-row"><div class="dna-row-label">🌙 Vibe</div><div class="dna-row-value vibe">${s.vibe||ST.vibe||'gentle & calming'}</div></div>
-    <div class="dna-row" style="grid-column:1/-1"><div class="dna-row-label">⏱ Read time</div><div class="dna-row-value" style="color:var(--ocean-deep)">${s.readTime||ST.storyLength+' min'}</div></div>`;
+    `;
 
   document.getElementById('dnaPromise').innerHTML=`
     <span class="dna-promise-icon">✅</span>
@@ -1710,7 +1677,7 @@ function renderPage(){
   setTimeout(()=>{
     if(p>=total){
       // "The End" screen
-      const price=ST.storyLength===5?8:6;
+      const price=8;
       const hero=s.hero||'little one';
       const loc=s.location||'the Sunshine Coast';
       const allAnimated=ST.stories.length>1&&ST.stories.every(st=>st.videoUrls);
@@ -1904,7 +1871,7 @@ async function prefetchNarration(storyIdx){
     const res=await fetch('/api/narrate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:fullText,storyLength:ST.storyLength===5?'5min':'3min',token:ST.storyToken||undefined,storyIdx}),
+      body:JSON.stringify({text:fullText,storyLength:'5min',token:ST.storyToken||undefined,storyIdx}),
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
@@ -1962,7 +1929,7 @@ async function playFullStory(){
     const res=await fetch('/api/narrate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:fullText,storyLength:ST.storyLength===5?'5min':'3min',token:ST.storyToken||undefined,storyIdx}),
+      body:JSON.stringify({text:fullText,storyLength:'5min',token:ST.storyToken||undefined,storyIdx}),
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
@@ -2064,10 +2031,9 @@ function setAudioSpeed(btn){
    VIDEO CONVERSION FLOW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function getVideoPrice(count){
-  const is5=ST.storyLength===5;
-  if(count>=10)return is5?45:29;
-  if(count>=3)return is5?20:15;
-  return is5?8:6;
+  if(count>=10)return 45;
+  if(count>=3)return 20;
+  return 8;
 }
 
 function startVideoConversion(storyIndices){
@@ -2169,7 +2135,7 @@ function submitWaitlist(){
   const entry={
     email,
     storyIndices:ST.pendingVideoStories,
-    storyLength:ST.storyLength===5?'5min':'3min',
+    storyLength:'5min',
     totalPrice:getVideoPrice(ST.pendingVideoStories.length),
     timestamp:Date.now(),
   };
@@ -2242,7 +2208,7 @@ async function generateVideos(){
           locationDesc:bp.location?.desc||'',
           interest:story.interest,
           pages:story.pages,
-          storyLength:ST.storyLength===5?'5min':'3min',
+          storyLength:'5min',
           childPhotos:Object.keys(ST.childPhotos).length?ST.childPhotos:null,
           childDescriptions:Object.keys(ST.childDescriptions).length?ST.childDescriptions:null,
           childAge:heroChild.age||null,
@@ -2295,7 +2261,6 @@ async function handlePaymentReturn(sessionId){
     ST.children=formData.children||[];
     ST.selectedLocations=formData.selectedLocations||[];
     ST.vibe=formData.vibe||'gentle and sleepy';
-    ST.storyLength=formData.storyLength||3;
     ST.pendingSessionId=sessionId;
     ST.blueprints=buildBlueprints();
     renderChildBlocks();
@@ -2440,7 +2405,6 @@ async function handleVideoPaymentReturn(sessionId){
     const {stories}=await storiesRes.json();
     ST.stories=stories;
     ST.storyToken=videoData.storyToken;
-    ST.storyLength=videoData.storyLength==='5min'?5:3;
     ST.pendingVideoStories=videoData.pendingVideoStories||[];
     // Restore photos/descs from localStorage (survive Stripe redirect)
     ST.childPhotos=JSON.parse(localStorage.getItem('sst_video_photos')||'{}');
