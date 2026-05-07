@@ -52,7 +52,7 @@ export default async function handler(req, res) {
   await resend.emails.send({
     from: 'Sunny Stories <stories@sunnystories.co>',
     to: email,
-    subject: `✨ ${childNames}'s Sunny Stories collection is ready`,
+    subject: `🎧 ${childNames}'s audio stories are ready to listen`,
     html: `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -74,10 +74,11 @@ export default async function handler(req, res) {
     <!-- Body -->
     <tr>
       <td style="padding:36px 40px;">
-        <h1 style="margin:0 0 12px;font-size:24px;color:#1a2e3a;font-weight:700;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">Your stories are ready! 🎉</h1>
+        <h1 style="margin:0 0 12px;font-size:24px;color:#1a2e3a;font-weight:700;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">Your audio stories are ready! 🎧</h1>
         <p style="margin:0 0 24px;color:#4a6070;font-size:16px;line-height:1.6;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
           We've written 10 original stories starring <strong style="color:#306ca4;">${childNames}</strong>,
-          set in your favourite Sunshine Coast spots. Click the button below to read them any time.
+          set in your favourite Sunshine Coast spots — and each one is narrated in a warm Australian accent.
+          Tap the button to open your collection and start listening.
         </p>
 
         <!-- Story preview -->
@@ -100,7 +101,7 @@ export default async function handler(req, res) {
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td bgcolor="#38a2c2" style="border-radius:50px;padding:16px 40px;">
-                    <a href="${magicLink}" style="color:#ffffff;text-decoration:none;font-size:17px;font-weight:700;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;display:block;white-space:nowrap;">✨ Open my stories</a>
+                    <a href="${magicLink}" style="color:#ffffff;text-decoration:none;font-size:17px;font-weight:700;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;display:block;white-space:nowrap;">🎧 Open my audio stories</a>
                   </td>
                 </tr>
               </table>
