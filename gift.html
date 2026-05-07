@@ -141,12 +141,14 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.25);
     }
 
-    /* Show strip on mobile, stage on desktop */
-    @media (max-width: 640px) {
-      #claireStage  { display: none !important; }
-    }
+    /* Strip always visible, stage never shown */
+    #claireStage  { display: none !important; }
+
+    /* Larger photos on desktop */
     @media (min-width: 641px) {
-      #claireStrip  { display: none !important; }
+      .strip-kid img { width: 80px; height: 80px; }
+      .strip-bubble  { font-size: 11px; padding: 5px 11px; }
+      #claireStrip   { gap: 16px; margin-bottom: 1.8rem; }
     }
 
     /* ── COVER ── */
