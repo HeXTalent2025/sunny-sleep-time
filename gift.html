@@ -90,7 +90,7 @@
       to   { opacity:1; transform: scale(1) translateY(0); }
     }
 
-    /* ── PHOTO STRIP (mobile) ── */
+    /* ── PHOTO STRIP ── */
     #claireStrip {
       display: none;
       flex-direction: row;
@@ -100,7 +100,13 @@
       position: relative;
       z-index: 1;
       flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 4px 16px 8px;
+      max-width: 100%;
     }
+    #claireStrip::-webkit-scrollbar { display: none; }
     .strip-kid {
       display: flex;
       flex-direction: column;
@@ -149,6 +155,16 @@
       .strip-kid img { width: 80px; height: 80px; }
       .strip-bubble  { font-size: 11px; padding: 5px 11px; }
       #claireStrip   { gap: 16px; margin-bottom: 1.8rem; }
+    }
+
+    /* Tighter vertical spacing on mobile so button stays on screen */
+    @media (max-width: 640px) {
+      #cover { padding: 1.2rem 1.2rem; justify-content: flex-start; padding-top: 1.2rem; }
+      .gift-icon { font-size: 52px; margin-bottom: 0.8rem; }
+      .gift-heading { font-size: clamp(1.7rem, 7vw, 2.4rem); margin-bottom: 0.6rem; }
+      .gift-sub { margin-bottom: 1.4rem; font-size: 0.9rem; }
+      .card-wrap { padding: 1.2rem 1.4rem; margin-bottom: 1.4rem; }
+      #claireStrip { margin-bottom: 0.8rem; }
     }
 
     /* ── COVER ── */
@@ -322,6 +338,21 @@
     .gac-status { font-size: 0.84rem; color: rgba(255,255,255,0.78); }
     .gac-status.error { color: #ffbbce; }
     .gac-status.loading { animation: gPulse 1.5s ease-in-out infinite; }
+    .gac-download {
+      display: none;
+      margin-top: 0.9rem;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .gac-download:hover { background: rgba(255,255,255,0.25); }
     @keyframes gPulse { 0%,100%{opacity:.45} 50%{opacity:1} }
     .mothers-day-badge {
       font-size: 0.72rem;
@@ -631,6 +662,7 @@
       <div class="gac-label">🎙️ Australian narration</div>
       <button class="gac-play-btn" id="gPlayBtn" onclick="gAudioToggle()">▶</button>
       <div class="gac-status" id="gAudioStatus">Loading narration…</div>
+      <button class="gac-download" id="gDlBtn" onclick="gDownload()">⬇ Download mp3</button>
     </div>
     <div class="story-scene-large" id="storyViewScene"></div>
     <div class="story-pages" id="storyViewPages"></div>
@@ -713,6 +745,8 @@
     gAudioStop();
     const card = document.getElementById('giftAudioCard');
     card.style.display = 'block';
+    const dlBtn = document.getElementById('gDlBtn');
+    if (dlBtn) dlBtn.style.display = 'none';
     gSetStatus('Loading narration…', 'loading');
     gPrefetchNarration(i);
     window.scrollTo(0, 0);
@@ -812,6 +846,8 @@
       audioCache[storyIdx] = URL.createObjectURL(blob);
       if (currentStoryIdx === storyIdx && !GAUDIO.playing) {
         gSetStatus('Tap ▶ to listen to this story', '');
+        const dlBtn = document.getElementById('gDlBtn');
+        if (dlBtn) dlBtn.style.display = 'block';
       }
     } catch(e) {
       if (currentStoryIdx === storyIdx && !GAUDIO.playing) {
@@ -841,12 +877,26 @@
       for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
       const blob = new Blob([buf], { type: data.mimeType });
       audioCache[storyIdx] = URL.createObjectURL(blob);
+      const dlBtn = document.getElementById('gDlBtn');
+      if (dlBtn) dlBtn.style.display = 'block';
       gStartAudioFromUrl(audioCache[storyIdx]);
     } catch(e) {
       GAUDIO.playing = false;
       gSetStatus('Narration unavailable — tap to retry', 'error');
       gUpdateBtn();
     }
+  }
+
+  function gDownload() {
+    const url = audioCache[currentStoryIdx];
+    if (!url) return;
+    const s = stories[currentStoryIdx];
+    const hero = (s.hero || 'story').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const loc  = (s.location || 'sunshine-coast').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${hero}-${loc}-${currentStoryIdx + 1}.mp3`;
+    a.click();
   }
 </script>
 </body>
