@@ -191,15 +191,6 @@
     .sac-status { font-size: 0.83rem; color: rgba(255,255,255,0.78); margin-top: 0.1rem; }
     .sac-status.loading { animation: sPulse 1.5s ease-in-out infinite; }
     .sac-status.error { color: #ffbbce; }
-    .sac-download {
-      display: none; margin-top: 0.9rem;
-      background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3);
-      border-radius: 10px; color: #fff;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.78rem; font-weight: 600;
-      padding: 0.4rem 1rem; cursor: pointer; transition: background 0.18s;
-    }
-    .sac-download:hover { background: rgba(255,255,255,0.25); }
     @keyframes sPulse { 0%,100%{opacity:.45} 50%{opacity:1} }
 
     /* STORY CONTENT */
@@ -306,7 +297,7 @@
     <div class="story-dna">
       <span class="dna-chip age">🎂 Age 3</span>
       <span class="dna-chip who">⭐ Lily</span>
-      <span class="dna-chip where">📍 Mooloolaba Beach</span>
+      <span class="dna-chip where">📍 Kings Beach</span>
       <span class="dna-chip what">💛 shells &amp; the ocean</span>
       <span class="dna-chip arc">📖 Wonder</span>
     </div>
@@ -321,20 +312,19 @@
         <span class="sac-time" id="sac-dur-0">—:——</span>
       </div>
       <div class="sac-status" id="sac-status-0">Tap ▶ to listen to this story</div>
-      <button class="sac-download" id="sac-dl-0" onclick="sDownload(0)">⬇ Download mp3</button>
     </div>
 
     <div class="story-scene">🐚</div>
     <div class="story-meta">
       <div class="story-title-block">
         <h2>Lily and the Pink Shell</h2>
-        <div class="story-subtitle">A story set at Mooloolaba Beach</div>
+        <div class="story-subtitle">A story set at Kings Beach</div>
       </div>
     </div>
 
     <div class="story-pages">
       <div class="story-page">
-        Lily loved Mooloolaba Beach more than anywhere in the whole wide world.<br><br>
+        Lily loved Kings Beach more than anywhere in the whole wide world.<br><br>
         She loved the way the waves came rushing in — <em>whooooosh</em> — and then went rushing back out again. She loved the smell of the salty air and the way the sand squished between her toes. She loved the big seagulls that walked along the water's edge like they owned the place, and the little crabs that scuttled away under the rocks whenever she got too close.<br><br>
         "Ready?" said Mum.<br>
         "Ready!" said Lily.<br>
@@ -366,7 +356,7 @@
         That night, she put the shell on her bedside table where she could see it from her pillow.<br><br>
         And then, because Dad had told her once that if you hold a shell up to your ear and listen very carefully, you can hear the ocean inside — she picked it up and pressed it gently to her ear.<br><br>
         <em>Shhhhhh.</em><br><br>
-        And there it was. A tiny little <em>whooooosh</em>, just like Mooloolaba. Just like today.<br><br>
+        And there it was. A tiny little <em>whooooosh</em>, just like Kings Beach. Just like today.<br><br>
         She put the shell back. She lay down. She smiled.<br><br>
         The waves kept whispering all night long.
       </div>
@@ -396,7 +386,6 @@
         <span class="sac-time" id="sac-dur-1">—:——</span>
       </div>
       <div class="sac-status" id="sac-status-1">Tap ▶ to listen to this story</div>
-      <button class="sac-download" id="sac-dl-1" onclick="sDownload(1)">⬇ Download mp3</button>
     </div>
 
     <div class="story-scene">🦅</div>
@@ -467,7 +456,6 @@
         <span class="sac-time" id="sac-dur-2">—:——</span>
       </div>
       <div class="sac-status" id="sac-status-2">Tap ▶ to listen to this story</div>
-      <button class="sac-download" id="sac-dl-2" onclick="sDownload(2)">⬇ Download mp3</button>
     </div>
 
     <div class="story-scene">⛰️</div>
@@ -537,7 +525,7 @@
 // ── Story text (used for narration API calls) ────────────────────────────────
 const SAMPLE_TEXT = [
   // 0 — Lily, age 3
-  `Lily loved Mooloolaba Beach more than anywhere in the whole wide world.
+  `Lily loved Kings Beach more than anywhere in the whole wide world.
 
 She loved the way the waves came rushing in — whooooosh — and then went rushing back out again. She loved the smell of the salty air and the way the sand squished between her toes. She loved the big seagulls that walked along the water's edge like they owned the place, and the little crabs that scuttled away under the rocks whenever she got too close.
 
@@ -587,7 +575,7 @@ And then, because Dad had told her once that if you hold a shell up to your ear 
 
 Shhhhhh.
 
-And there it was. A tiny little whooooosh, just like Mooloolaba. Just like today.
+And there it was. A tiny little whooooosh, just like Kings Beach. Just like today.
 
 She put the shell back. She lay down. She smiled.
 
@@ -843,9 +831,6 @@ async function sPlay(idx) {
     const blob = new Blob([buf], { type: data.mimeType });
     sCache[idx] = URL.createObjectURL(blob);
 
-    const dlBtn = document.getElementById(`sac-dl-${idx}`);
-    if (dlBtn) dlBtn.style.display = 'block';
-
     sStartFromUrl(idx, sCache[idx]);
   } catch (e) {
     sAudio.playing = false;
@@ -854,15 +839,6 @@ async function sPlay(idx) {
   }
 }
 
-function sDownload(idx) {
-  const url = sCache[idx];
-  if (!url) return;
-  const names = ['lily-mooloolaba-beach', 'oscar-noosa-national-park', 'maya-glass-house-mountains'];
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${names[idx] || 'story'}-${idx + 1}.mp3`;
-  a.click();
-}
 
 // ── Tab switching ────────────────────────────────────────────────────────────
 function showTab(id, tabIdx, btn) {
