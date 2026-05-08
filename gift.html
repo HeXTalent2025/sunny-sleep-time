@@ -739,6 +739,7 @@
     const heading = name ? `${name}'s Stories` : 'Your Stories';
     document.getElementById('readerHeading').textContent = heading;
     const grid = document.getElementById('storyGrid');
+    const _gCached = new Set(Object.keys(audioCache).map(Number));
     grid.innerHTML = stories.map((s, i) => {
       const chips = [];
       if (s.hero)     chips.push(`<span class="dna-chip hero">⭐ ${s.hero}</span>`);
@@ -751,7 +752,7 @@
           <div class="story-card-scene">${s.emoji || '📖'}</div>
           <div class="story-card-title" style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">
             <span>${s.title || 'Story ' + (i+1)}</span>
-            <span class="g-nar-badge" id="g-nar-${i}" style="display:none;flex-shrink:0;font-size:10px;font-weight:700;background:rgba(56,162,194,.12);color:var(--ocean);border-radius:8px;padding:1px 7px;white-space:nowrap;margin-top:3px;">🎧</span>
+            <span class="g-nar-badge" id="g-nar-${i}" style="display:${_gCached.has(i)?'inline':'none'};flex-shrink:0;font-size:10px;font-weight:700;background:rgba(56,162,194,.12);color:var(--ocean);border-radius:8px;padding:1px 7px;white-space:nowrap;margin-top:3px;">🎧</span>
           </div>
           ${chips.length ? `<div class="story-dna">${chips.join('')}</div>` : ''}
         </div>`;
@@ -776,9 +777,15 @@
     const card = document.getElementById('giftAudioCard');
     card.style.display = 'block';
     const dlBtn = document.getElementById('gDlBtn');
-    if (dlBtn) dlBtn.style.display = 'none';
-    gSetStatus('Loading narration…', 'loading');
-    gPrefetchNarration(i);
+    // If already in memory-cache, skip loading state entirely
+    if (audioCache[i]) {
+      if (dlBtn) dlBtn.style.display = 'block';
+      gSetStatus('Tap ▶ to listen to this story', '');
+    } else {
+      if (dlBtn) dlBtn.style.display = 'none';
+      gSetStatus('Loading narration…', 'loading');
+      gPrefetchNarration(i);
+    }
     window.scrollTo(0, 0);
   }
 
@@ -837,9 +844,13 @@
     const hintEl = document.getElementById('gHint');
     if (!hintEl) return;
     if (cls === 'loading') {
-      if (!gSetStatus._timer) {
-        gSetStatus._timer = setTimeout(() => { hintEl.style.display = 'block'; }, 4000);
-      }
+      // Always reset first — prevents stale hint from a previous story showing immediately
+      hintEl.style.display = 'none';
+      clearTimeout(gSetStatus._timer);
+      gSetStatus._timer = setTimeout(() => {
+        hintEl.style.display = 'block';
+        gSetStatus._timer = null; // Mark expired so next story starts a fresh timer
+      }, 4000);
     } else {
       clearTimeout(gSetStatus._timer);
       gSetStatus._timer = null;

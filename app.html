@@ -1498,6 +1498,7 @@ function renderStoryList(){
     document.getElementById('videoUpsellCard').style.display='none';
     return;
   }
+  const _cachedSet=new Set(Object.keys(ST.audioCache).map(Number));
   document.getElementById('storyList').innerHTML=ST.stories.map((s,i)=>{
     const inSelectMode = videoSelectMode !== null;
     const isSelected = videoSelectedStories.has(i);
@@ -1512,7 +1513,7 @@ function renderStoryList(){
       <div class="pill-body">
         <div class="pill-num" style="display:flex;align-items:center;gap:6px;">
           <span>Story ${i+1} of ${ST.stories.length}</span>
-          <span class="nar-ready-badge" id="nar-ready-${i}" style="display:none;font-size:10px;font-weight:700;background:rgba(56,162,194,.12);color:var(--ocean);border-radius:8px;padding:1px 7px;letter-spacing:.04em;">🎧 cached</span>
+          <span class="nar-ready-badge" id="nar-ready-${i}" style="display:${_cachedSet.has(i)?'inline':'none'};font-size:10px;font-weight:700;background:rgba(56,162,194,.12);color:var(--ocean);border-radius:8px;padding:1px 7px;letter-spacing:.04em;">🎧 cached</span>
         </div>
         <div class="pill-name">${s.title}</div>
         <div class="pill-dna">
@@ -1652,6 +1653,7 @@ function openStory(idx){
     <div class="dna-row"><div class="dna-row-label">📍 Set in</div><div class="dna-row-value where">${s.location||'Sunshine Coast'}</div></div>
     <div class="dna-row"><div class="dna-row-label">💛 About</div><div class="dna-row-value what">${s.interest||'adventure'}</div></div>
     <div class="dna-row"><div class="dna-row-label">🌙 Vibe</div><div class="dna-row-value vibe">${s.vibe||ST.vibe||'gentle & calming'}</div></div>
+    ${s.arc?`<div class="dna-row"><div class="dna-row-label">📖 Arc</div><div class="dna-row-value" style="font-style:italic;color:#7a5c00;">${s.arc}</div></div>`:''}
     `;
 
   document.getElementById('dnaPromise').innerHTML=`
@@ -1663,11 +1665,17 @@ function openStory(idx){
   document.getElementById('pageDots').style.display='none';
   document.getElementById('readerNav').style.display='none';
   document.getElementById('audioBar').style.display='flex';
-  audioSetStatus('Loading narration…','loading');
   const dlBtn=document.getElementById('audioDlBtn');
-  if(dlBtn)dlBtn.style.display='none';
+  // If already in memory-cache, skip loading state entirely
+  if(ST.audioCache[idx]){
+    audioSetStatus('Tap ▶ to listen to this story','');
+    if(dlBtn)dlBtn.style.display='block';
+  } else {
+    audioSetStatus('Loading narration…','loading');
+    if(dlBtn)dlBtn.style.display='none';
+    prefetchNarration(idx);
+  }
   renderScrollingReader(s);
-  prefetchNarration(idx);
 }
 
 function updateDots(){
@@ -2107,9 +2115,13 @@ function audioSetStatus(msg,state){
   const hintEl=document.getElementById('audioHint');
   if(!hintEl)return;
   if(state==='loading'){
-    if(!audioSetStatus._hintTimer){
-      audioSetStatus._hintTimer=setTimeout(()=>{hintEl.style.display='block';},4000);
-    }
+    // Always reset first — prevents stale hint from a previous story showing immediately
+    hintEl.style.display='none';
+    clearTimeout(audioSetStatus._hintTimer);
+    audioSetStatus._hintTimer=setTimeout(()=>{
+      hintEl.style.display='block';
+      audioSetStatus._hintTimer=null; // Mark expired so next story can start a fresh timer
+    },4000);
   } else {
     clearTimeout(audioSetStatus._hintTimer);
     audioSetStatus._hintTimer=null;
