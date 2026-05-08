@@ -4,6 +4,61 @@ export const config = { maxDuration: 60 };
 
 const redis = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN });
 
+// ── Text chunking ────────────────────────────────────────────────────────────
+// ElevenLabs degrades in volume on long inputs (500+ words). Splitting into
+// ~200-word chunks and concatenating the MP3 buffers keeps energy consistent
+// throughout. Chunks run in parallel so latency is roughly the same.
+function splitIntoChunks(text, maxWords = 200) {
+  const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
+  const chunks = [];
+  let current = [];
+  let wordCount = 0;
+
+  for (const para of paragraphs) {
+    const words = para.split(/\s+/).length;
+    if (wordCount + words > maxWords && current.length > 0) {
+      chunks.push(current.join('\n\n'));
+      current = [para];
+      wordCount = words;
+    } else {
+      current.push(para);
+      wordCount += words;
+    }
+  }
+  if (current.length) chunks.push(current.join('\n\n'));
+  return chunks.length ? chunks : [text];
+}
+
+// ── Single-chunk TTS call ────────────────────────────────────────────────────
+async function generateChunk(text, voiceId, apiKey) {
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+    {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg',
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.70,          // balanced — maintains energy without monotone fade
+          similarity_boost: 0.82,
+          style: 0.18,              // moderate expression throughout
+          use_speaker_boost: true,
+        },
+      }),
+    }
+  );
+  if (!response.ok) {
+    const err = await response.text().catch(() => '');
+    throw new Error(`ElevenLabs ${response.status}: ${err}`);
+  }
+  return Buffer.from(await response.arrayBuffer());
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -40,36 +95,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
-      {
-        method: 'POST',
-        headers: {
-          'xi-api-key': apiKey,
-          'Content-Type': 'application/json',
-          'Accept': 'audio/mpeg',
-        },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: {
-            stability: 0.82,
-            similarity_boost: 0.85,
-            style: 0.12,
-            use_speaker_boost: true,
-          },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      console.error('ElevenLabs error:', response.status, errText);
-      return res.status(502).json({ error: 'Narration service unavailable — please try again' });
-    }
-
-    const audioBuffer = await response.arrayBuffer();
-    const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+    // Split into chunks and generate in parallel — fixes volume fade on long texts
+    const chunks = splitIntoChunks(text);
+    const buffers = await Promise.all(chunks.map(chunk => generateChunk(chunk, voiceId, apiKey)));
+    const audioBuffer = Buffer.concat(buffers);
+    const audioBase64 = audioBuffer.toString('base64');
 
     // Persist to Redis — fail silently so the audio is always returned even if caching fails
     if (cacheKey) {

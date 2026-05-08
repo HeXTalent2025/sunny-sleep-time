@@ -216,6 +216,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .dna-who{background:rgba(56,162,194,.1);border-color:rgba(56,162,194,.25);color:var(--ocean-deep);}
 .dna-where{background:rgba(64,219,225,.1);border-color:rgba(64,219,225,.3);color:var(--ocean-deep);}
 .dna-what{background:rgba(216,110,89,.08);border-color:rgba(216,110,89,.2);color:var(--terracotta);}
+.dna-arc{background:rgba(255,238,187,.5);border-color:rgba(180,140,20,.25);color:#7a5c00;font-style:italic;}
 .pill-arrow{color:var(--text-low);font-size:20px;transition:color .2s;}
 .story-pill:hover .pill-arrow{color:var(--ocean);}
 
@@ -675,6 +676,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
       <div class="audio-info">
         <div class="audio-label">🎙️ Australian narration</div>
         <div class="audio-status" id="audioStatus">Loading narration…</div>
+        <div class="audio-hint" id="audioHint" style="display:none;font-size:10px;color:var(--text-soft);margin-top:2px;line-height:1.4;">First listen takes ~20s · saves for instant replay</div>
       </div>
       <button class="audio-dl-btn" id="audioDlBtn" onclick="downloadNarration()" title="Download mp3" style="display:none;">⬇</button>
     </div>
@@ -1319,7 +1321,9 @@ async function runGeneration(){
       allStories.push(...await callAPI(batches[b]));
       document.getElementById('loadBar').style.width=Math.round((b+1)/batches.length*90)+'%';
     }
-    ST.stories=allStories;
+    // Merge arc names from blueprints — arc is deterministic, not AI-generated,
+    // so we stamp it in here so it's stored in Redis and visible everywhere.
+    ST.stories=allStories.map((story,i)=>({...story,arc:ST.blueprints[i]?.arc?.name||null}));
     clearInterval(stepTimer);clearInterval(msgTimer);
     document.getElementById('loadBar').style.width='100%';
     stopElapsedTimer();
@@ -1503,15 +1507,19 @@ function renderStoryList(){
       : 'story-pill';
     const clickFn = inSelectMode ? `toggleVideoStorySelect(${i})` : `openStory(${i})`;
     return `
-    <div class="${pillClass}" onclick="${clickFn}" style="animation-delay:${i*.05}s">
+    <div class="${pillClass}" data-story="${i}" onclick="${clickFn}" style="animation-delay:${i*.05}s">
       <div class="pill-emoji">${s.emoji||'🌙'}${hasVideo?'<span style="position:absolute;top:8px;right:38px;font-size:13px;">🎬</span>':''}</div>
       <div class="pill-body">
-        <div class="pill-num">Story ${i+1} of ${ST.stories.length}</div>
+        <div class="pill-num" style="display:flex;align-items:center;gap:6px;">
+          <span>Story ${i+1} of ${ST.stories.length}</span>
+          <span class="nar-ready-badge" id="nar-ready-${i}" style="display:none;font-size:10px;font-weight:700;background:rgba(56,162,194,.12);color:var(--ocean);border-radius:8px;padding:1px 7px;letter-spacing:.04em;">🎧 cached</span>
+        </div>
         <div class="pill-name">${s.title}</div>
         <div class="pill-dna">
           <span class="dna-pill dna-who">⭐ ${s.hero||''}${s.costar?' & '+s.costar:''}</span>
           <span class="dna-pill dna-where">📍 ${s.location||'Sunshine Coast'}</span>
           <span class="dna-pill dna-what">💛 ${s.interest||''}</span>
+          ${s.arc?`<span class="dna-pill dna-arc">📖 ${s.arc}</span>`:''}
         </div>
       </div>
       <div class="pill-arrow">${inSelectMode&&isSelected?'✓':'›'}</div>
@@ -1919,6 +1927,7 @@ async function prefetchNarration(storyIdx){
     const blob=new Blob([buf],{type:data.mimeType});
     const url=URL.createObjectURL(blob);
     ST.audioCache[storyIdx]=url;
+    markStoryCached(storyIdx);
     const dlBtn=document.getElementById('audioDlBtn');
     if(dlBtn)dlBtn.style.display='block';
     // Only update status if this is still the current story and user hasn't tapped play
@@ -1978,6 +1987,7 @@ async function playFullStory(){
     const url=URL.createObjectURL(blob);
     ST.audioCache[storyIdx]=url;
     ST.narrateRetry[storyIdx]=0;
+    markStoryCached(storyIdx);
     const dlBtn=document.getElementById('audioDlBtn');
     if(dlBtn)dlBtn.style.display='block';
     startAudioFromUrl(url);
@@ -2093,6 +2103,27 @@ function audioSetStatus(msg,state){
   if(!el)return;
   el.textContent=msg;
   el.className='audio-status'+(state?' '+state:'');
+  // Show "first listen" hint after 4s of loading; hide it on any non-loading state
+  const hintEl=document.getElementById('audioHint');
+  if(!hintEl)return;
+  if(state==='loading'){
+    if(!audioSetStatus._hintTimer){
+      audioSetStatus._hintTimer=setTimeout(()=>{hintEl.style.display='block';},4000);
+    }
+  } else {
+    clearTimeout(audioSetStatus._hintTimer);
+    audioSetStatus._hintTimer=null;
+    hintEl.style.display='none';
+  }
+}
+
+// Mark a story pill as having cached narration (called after prefetch completes)
+function markStoryCached(idx){
+  const badge=document.getElementById(`nar-ready-${idx}`);
+  if(badge)badge.style.display='inline';
+  // If already in story list, also re-check any visible pills
+  const pill=document.querySelector(`.story-pill[data-story="${idx}"]`);
+  if(pill)pill.dataset.narCached='1';
 }
 
 function updatePlayBtn(){

@@ -679,6 +679,7 @@
   <div class="story-body">
     <div class="gift-audio-card" id="giftAudioCard">
       <div class="gac-label">🎙️ Australian narration</div>
+      <div class="gac-hint" id="gHint" style="display:none;font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:0.6rem;line-height:1.4;">First listen takes ~20s · saves for instant replay</div>
       <button class="gac-play-btn" id="gPlayBtn" onclick="gAudioToggle()">▶</button>
       <div class="gac-progress-row" id="gProgressRow">
         <span class="gac-time" id="gCurrent">0:00</span>
@@ -744,10 +745,14 @@
       if (s.costar)   chips.push(`<span class="dna-chip costar">👫 ${s.costar}</span>`);
       if (s.interest) chips.push(`<span class="dna-chip interest">✦ ${s.interest}</span>`);
       if (s.location) chips.push(`<span class="dna-chip loc">📍 ${s.location}</span>`);
+      if (s.arc) chips.push(`<span class="dna-chip arc" style="background:#ffeebb;color:#7a5c00;border:1px solid rgba(180,140,20,.2);font-style:italic;">📖 ${s.arc}</span>`);
       return `
-        <div class="story-card" onclick="openStory(${i})">
+        <div class="story-card" data-story="${i}" onclick="openStory(${i})">
           <div class="story-card-scene">${s.emoji || '📖'}</div>
-          <div class="story-card-title">${s.title || 'Story ' + (i+1)}</div>
+          <div class="story-card-title" style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">
+            <span>${s.title || 'Story ' + (i+1)}</span>
+            <span class="g-nar-badge" id="g-nar-${i}" style="display:none;flex-shrink:0;font-size:10px;font-weight:700;background:rgba(56,162,194,.12);color:var(--ocean);border-radius:8px;padding:1px 7px;white-space:nowrap;margin-top:3px;">🎧</span>
+          </div>
           ${chips.length ? `<div class="story-dna">${chips.join('')}</div>` : ''}
         </div>`;
     }).join('');
@@ -828,6 +833,24 @@
     if (!el) return;
     el.textContent = msg;
     el.className = 'gac-status' + (cls ? ' ' + cls : '');
+    // Show "first listen" hint after 4s of loading; hide on any other state
+    const hintEl = document.getElementById('gHint');
+    if (!hintEl) return;
+    if (cls === 'loading') {
+      if (!gSetStatus._timer) {
+        gSetStatus._timer = setTimeout(() => { hintEl.style.display = 'block'; }, 4000);
+      }
+    } else {
+      clearTimeout(gSetStatus._timer);
+      gSetStatus._timer = null;
+      hintEl.style.display = 'none';
+    }
+  }
+
+  // Mark a story card as having its narration cached
+  function gMarkStoryCached(idx) {
+    const badge = document.getElementById(`g-nar-${idx}`);
+    if (badge) badge.style.display = 'inline';
   }
 
   function gUpdateBtn() {
@@ -908,6 +931,7 @@
       for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
       const blob = new Blob([buf], { type: data.mimeType });
       audioCache[storyIdx] = URL.createObjectURL(blob);
+      gMarkStoryCached(storyIdx);
       if (currentStoryIdx === storyIdx && !GAUDIO.playing) {
         gSetStatus('Tap ▶ to listen to this story', '');
         const dlBtn = document.getElementById('gDlBtn');
@@ -941,6 +965,7 @@
       for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
       const blob = new Blob([buf], { type: data.mimeType });
       audioCache[storyIdx] = URL.createObjectURL(blob);
+      gMarkStoryCached(storyIdx);
       const dlBtn = document.getElementById('gDlBtn');
       if (dlBtn) dlBtn.style.display = 'block';
       gStartAudioFromUrl(audioCache[storyIdx]);
