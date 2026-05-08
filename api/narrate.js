@@ -111,6 +111,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ audioBase64, mimeType: 'audio/mpeg' });
   } catch (e) {
     console.error('Narration error:', e);
-    return res.status(500).json({ error: 'Could not generate narration — please try again' });
+    return res.status(500).json({ error: 'Could not generate narration — please try again', _debug: e.message });
   }
 }
