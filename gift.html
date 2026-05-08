@@ -340,6 +340,20 @@
       transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
     }
     .gac-play-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.25); box-shadow: 0 8px 28px rgba(0,0,0,0.22); }
+    .gac-progress-row { display: none; align-items: center; gap: 8px; width: 100%; padding: 0 4px; margin-top: 0.2rem; }
+    .gac-time { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); white-space: nowrap; min-width: 28px; font-variant-numeric: tabular-nums; }
+    .gac-time:last-child { text-align: right; }
+    .gac-scrubber {
+      flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+      border-radius: 2px; outline: none; cursor: pointer;
+      background: linear-gradient(to right, #fff var(--pct, 0%), rgba(255,255,255,0.25) var(--pct, 0%));
+    }
+    .gac-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.3); cursor: pointer; transition: transform .15s;
+    }
+    .gac-scrubber::-webkit-slider-thumb:hover { transform: scale(1.25); }
+    .gac-scrubber::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
     .gac-status { font-size: 0.84rem; color: rgba(255,255,255,0.78); }
     .gac-status.error { color: #ffbbce; }
     .gac-status.loading { animation: gPulse 1.5s ease-in-out infinite; }
@@ -666,6 +680,11 @@
     <div class="gift-audio-card" id="giftAudioCard">
       <div class="gac-label">🎙️ Australian narration</div>
       <button class="gac-play-btn" id="gPlayBtn" onclick="gAudioToggle()">▶</button>
+      <div class="gac-progress-row" id="gProgressRow">
+        <span class="gac-time" id="gCurrent">0:00</span>
+        <input class="gac-scrubber" id="gScrubber" type="range" min="0" max="100" value="0" step="0.1" oninput="gSeekAudio(this.value)">
+        <span class="gac-time" id="gDuration">—:——</span>
+      </div>
       <div class="gac-status" id="gAudioStatus">Loading narration…</div>
       <button class="gac-download" id="gDlBtn" onclick="gDownload()">⬇ Download mp3</button>
     </div>
@@ -748,6 +767,7 @@
     document.getElementById('story-view').style.display = 'block';
     // Audio card — always show, start prefetch
     gAudioStop();
+    gResetScrubber();
     const card = document.getElementById('giftAudioCard');
     card.style.display = 'block';
     const dlBtn = document.getElementById('gDlBtn');
@@ -771,6 +791,38 @@
   }
 
   // ── Audio engine ──
+  function fmtTime(s){
+    if(!isFinite(s)||s<0)return '0:00';
+    const m=Math.floor(s/60),ss=Math.floor(s%60);
+    return `${m}:${ss.toString().padStart(2,'0')}`;
+  }
+
+  function gUpdateScrubber(cur, dur){
+    const pct=(dur&&isFinite(dur))?(cur/dur*100):0;
+    const sc=document.getElementById('gScrubber');
+    const curEl=document.getElementById('gCurrent');
+    const durEl=document.getElementById('gDuration');
+    if(sc){sc.value=pct;sc.style.setProperty('--pct',pct+'%');}
+    if(curEl)curEl.textContent=fmtTime(cur);
+    if(durEl&&isFinite(dur))durEl.textContent=fmtTime(dur);
+  }
+
+  function gResetScrubber(){
+    const row=document.getElementById('gProgressRow');
+    const sc=document.getElementById('gScrubber');
+    const curEl=document.getElementById('gCurrent');
+    const durEl=document.getElementById('gDuration');
+    if(row)row.style.display='none';
+    if(sc){sc.value=0;sc.style.setProperty('--pct','0%');}
+    if(curEl)curEl.textContent='0:00';
+    if(durEl)durEl.textContent='—:——';
+  }
+
+  function gSeekAudio(pct){
+    if(!GAUDIO.el||!isFinite(GAUDIO.el.duration))return;
+    GAUDIO.el.currentTime=(pct/100)*GAUDIO.el.duration;
+  }
+
   function gSetStatus(msg, cls) {
     const el = document.getElementById('gAudioStatus');
     if (!el) return;
@@ -785,14 +837,15 @@
   }
 
   function gAudioStop() {
-    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.onended = null; GAUDIO.el.onerror = null; GAUDIO.el.src = ''; }
+    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.onended = null; GAUDIO.el.onerror = null; GAUDIO.el.ontimeupdate = null; GAUDIO.el.onloadedmetadata = null; GAUDIO.el.src = ''; }
     GAUDIO.playing = false;
     GAUDIO.hasAudio = false;
+    gResetScrubber();
     gUpdateBtn();
   }
 
   function gStartAudioFromUrl(url) {
-    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.onended = null; GAUDIO.el.onerror = null; GAUDIO.el.src = ''; }
+    if (GAUDIO.el) { GAUDIO.el.pause(); GAUDIO.el.onended = null; GAUDIO.el.onerror = null; GAUDIO.el.ontimeupdate = null; GAUDIO.el.onloadedmetadata = null; GAUDIO.el.src = ''; }
     const el = GAUDIO.el = new Audio();
     let settled = false;
     const done = (isAutoplay) => {
@@ -801,7 +854,13 @@
       gSetStatus(isAutoplay ? 'Ready — tap ▶ to listen' : 'Narration unavailable — tap to retry', isAutoplay ? '' : 'error');
       gUpdateBtn();
     };
-    el.onended = () => { GAUDIO.playing = false; GAUDIO.hasAudio = false; gSetStatus('Story complete ✨', ''); gUpdateBtn(); };
+    el.onloadedmetadata = () => {
+      const row = document.getElementById('gProgressRow');
+      if (row) row.style.display = 'flex';
+      gUpdateScrubber(0, el.duration);
+    };
+    el.ontimeupdate = () => { gUpdateScrubber(el.currentTime, el.duration); };
+    el.onended = () => { GAUDIO.playing = false; GAUDIO.hasAudio = false; gSetStatus('Story complete ✨', ''); gResetScrubber(); gUpdateBtn(); };
     el.onerror = () => { if (GAUDIO.playing) done(false); };
     el.src = url;
     el.play().catch(err => done(err?.name === 'NotAllowedError' || err?.name === 'AbortError'));

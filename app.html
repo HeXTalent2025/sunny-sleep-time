@@ -334,6 +334,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .tts-word.tts-active{background:rgba(56,162,194,.25);color:var(--ocean-deep);}
 .audio-unsupported{font-size:12px;color:var(--text-soft);font-style:italic;text-align:center;padding:6px 0;}
 
+/* ═══ AUDIO PROGRESS BAR ═══ */
+.audio-progress-row{display:none;align-items:center;gap:8px;padding:0 2px;}
+.audio-time{font-size:11px;font-weight:600;color:var(--text-soft);white-space:nowrap;min-width:30px;font-variant-numeric:tabular-nums;}
+.audio-time:last-child{text-align:right;}
+.audio-scrubber{
+  flex:1;height:4px;-webkit-appearance:none;appearance:none;
+  border-radius:2px;outline:none;cursor:pointer;
+  background:linear-gradient(to right,var(--ocean) var(--pct,0%),rgba(56,162,194,.2) var(--pct,0%));
+}
+.audio-scrubber::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--ocean-deep);box-shadow:0 1px 6px rgba(48,108,164,.4);
+  cursor:pointer;transition:transform .15s;
+}
+.audio-scrubber::-webkit-slider-thumb:hover{transform:scale(1.25);}
+.audio-scrubber::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--ocean-deep);border:none;cursor:pointer;
+}
+
 /* ═══ AUDIO STATUS STATES ═══ */
 .audio-status.loading{color:var(--text-soft);animation:narratePulse 1.5s ease-in-out infinite;}
 .audio-status.playing{color:var(--ocean);}
@@ -657,6 +677,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
         <div class="audio-status" id="audioStatus">Loading narration…</div>
       </div>
       <button class="audio-dl-btn" id="audioDlBtn" onclick="downloadNarration()" title="Download mp3" style="display:none;">⬇</button>
+    </div>
+    <div class="audio-progress-row" id="audioProgressRow">
+      <span class="audio-time" id="audioCurrent">0:00</span>
+      <input class="audio-scrubber" id="audioScrubber" type="range" min="0" max="100" value="0" step="0.1" oninput="seekAudio(this.value)">
+      <span class="audio-time" id="audioDuration">—:——</span>
     </div>
     <div class="audio-bar-bottom">
       <div class="audio-speed-group">
@@ -1956,6 +1981,38 @@ async function playFullStory(){
   }
 }
 
+function fmtTime(s){
+  if(!isFinite(s)||s<0)return '0:00';
+  const m=Math.floor(s/60),ss=Math.floor(s%60);
+  return `${m}:${ss.toString().padStart(2,'0')}`;
+}
+
+function updateScrubber(cur, dur){
+  const pct = (dur&&isFinite(dur)) ? (cur/dur*100) : 0;
+  const scrubber=document.getElementById('audioScrubber');
+  const curEl=document.getElementById('audioCurrent');
+  const durEl=document.getElementById('audioDuration');
+  if(scrubber){scrubber.value=pct;scrubber.style.setProperty('--pct',pct+'%');}
+  if(curEl)curEl.textContent=fmtTime(cur);
+  if(durEl&&isFinite(dur))durEl.textContent=fmtTime(dur);
+}
+
+function resetScrubber(){
+  const row=document.getElementById('audioProgressRow');
+  const scrubber=document.getElementById('audioScrubber');
+  const curEl=document.getElementById('audioCurrent');
+  const durEl=document.getElementById('audioDuration');
+  if(row)row.style.display='none';
+  if(scrubber){scrubber.value=0;scrubber.style.setProperty('--pct','0%');}
+  if(curEl)curEl.textContent='0:00';
+  if(durEl)durEl.textContent='—:——';
+}
+
+function seekAudio(pct){
+  if(!AUDIO.audioEl||!isFinite(AUDIO.audioEl.duration))return;
+  AUDIO.audioEl.currentTime=(pct/100)*AUDIO.audioEl.duration;
+}
+
 function startAudioFromUrl(url){
   // Always create a fresh element — avoids stuck error state from a previous attempt
   if(AUDIO.audioEl){AUDIO.audioEl.pause();AUDIO.audioEl.onended=null;AUDIO.audioEl.onerror=null;AUDIO.audioEl.src='';}
@@ -1969,7 +2026,18 @@ function startAudioFromUrl(url){
     updatePlayBtn();
   };
 
-  el.onended=()=>{AUDIO.playing=false;AUDIO.hasAudio=false;audioSetStatus('Story complete ✨','');updatePlayBtn();};
+  el.onloadedmetadata=()=>{
+    const row=document.getElementById('audioProgressRow');
+    if(row)row.style.display='flex';
+    updateScrubber(0, el.duration);
+  };
+  el.ontimeupdate=()=>updateScrubber(el.currentTime, el.duration);
+  el.onended=()=>{
+    AUDIO.playing=false;AUDIO.hasAudio=false;
+    audioSetStatus('Story complete ✨','');
+    updateScrubber(el.duration, el.duration);
+    updatePlayBtn();
+  };
   el.onerror=()=>{if(AUDIO.playing)done(false);};
 
   el.src=url;
@@ -1987,6 +2055,7 @@ function audioStop(){
   AUDIO.playing=false;
   AUDIO.hasAudio=false;
   AUDIO.autoAdvancing=false;
+  resetScrubber();
   updatePlayBtn();
 }
 
