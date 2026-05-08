@@ -95,9 +95,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Split into chunks and generate in parallel — fixes volume fade on long texts
+    // Split into chunks and generate sequentially — fixes volume fade on long texts
+    // without hitting ElevenLabs' concurrent-request limit (max 3).
+    // Sequential adds ~10s per chunk but stays well within the 120s maxDuration.
     const chunks = splitIntoChunks(text);
-    const buffers = await Promise.all(chunks.map(chunk => generateChunk(chunk, voiceId, apiKey)));
+    const buffers = [];
+    for (const chunk of chunks) {
+      buffers.push(await generateChunk(chunk, voiceId, apiKey));
+    }
     const audioBuffer = Buffer.concat(buffers);
     const audioBase64 = audioBuffer.toString('base64');
 
@@ -111,6 +116,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ audioBase64, mimeType: 'audio/mpeg' });
   } catch (e) {
     console.error('Narration error:', e);
-    return res.status(500).json({ error: 'Could not generate narration — please try again', _debug: e.message });
+    return res.status(500).json({ error: 'Could not generate narration — please try again' });
   }
 }
