@@ -4,14 +4,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sample Stories — Sunny Stories</title>
-  <meta name="description" content="Read sample Sunny Stories personalised for a 3, 5, and 7 year old — see how each story is written for your child's age and favourite Sunshine Coast spots."/>
+  <meta name="description" content="Listen to three sample Sunny Stories personalised for a 3, 5, and 7 year old — narrated in a warm Australian accent, set in real Sunshine Coast places."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="icon" type="image/svg+xml" href="/logo.svg"/>
   <link rel="apple-touch-icon" href="/logo.svg"/>
   <meta property="og:title" content="Sample Stories — Sunny Stories"/>
-  <meta property="og:description" content="Personalised stories for Sunshine Coast families. See how we write for every age."/>
+  <meta property="og:description" content="Personalised audio stories for Sunshine Coast families. Listen to samples for ages 3, 5, and 7."/>
   <meta property="og:image" content="https://sunnystories.co/og-image.png"/>
   <meta property="og:url" content="https://sunnystories.co/stories"/>
   <meta name="twitter:card" content="summary_large_image"/>
@@ -48,25 +48,21 @@
     .nav-logo {
       font-family: 'Fraunces', serif;
       font-size: 1.4rem; font-weight: 700;
-      color: var(--ocean-deep);
-      text-decoration: none;
+      color: var(--ocean-deep); text-decoration: none;
     }
     .nav-logo span { color: var(--ocean-bright); font-style: italic; }
     .nav-links { display: flex; gap: 1rem; align-items: center; }
     .btn-ghost-nav {
-      font-size: 0.9rem; font-weight: 500;
-      color: var(--ocean-deep);
+      font-size: 0.9rem; font-weight: 500; color: var(--ocean-deep);
       text-decoration: none; padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      transition: background 0.2s;
+      border-radius: 6px; transition: background 0.2s;
     }
     .btn-ghost-nav:hover { background: var(--bg-section); }
     .btn-nav {
       font-size: 0.9rem; font-weight: 600;
       background: var(--ocean); color: #fff;
       text-decoration: none; padding: 0.5rem 1.1rem;
-      border-radius: 8px;
-      transition: background 0.2s;
+      border-radius: 8px; transition: background 0.2s;
     }
     .btn-nav:hover { background: var(--ocean-deep); }
     @media (max-width: 600px) { .nav-links .btn-ghost-nav { display: none; } }
@@ -74,8 +70,7 @@
     /* HERO */
     .hero {
       background: linear-gradient(135deg, #1a4a78 0%, #306ca4 55%, #38a2c2 100%);
-      color: #fff;
-      text-align: center;
+      color: #fff; text-align: center;
       padding: 4rem 2rem 3.5rem;
     }
     .hero-label {
@@ -89,13 +84,16 @@
     .hero h1 {
       font-family: 'Fraunces', serif;
       font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 700; line-height: 1.15;
-      margin-bottom: 0.9rem;
+      font-weight: 700; line-height: 1.15; margin-bottom: 0.9rem;
     }
     .hero p {
-      font-size: 1.05rem;
-      opacity: 0.88;
-      max-width: 560px; margin: 0 auto;
+      font-size: 1.05rem; opacity: 0.88;
+      max-width: 560px; margin: 0 auto 0;
+    }
+    .hero-note {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      margin-top: 1.4rem;
+      font-size: 0.82rem; opacity: 0.7;
     }
 
     /* AGE TABS */
@@ -108,107 +106,146 @@
       display: flex; gap: 0;
       max-width: 800px; margin: 0 auto;
       padding: 0 1.5rem;
-      overflow-x: auto;
-      scrollbar-width: none;
+      overflow-x: auto; scrollbar-width: none;
     }
     .tabs::-webkit-scrollbar { display: none; }
     .tab-btn {
       flex-shrink: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.9rem; font-weight: 600;
-      color: var(--text-soft);
+      font-size: 0.9rem; font-weight: 600; color: var(--text-soft);
       background: none; border: none;
       border-bottom: 3px solid transparent;
-      padding: 1rem 1.4rem;
-      cursor: pointer;
+      padding: 1rem 1.4rem; cursor: pointer;
       transition: color 0.2s, border-color 0.2s;
     }
-    .tab-btn.active {
-      color: var(--ocean-deep);
-      border-bottom-color: var(--ocean);
-    }
+    .tab-btn.active { color: var(--ocean-deep); border-bottom-color: var(--ocean); }
     .tab-btn:hover { color: var(--ocean-deep); }
 
     /* STORY PANELS */
     .story-panel { display: none; }
     .story-panel.active { display: block; }
+    .story-wrap { max-width: 700px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
 
-    .story-wrap {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 4rem;
+    /* STORY DNA */
+    .story-dna {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 1.8rem;
     }
+    .dna-chip {
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.25rem 0.7rem; border-radius: 20px; border: 1px solid;
+    }
+    .dna-chip.who   { background: rgba(56,162,194,.1); border-color: rgba(56,162,194,.3); color: var(--ocean-deep); }
+    .dna-chip.where { background: rgba(64,219,225,.1); border-color: rgba(64,219,225,.35); color: var(--ocean-deep); }
+    .dna-chip.what  { background: rgba(216,110,89,.08); border-color: rgba(216,110,89,.22); color: var(--terracotta); }
+    .dna-chip.arc   { background: rgba(255,238,187,.5); border-color: rgba(180,140,20,.22); color: #7a5c00; font-style: italic; }
+    .dna-chip.age   { background: rgba(217,187,255,.35); border-color: rgba(150,100,220,.2); color: #5a2a9a; }
 
-    .story-meta {
-      display: flex; align-items: center; gap: 0.8rem;
+    /* AUDIO CARD */
+    .sample-audio-card {
+      background: linear-gradient(135deg, #1a4a78 0%, #306ca4 55%, #38a2c2 100%);
+      border-radius: 20px;
+      padding: 1.6rem 1.5rem 1.4rem;
       margin-bottom: 2rem;
+      text-align: center;
     }
-    .age-badge {
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: #ffeebb; color: #7a5a00;
-      border-radius: 20px; padding: 0.3rem 0.85rem;
+    .sac-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.13em;
+      text-transform: uppercase; color: rgba(255,255,255,0.65);
+      margin-bottom: 1rem;
+    }
+    .sac-play-btn {
+      width: 68px; height: 68px; border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15);
+      color: #fff; font-size: 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+      transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .sac-play-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.25); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+    .sac-hint {
+      display: none; font-size: 10px; color: rgba(255,255,255,0.5);
+      margin-bottom: 0.5rem; line-height: 1.4;
+    }
+    .sac-progress-row {
+      display: none; align-items: center; gap: 8px;
+      width: 100%; padding: 0 4px; margin-top: 0.2rem;
+    }
+    .sac-time {
+      font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7);
+      white-space: nowrap; min-width: 28px; font-variant-numeric: tabular-nums;
+    }
+    .sac-time:last-child { text-align: right; }
+    .sac-scrubber {
+      flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+      border-radius: 2px; outline: none; cursor: pointer;
+      background: linear-gradient(to right, #fff var(--pct, 0%), rgba(255,255,255,0.25) var(--pct, 0%));
+    }
+    .sac-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.25); cursor: pointer; transition: transform .15s;
+    }
+    .sac-scrubber::-webkit-slider-thumb:hover { transform: scale(1.25); }
+    .sac-scrubber::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
+    .sac-status { font-size: 0.83rem; color: rgba(255,255,255,0.78); margin-top: 0.1rem; }
+    .sac-status.loading { animation: sPulse 1.5s ease-in-out infinite; }
+    .sac-status.error { color: #ffbbce; }
+    .sac-download {
+      display: none; margin-top: 0.9rem;
+      background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 10px; color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 600;
+      padding: 0.4rem 1rem; cursor: pointer; transition: background 0.18s;
+    }
+    .sac-download:hover { background: rgba(255,255,255,0.25); }
+    @keyframes sPulse { 0%,100%{opacity:.45} 50%{opacity:1} }
+
+    /* STORY CONTENT */
+    .story-meta {
+      display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.6rem;
+    }
+    .story-scene {
+      width: 100%; height: 110px;
+      background: var(--bg-section); border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 54px; margin-bottom: 1.8rem;
     }
     .story-title-block h2 {
       font-family: 'Fraunces', serif;
-      font-size: 1.6rem; font-weight: 700;
-      color: var(--ocean-deep);
-      line-height: 1.2;
+      font-size: 1.55rem; font-weight: 700;
+      color: var(--ocean-deep); line-height: 1.2;
     }
     .story-title-block .story-subtitle {
-      font-size: 0.88rem; color: var(--text-soft);
-      margin-top: 0.25rem;
-    }
-
-    /* READER */
-    .story-scene {
-      width: 100%;
-      height: 120px;
-      background: var(--bg-section);
-      border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 56px;
-      margin-bottom: 2rem;
+      font-size: 0.88rem; color: var(--text-soft); margin-top: 0.25rem;
     }
     .story-pages {
       font-family: 'Fraunces', serif;
-      font-size: 1.05rem;
-      line-height: 1.85;
-      color: var(--text-dark);
+      font-size: 1.05rem; line-height: 1.88; color: var(--text-dark);
     }
     .story-page { margin-bottom: 1.5rem; }
     .page-divider {
-      text-align: center;
-      color: var(--ocean-bright);
-      font-size: 1rem;
-      letter-spacing: 0.5em;
-      margin: 2rem 0;
-      opacity: 0.6;
+      text-align: center; color: var(--ocean-bright);
+      font-size: 1rem; letter-spacing: 0.5em;
+      margin: 2rem 0; opacity: 0.6;
     }
 
     /* CTA STRIP */
     .cta-strip {
       background: linear-gradient(135deg, #1a4a78 0%, #306ca4 60%, #38a2c2 100%);
-      color: #fff;
-      text-align: center;
-      padding: 4rem 2rem;
+      color: #fff; text-align: center; padding: 4rem 2rem;
     }
     .cta-strip h2 {
       font-family: 'Fraunces', serif;
       font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 700; margin-bottom: 0.8rem;
     }
-    .cta-strip p {
-      font-size: 1rem; opacity: 0.88;
-      max-width: 480px; margin: 0 auto 1.8rem;
-    }
+    .cta-strip p { font-size: 1rem; opacity: 0.88; max-width: 480px; margin: 0 auto 1.8rem; }
     .btn-cta {
-      display: inline-block;
-      font-size: 1rem; font-weight: 700;
+      display: inline-block; font-size: 1rem; font-weight: 700;
       background: #fff; color: var(--ocean-deep);
-      text-decoration: none;
-      padding: 0.85rem 2rem;
-      border-radius: 10px;
+      text-decoration: none; padding: 0.85rem 2rem; border-radius: 10px;
       transition: transform 0.15s, box-shadow 0.15s;
       box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     }
@@ -217,23 +254,18 @@
 
     /* FOOTER */
     footer {
-      background: var(--ocean-deep);
-      color: rgba(255,255,255,0.75);
-      text-align: center;
-      padding: 2.5rem 2rem;
+      background: var(--ocean-deep); color: rgba(255,255,255,0.75);
+      text-align: center; padding: 2.5rem 2rem;
     }
     .footer-logo {
-      font-family: 'Fraunces', serif;
-      font-size: 1.3rem; font-weight: 700;
+      font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 700;
       color: #fff; margin-bottom: 0.4rem;
     }
     .footer-logo span { color: var(--ocean-bright); font-style: italic; }
     .footer-tagline { font-size: 0.88rem; margin-bottom: 1.2rem; }
     .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1.2rem; }
     .footer-links a {
-      color: rgba(255,255,255,0.7);
-      text-decoration: none; font-size: 0.88rem;
-      transition: color 0.2s;
+      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.88rem; transition: color 0.2s;
     }
     .footer-links a:hover { color: var(--ocean-bright); }
     .footer-copy { font-size: 0.8rem; opacity: 0.5; }
@@ -248,154 +280,233 @@
     <a href="/stories" class="btn-ghost-nav">Sample stories</a>
     <a href="/#pricing" class="btn-ghost-nav">Pricing</a>
     <a href="/give" class="btn-ghost-nav">🎁 Gifting</a>
-    <a href="/app" class="btn-nav">Create yours — $15</a>
+    <a href="/app" class="btn-nav">Create yours — $25</a>
   </div>
 </nav>
 
 <div class="hero">
-  <div class="hero-label">Sample stories</div>
-  <h1>See how the magic works</h1>
-  <p>Every story is written for your child's age — simple and joyful at three, imaginative at five, rich and adventurous at seven.</p>
+  <div class="hero-label">🎧 Sample stories</div>
+  <h1>Hear what their story sounds like</h1>
+  <p>Three real stories — written for ages 3, 5, and 7 — set in actual Sunshine Coast places and narrated in a warm Australian accent. Hit play and listen.</p>
+  <div class="hero-note">🎙️ Every story narrated by ElevenLabs · Australian voice · Plays instantly</div>
 </div>
 
 <div class="tabs-wrap">
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('age3')">Lily, age 3</button>
-    <button class="tab-btn" onclick="showTab('age5')">Oscar, age 5</button>
-    <button class="tab-btn" onclick="showTab('age7')">Maya, age 7</button>
+    <button class="tab-btn active" onclick="showTab('age3', 0, this)">🌸 Lily, age 3</button>
+    <button class="tab-btn" onclick="showTab('age5', 1, this)">🦅 Oscar, age 5</button>
+    <button class="tab-btn" onclick="showTab('age7', 2, this)">⛰️ Maya, age 7</button>
   </div>
 </div>
 
-<!-- AGE 3 -->
+<!-- ── AGE 3 ──────────────────────────────────── -->
 <div id="age3" class="story-panel active">
   <div class="story-wrap">
+
+    <div class="story-dna">
+      <span class="dna-chip age">🎂 Age 3</span>
+      <span class="dna-chip who">⭐ Lily</span>
+      <span class="dna-chip where">📍 Mooloolaba Beach</span>
+      <span class="dna-chip what">💛 shells &amp; the ocean</span>
+      <span class="dna-chip arc">📖 Wonder</span>
+    </div>
+
+    <div class="sample-audio-card" id="sac-0">
+      <div class="sac-label">🎙️ Australian narration · Lily and the Pink Shell</div>
+      <button class="sac-play-btn" id="sac-btn-0" onclick="sToggle(0)">▶</button>
+      <div class="sac-hint" id="sac-hint-0">First listen takes ~20s · saves for instant replay</div>
+      <div class="sac-progress-row" id="sac-prog-0">
+        <span class="sac-time" id="sac-cur-0">0:00</span>
+        <input class="sac-scrubber" id="sac-scrub-0" type="range" min="0" max="100" value="0" step="0.1" oninput="sSeekAudio(this.value)">
+        <span class="sac-time" id="sac-dur-0">—:——</span>
+      </div>
+      <div class="sac-status" id="sac-status-0">Tap ▶ to listen to this story</div>
+      <button class="sac-download" id="sac-dl-0" onclick="sDownload(0)">⬇ Download mp3</button>
+    </div>
+
+    <div class="story-scene">🐚</div>
     <div class="story-meta">
-      <span class="age-badge">Age 3</span>
       <div class="story-title-block">
         <h2>Lily and the Pink Shell</h2>
         <div class="story-subtitle">A story set at Mooloolaba Beach</div>
       </div>
     </div>
-    <div class="story-scene">🐚</div>
+
     <div class="story-pages">
       <div class="story-page">
         Lily loved Mooloolaba Beach more than anywhere in the whole wide world.<br><br>
-        She loved the way the waves came rushing in — whooooosh — and then went rushing back out again. She loved the smell of the salty air and the way the sand squished between her toes.<br><br>
-        She loved the big seagulls that walked along the water's edge, and the little crabs that scuttled away under the rocks.<br><br>
+        She loved the way the waves came rushing in — <em>whooooosh</em> — and then went rushing back out again. She loved the smell of the salty air and the way the sand squished between her toes. She loved the big seagulls that walked along the water's edge like they owned the place, and the little crabs that scuttled away under the rocks whenever she got too close.<br><br>
         "Ready?" said Mum.<br>
-        "Ready!" said Lily.<br><br>
-        And off she ran.
+        "Ready!" said Lily.<br>
+        And off she ran.<br><br>
+        She ran right up to the water and let the little waves chase her feet. Cold! Bubbly! Fun! She splashed and squealed and splashed some more. She held her arms out wide and let the wind blow her hair back from her face. The ocean was enormous and sparkly and it smelled like holidays and swimming and the very best kind of Saturday all rolled into one.<br><br>
+        A wave came rushing in — bigger than the others — and washed right over her ankles. Lily shrieked with delight and ran three steps backward and then ran three steps forward again. That was the game. The wave was not very good at catching her.<br><br>
+        She was very good at not being caught.<br><br>
+        Then she stopped.<br><br>
+        There — right there in the wet sand — something small and shiny and pink.
       </div>
       <div class="page-divider">✦</div>
       <div class="story-page">
-        Lily ran right up to the water and let the little waves chase her feet.<br>
-        Cold! Bubbly! Fun!<br><br>
-        She splashed and squealed and splashed some more. Then she stopped.<br><br>
-        There — right there in the wet sand — something small and shiny and pink.<br><br>
-        Lily crouched down and picked it up very carefully. It was a shell. Round and smooth and perfect, with little pink and cream stripes all the way around.<br><br>
-        The prettiest shell Lily had ever seen.<br><br>
-        "Hello, shell," she whispered.
+        Lily crouched down very carefully, the way you do when something might be magic. She picked it up with both hands.<br><br>
+        It was a shell. Round and smooth and perfect, with little pink and cream stripes all the way around. The prettiest thing Lily had ever found. Prettier than the white pebble she kept on her windowsill. Prettier than the feather she had found at Bli Bli once. Prettier than anything.<br><br>
+        "Hello, shell," she whispered.<br><br>
+        She carried it down to the water to wash it, holding it so carefully that her fingers ached. She showed it to the waves. The waves rushed around her ankles and ran away again, like they were surprised. She showed it to a seagull, but the seagull tilted its head and walked off in the other direction. She showed it to Mum, who said it was beautiful, which it absolutely was.<br><br>
+        Lily sat down in the warm, damp sand. She turned the shell over and over in her hands. The pink stripes caught the sunlight and made a tiny rainbow if she tilted it just right. She tilted it left. Then right. Then all the way around, slowly, to see every stripe.<br><br>
+        A small wave came and washed over her feet and she didn't even move. She was too busy looking at her shell.<br><br>
+        It was warm. It was smooth. It was exactly the right size for one small hand.<br><br>
+        She tucked it carefully into the pocket of her swimmers, right against her hip, where she could feel it whenever she moved.<br><br>
+        "Mine," she decided. Just quietly. Just to herself.
       </div>
       <div class="page-divider">✦</div>
       <div class="story-page">
-        Lily held the shell up close to her ear, the way Dad had showed her once.<br><br>
-        Shhhhh.<br><br>
-        And there it was — the sound of the ocean, right inside the shell. A tiny little whooooosh, just for her.<br><br>
-        She tucked it safely into her pocket and patted it twice.<br><br>
-        All the way home, she could feel it there — her special Mooloolaba treasure. And that night, when she held it up to her ear again in bed, the waves were still whispering.<br><br>
-        They always would be.
+        All afternoon, Lily built sandcastles and ate watermelon and had ice cream — the kind with the chocolate bit on top, which Dad always broke off and said was the best part, and Lily always agreed, because it was. She ran from the waves and chased them back and found four more shells, but none of them were as good as the pink one.<br><br>
+        Every single time she sat back down in the sand, she checked her pocket. Still there. Still smooth. Still hers.<br><br>
+        When the sun turned orange and Mum said it was time to pack up, Lily helped roll the towels and put the buckets away. She only dropped her bucket twice, which was actually very good for her.<br><br>
+        In the car on the way home, she held the shell in her lap and held Dad's hand and watched the Sunshine Coast go past outside the window — the palm trees and the golden light and the big stretches of blue water getting smaller behind them.<br><br>
+        That night, she put the shell on her bedside table where she could see it from her pillow.<br><br>
+        And then, because Dad had told her once that if you hold a shell up to your ear and listen very carefully, you can hear the ocean inside — she picked it up and pressed it gently to her ear.<br><br>
+        <em>Shhhhhh.</em><br><br>
+        And there it was. A tiny little <em>whooooosh</em>, just like Mooloolaba. Just like today.<br><br>
+        She put the shell back. She lay down. She smiled.<br><br>
+        The waves kept whispering all night long.
       </div>
     </div>
   </div>
 </div>
 
-<!-- AGE 5 -->
+<!-- ── AGE 5 ──────────────────────────────────── -->
 <div id="age5" class="story-panel">
   <div class="story-wrap">
+
+    <div class="story-dna">
+      <span class="dna-chip age">🎂 Age 5</span>
+      <span class="dna-chip who">⭐ Oscar</span>
+      <span class="dna-chip where">📍 Noosa National Park</span>
+      <span class="dna-chip what">💛 birds &amp; wildlife</span>
+      <span class="dna-chip arc">📖 Friendship</span>
+    </div>
+
+    <div class="sample-audio-card" id="sac-1">
+      <div class="sac-label">🎙️ Australian narration · Oscar and the Currawong</div>
+      <button class="sac-play-btn" id="sac-btn-1" onclick="sToggle(1)">▶</button>
+      <div class="sac-hint" id="sac-hint-1">First listen takes ~20s · saves for instant replay</div>
+      <div class="sac-progress-row" id="sac-prog-1">
+        <span class="sac-time" id="sac-cur-1">0:00</span>
+        <input class="sac-scrubber" id="sac-scrub-1" type="range" min="0" max="100" value="0" step="0.1" oninput="sSeekAudio(this.value)">
+        <span class="sac-time" id="sac-dur-1">—:——</span>
+      </div>
+      <div class="sac-status" id="sac-status-1">Tap ▶ to listen to this story</div>
+      <button class="sac-download" id="sac-dl-1" onclick="sDownload(1)">⬇ Download mp3</button>
+    </div>
+
+    <div class="story-scene">🦅</div>
     <div class="story-meta">
-      <span class="age-badge">Age 5</span>
       <div class="story-title-block">
         <h2>Oscar and the Currawong</h2>
         <div class="story-subtitle">A story set in Noosa National Park</div>
       </div>
     </div>
-    <div class="story-scene">🦅</div>
+
     <div class="story-pages">
       <div class="story-page">
-        Oscar pulled on his hat and buckled his sandals twice — because once wasn't enough for a Noosa day.<br><br>
-        The drive took twenty-two minutes. Oscar had been counting since he was four, when Dad told him it was exactly twenty-two minutes from home to the national park. It was always exactly twenty-two.<br><br>
-        When the doors opened, the air smelled different here. Green and cool and alive with sounds he couldn't quite name yet. He jumped out before Mum had even turned off the engine.<br><br>
+        Oscar pulled on his hat and buckled his sandals twice — because once was never enough for a Noosa day.<br><br>
+        The drive took twenty-two minutes. Oscar had been counting since he was four, when Dad told him it was exactly twenty-two minutes from home to the national park car park. It was always exactly twenty-two. Oscar had checked many times.<br><br>
+        When the doors opened, the air smelled different here. Cool and green and alive with sounds that didn't have names yet. He jumped out before Mum had even turned off the engine.<br><br>
         "Shoes, Oscar."<br><br>
-        He put them back on.
-      </div>
-      <div class="page-divider">✦</div>
-      <div class="story-page">
-        The track wound through the trees, dappled and cool, the ocean flickering blue between the branches whenever the path curved just right.<br><br>
-        Oscar ran ahead, then stopped, then ran again. There was always something to look at — a lizard on a warm rock, a spider web catching the light, the tiny tracks of something small pressed into the mud.<br><br>
+        He put them back on.<br><br>
+        The track wound through the trees, dappled with morning light, the ocean flickering blue between the branches whenever the path curved just right. Oscar ran ahead, then stopped, then ran ahead again. There was always something to look at — a blue-tongued lizard on a warm rock, a spider web catching the light like a tiny radar dish, a fallen log with a beetle trundling along the top like it was going somewhere extremely important.<br><br>
         "Slow down," Mum called. "You'll miss everything."<br><br>
-        Oscar wasn't sure how you could miss something by running toward it. But he waited anyway, hopping from foot to foot, while she caught up.
+        Oscar wasn't sure how you could miss something by running toward it. But he waited anyway, hopping from foot to foot, while she caught up and ruffled the back of his hat.
       </div>
       <div class="page-divider">✦</div>
       <div class="story-page">
-        That's when he heard it — a long, wobbly call that seemed to rise and fall and change its mind halfway through, echoing off the gum trees like it was searching for something.<br><br>
-        Oscar froze.<br><br>
-        There, on a branch just above the path, sat the biggest black bird he had ever seen. Glossy dark feathers. Bright yellow eye. Head tilted to one side as if it was thinking something important.<br><br>
+        They were halfway along the track, where the trees grew close together and the air felt cool and still and very green, when Oscar stopped completely.<br><br>
+        There was a sound.<br><br>
+        Not like a regular bird — not the sharp whistle of a kookaburra or the screech of a sulphur-crested cockatoo. This sound curved and changed and doubled back on itself, like it was searching for something, or asking a very long question, or telling a story that hadn't decided how to end yet.<br><br>
+        Oscar looked up slowly.<br><br>
+        There — on a low branch just above the path, close enough that Oscar could have counted the feathers — sat the largest black bird he had ever seen. Glossy dark plumage, bright yellow eye, tail fanned slightly out behind it like it was trying to look impressive. Its head tilted to one side. It was looking right at him.<br><br>
         A currawong.<br><br>
-        It looked at Oscar. Oscar looked at it. Neither of them moved.<br><br>
-        Oscar held his breath.
+        Oscar's heart went very still in the best possible way. He didn't move. He didn't make a single sound. He looked back at the bird as carefully and politely as he could.<br><br>
+        "Hello," he said. As quiet as a breath held too long.
       </div>
       <div class="page-divider">✦</div>
       <div class="story-page">
-        Very slowly, Oscar raised one hand in a wave. He felt a little silly doing it.<br>
-        But it felt right.<br><br>
-        "Hello," he said. As quiet as he could.<br><br>
-        The currawong tilted its head the other way. Then it opened its beak and sang — not a little chirp, but a big, rolling, warbling song that filled the whole forest. Like it had been waiting to tell someone something, and Oscar was finally close enough to hear.<br><br>
+        The currawong tilted its head the other way. It seemed to consider him very carefully.<br><br>
+        And then it sang.<br><br>
+        Not a little chirp — a full, rolling, warbling song that filled the entire forest and came bouncing back off the gum trees. It rose and fell and changed its mind and started again, each phrase different from the last. Oscar felt it in his chest, the way you feel music turned up so loud it becomes something else entirely.<br><br>
+        He stood completely still. His eyes went wide. His mouth fell a little bit open. He forgot about the beetles and the spider webs and running ahead and everything else except this bird on this branch in this exact moment, which he knew, somehow, was one he was going to remember.<br><br>
         "I think he likes you," Mum whispered from just behind his shoulder.<br><br>
-        Oscar smiled so wide his face hurt.
-      </div>
-      <div class="page-divider">✦</div>
-      <div class="story-page">
-        The currawong spread its wings and was gone — a swoop of black and white through the trees, its call fading until it was just an echo, and then nothing at all.<br><br>
-        Oscar stood very still for a long moment, even though the bird was long gone.<br><br>
-        All the way back to the car, he kept humming it — that wobbly, wonderful song. He hummed it at dinner. He hummed it in the bath. He hummed it one last time as he fell asleep.<br><br>
-        His very own Noosa sound.<br>
-        He'd never forget it.
+        When the song finally stopped, the currawong spread its wings — enormous and black and white — and disappeared into the trees in one long, smooth arc. Its call echoed after it, fading and fading, until there was nothing left but the rustle of leaves and the distant sound of the ocean.<br><br>
+        Oscar stood in the quiet for a long time.<br><br>
+        All the way back to the car, he hummed it — that wobbly, searching, wonderful song. He hummed it at dinner. He hummed it in the bath. He hummed it one last time, very quietly, as he fell asleep.<br><br>
+        In his dreams, a bird with a bright yellow eye tilted its head and waited patiently for him to answer.
       </div>
     </div>
   </div>
 </div>
 
-<!-- AGE 7 -->
+<!-- ── AGE 7 ──────────────────────────────────── -->
 <div id="age7" class="story-panel">
   <div class="story-wrap">
+
+    <div class="story-dna">
+      <span class="dna-chip age">🎂 Age 7</span>
+      <span class="dna-chip who">⭐ Maya</span>
+      <span class="dna-chip where">📍 Glass House Mountains</span>
+      <span class="dna-chip what">💛 hiking &amp; history</span>
+      <span class="dna-chip arc">📖 Wonder</span>
+    </div>
+
+    <div class="sample-audio-card" id="sac-2">
+      <div class="sac-label">🎙️ Australian narration · Maya and the Ancient Mountains</div>
+      <button class="sac-play-btn" id="sac-btn-2" onclick="sToggle(2)">▶</button>
+      <div class="sac-hint" id="sac-hint-2">First listen takes ~20s · saves for instant replay</div>
+      <div class="sac-progress-row" id="sac-prog-2">
+        <span class="sac-time" id="sac-cur-2">0:00</span>
+        <input class="sac-scrubber" id="sac-scrub-2" type="range" min="0" max="100" value="0" step="0.1" oninput="sSeekAudio(this.value)">
+        <span class="sac-time" id="sac-dur-2">—:——</span>
+      </div>
+      <div class="sac-status" id="sac-status-2">Tap ▶ to listen to this story</div>
+      <button class="sac-download" id="sac-dl-2" onclick="sDownload(2)">⬇ Download mp3</button>
+    </div>
+
+    <div class="story-scene">⛰️</div>
     <div class="story-meta">
-      <span class="age-badge">Age 7</span>
       <div class="story-title-block">
         <h2>Maya and the Ancient Mountains</h2>
         <div class="story-subtitle">A story set at the Glass House Mountains</div>
       </div>
     </div>
-    <div class="story-scene">⛰️</div>
+
     <div class="story-pages">
       <div class="story-page">
         There are some mornings when the Glass House Mountains look like they belong to another world entirely.<br><br>
-        Maya had seen them a hundred times from the car window — those ancient peaks rising suddenly from the flat green plains, each one a different shape, silent as old secrets. But today was different. Today she was going to walk right up to one.
+        Maya had seen them hundreds of times from the car — those ancient, impossible peaks rising out of the flat green plains without any warning, each one a different shape, each one keeping its own kind of silence. But today was different. Today she wasn't watching from the window. Today she was going to walk right up to one.<br><br>
+        She had packed her own bag the night before: water bottle, muesli bar, the small sketchbook she took everywhere. She tightened her bootlaces on the footbridge and looked up at the mountain in front of her — Tibrogargan, grey and vast and patient — and felt something she didn't quite have a word for.<br><br>
+        "Ready?" said Dad.<br><br>
+        Maya didn't answer. She just started walking.<br><br>
+        The track wound upward through scribbly gum and bottlebrush, the bark peeling back from the trunks in long pale ribbons. Her boots made a satisfying crunch on the gravel. Her legs ached in that specific way that meant she was working for something worth having. Every few minutes she stopped, turned around, and looked at where she'd come from. Each time, there was more sky above her, and more valley falling away below.
       </div>
       <div class="page-divider">✦</div>
       <div class="story-page">
-        The track wound upward through scribbly gum and bottlebrush, the bark of the trees peeling away in long pale curls. Maya's legs ached in that good way — the way that meant she was working for something worth having.<br><br>
-        She paused at a clearing and looked back. The valley spread below like a rumpled green quilt, and beyond it, the faint shimmer of the ocean. Caloundra's headland, the curving bays, the glint of Mooloolaba in the distance — all of it laid out like a map of everywhere she'd ever loved.
+        At a wide clearing partway up, Maya stopped properly and looked back at the Sunshine Coast laid out below.<br><br>
+        She could see all of it — Caloundra's headland curving south, Mooloolaba's beach a pale gold strip in the morning light, the Noosa hinterland rolling north in shades of green so deep they were almost blue. And running through all of it, everywhere she looked, water: the rivers threading silver through the flat land, and beyond them the Pacific, wide and blue and stretching to the edge of the world.<br><br>
+        "The Jinibara people have cared for this country for tens of thousands of years," Dad said quietly beside her. "This has always been home."<br><br>
+        Maya didn't say anything for a long time. She thought about what it would mean to know a place that deeply — every bird call, every shadow, every shift of light across the valley through every season of every year. To have the mountain not as a destination but as a neighbour. To walk up it because it was simply where you lived.<br><br>
+        She got out her sketchbook and drew the view, trying to get the mountains right. She couldn't. Their shapes were too strange, too old, too particular for her pencil to capture. But she tried anyway, pressing hard on the page, because some things were worth trying even when you already knew you couldn't do them perfectly.
       </div>
       <div class="page-divider">✦</div>
       <div class="story-page">
-        "The Jinibara people called these mountains home for thousands of years," Dad said beside her. "Can you imagine growing up with this view every single day?"<br><br>
-        Maya thought about that for a long while. She thought about what it would mean to know a place so well — every rock, every bird call, every shift of light across the valley — that it felt less like somewhere you visited and more like part of who you were.
-      </div>
-      <div class="page-divider">✦</div>
-      <div class="story-page">
-        At the summit, the wind was sharp and clean, and Maya stood with her arms out and her face to the sky. She felt impossibly small and completely alive at the same time — which, she thought, might actually be the best feeling there is.<br><br>
-        Below her, the mountains stretched in every direction: Beerwah, Tibrogargan, Coonowrin — each one watching over the Sunshine Coast in its own quiet, enduring way.<br><br>
-        She would come back. She already knew it. Some places get into your bones like that.
+        At the summit, the wind was sharp and clean and seemed to come from every direction at once.<br><br>
+        Maya stood with her arms out and her face tilted to the sky and felt two things at exactly the same moment: impossibly small, and completely alive. She thought those two feelings might actually go together. She thought that might be what mountains were for.<br><br>
+        Below her the other peaks spread in every direction — Beerwah and Coonowrin and the smaller ones whose names she was still learning — each one watching over the Sunshine Coast in its own patient, enduring way. They had been standing here for twenty-five million years. They had seen ice ages and floods and everything in between. They would be here long after Maya was gone, long after everyone she knew was gone.<br><br>
+        She thought that should make her feel small. Instead, it made her feel very calm.<br><br>
+        On the way down she counted three bluetongue lizards, two yellow butterflies, and one green tree snake that appeared on a rock beside the path and then disappeared in the time it took her to blink.<br><br>
+        She didn't mention the snake to Dad until they were nearly back at the car.<br><br>
+        "Maya."<br><br>
+        "It was fine. It went really quickly."<br><br>
+        Dad shook his head. Maya smiled and kept walking.<br><br>
+        She would come back. She already knew that. Some places get into your bones like that — quietly, without asking — and just stay there.
       </div>
     </div>
   </div>
@@ -403,11 +514,10 @@
 
 <!-- CTA -->
 <div class="cta-strip">
-  <h2>Ready to write yours?</h2>
-  <p>Tell us about your child and their favourite Sunshine Coast spots. We'll create 10 stories, just for them.</p>
-  <a href="/app" class="btn-cta">Create your collection — $15</a>
-  <div class="cta-note">Delivered instantly · No subscription · 10 personalised stories</div>
-  <div style="margin-top:16px;font-size:13px;color:var(--text-soft);">🎙️ Add warm Australian narration for every story — +$10 at checkout</div>
+  <h2>Ready to write — and hear — yours?</h2>
+  <p>Tell us about your child and their favourite Sunshine Coast spots. We'll create 10 original stories with Australian narration, just for them.</p>
+  <a href="/app" class="btn-cta">Create your collection — $25</a>
+  <div class="cta-note">10 personalised audio stories · Delivered instantly · Yours to keep</div>
 </div>
 
 <footer>
@@ -424,12 +534,355 @@
 </footer>
 
 <script>
-  function showTab(id) {
-    document.querySelectorAll('.story-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
+// ── Story text (used for narration API calls) ────────────────────────────────
+const SAMPLE_TEXT = [
+  // 0 — Lily, age 3
+  `Lily loved Mooloolaba Beach more than anywhere in the whole wide world.
+
+She loved the way the waves came rushing in — whooooosh — and then went rushing back out again. She loved the smell of the salty air and the way the sand squished between her toes. She loved the big seagulls that walked along the water's edge like they owned the place, and the little crabs that scuttled away under the rocks whenever she got too close.
+
+"Ready?" said Mum.
+"Ready!" said Lily.
+And off she ran.
+
+She ran right up to the water and let the little waves chase her feet. Cold! Bubbly! Fun! She splashed and squealed and splashed some more. She held her arms out wide and let the wind blow her hair back from her face. The ocean was enormous and sparkly and it smelled like holidays and swimming and the very best kind of Saturday all rolled into one.
+
+A wave came rushing in — bigger than the others — and washed right over her ankles. Lily shrieked with delight and ran three steps backward and then ran three steps forward again. That was the game. The wave was not very good at catching her.
+
+She was very good at not being caught.
+
+Then she stopped.
+
+There — right there in the wet sand — something small and shiny and pink.
+
+Lily crouched down very carefully, the way you do when something might be magic. She picked it up with both hands.
+
+It was a shell. Round and smooth and perfect, with little pink and cream stripes all the way around. The prettiest thing Lily had ever found. Prettier than the white pebble she kept on her windowsill. Prettier than the feather she had found at Bli Bli once. Prettier than anything.
+
+"Hello, shell," she whispered.
+
+She carried it down to the water to wash it, holding it so carefully that her fingers ached. She showed it to the waves. The waves rushed around her ankles and ran away again, like they were surprised. She showed it to a seagull, but the seagull tilted its head and walked off in the other direction. She showed it to Mum, who said it was beautiful, which it absolutely was.
+
+Lily sat down in the warm, damp sand. She turned the shell over and over in her hands. The pink stripes caught the sunlight and made a tiny rainbow if she tilted it just right. She tilted it left. Then right. Then all the way around, slowly, to see every stripe.
+
+A small wave came and washed over her feet and she didn't even move. She was too busy looking at her shell.
+
+It was warm. It was smooth. It was exactly the right size for one small hand.
+
+She tucked it carefully into the pocket of her swimmers, right against her hip, where she could feel it whenever she moved.
+
+"Mine," she decided. Just quietly. Just to herself.
+
+All afternoon, Lily built sandcastles and ate watermelon and had ice cream — the kind with the chocolate bit on top, which Dad always broke off and said was the best part, and Lily always agreed, because it was. She ran from the waves and chased them back and found four more shells, but none of them were as good as the pink one.
+
+Every single time she sat back down in the sand, she checked her pocket. Still there. Still smooth. Still hers.
+
+When the sun turned orange and Mum said it was time to pack up, Lily helped roll the towels and put the buckets away. She only dropped her bucket twice, which was actually very good for her.
+
+In the car on the way home, she held the shell in her lap and held Dad's hand and watched the Sunshine Coast go past outside the window — the palm trees and the golden light and the big stretches of blue water getting smaller behind them.
+
+That night, she put the shell on her bedside table where she could see it from her pillow.
+
+And then, because Dad had told her once that if you hold a shell up to your ear and listen very carefully, you can hear the ocean inside — she picked it up and pressed it gently to her ear.
+
+Shhhhhh.
+
+And there it was. A tiny little whooooosh, just like Mooloolaba. Just like today.
+
+She put the shell back. She lay down. She smiled.
+
+The waves kept whispering all night long.`,
+
+  // 1 — Oscar, age 5
+  `Oscar pulled on his hat and buckled his sandals twice — because once was never enough for a Noosa day.
+
+The drive took twenty-two minutes. Oscar had been counting since he was four, when Dad told him it was exactly twenty-two minutes from home to the national park car park. It was always exactly twenty-two. Oscar had checked many times.
+
+When the doors opened, the air smelled different here. Cool and green and alive with sounds that didn't have names yet. He jumped out before Mum had even turned off the engine.
+
+"Shoes, Oscar."
+
+He put them back on.
+
+The track wound through the trees, dappled with morning light, the ocean flickering blue between the branches whenever the path curved just right. Oscar ran ahead, then stopped, then ran ahead again. There was always something to look at — a blue-tongued lizard on a warm rock, a spider web catching the light like a tiny radar dish, a fallen log with a beetle trundling along the top like it was going somewhere extremely important.
+
+"Slow down," Mum called. "You'll miss everything."
+
+Oscar wasn't sure how you could miss something by running toward it. But he waited anyway, hopping from foot to foot, while she caught up and ruffled the back of his hat.
+
+They were halfway along the track, where the trees grew close together and the air felt cool and still and very green, when Oscar stopped completely.
+
+There was a sound.
+
+Not like a regular bird — not the sharp whistle of a kookaburra or the screech of a sulphur-crested cockatoo. This sound curved and changed and doubled back on itself, like it was searching for something, or asking a very long question, or telling a story that hadn't decided how to end yet.
+
+Oscar looked up slowly.
+
+There — on a low branch just above the path, close enough that Oscar could have counted the feathers — sat the largest black bird he had ever seen. Glossy dark plumage, bright yellow eye, tail fanned slightly out behind it like it was trying to look impressive. Its head tilted to one side. It was looking right at him.
+
+A currawong.
+
+Oscar's heart went very still in the best possible way. He didn't move. He didn't make a single sound. He looked back at the bird as carefully and politely as he could.
+
+"Hello," he said. As quiet as a breath held too long.
+
+The currawong tilted its head the other way. It seemed to consider him very carefully.
+
+And then it sang.
+
+Not a little chirp — a full, rolling, warbling song that filled the entire forest and came bouncing back off the gum trees. It rose and fell and changed its mind and started again, each phrase different from the last. Oscar felt it in his chest, the way you feel music turned up so loud it becomes something else entirely.
+
+He stood completely still. His eyes went wide. His mouth fell a little bit open. He forgot about the beetles and the spider webs and running ahead and everything else except this bird on this branch in this exact moment, which he knew, somehow, was one he was going to remember.
+
+"I think he likes you," Mum whispered from just behind his shoulder.
+
+When the song finally stopped, the currawong spread its wings — enormous and black and white — and disappeared into the trees in one long, smooth arc. Its call echoed after it, fading and fading, until there was nothing left but the rustle of leaves and the distant sound of the ocean.
+
+Oscar stood in the quiet for a long time.
+
+All the way back to the car, he hummed it — that wobbly, searching, wonderful song. He hummed it at dinner. He hummed it in the bath. He hummed it one last time, very quietly, as he fell asleep.
+
+In his dreams, a bird with a bright yellow eye tilted its head and waited patiently for him to answer.`,
+
+  // 2 — Maya, age 7
+  `There are some mornings when the Glass House Mountains look like they belong to another world entirely.
+
+Maya had seen them hundreds of times from the car — those ancient, impossible peaks rising out of the flat green plains without any warning, each one a different shape, each one keeping its own kind of silence. But today was different. Today she wasn't watching from the window. Today she was going to walk right up to one.
+
+She had packed her own bag the night before: water bottle, muesli bar, the small sketchbook she took everywhere. She tightened her bootlaces on the footbridge and looked up at the mountain in front of her — Tibrogargan, grey and vast and patient — and felt something she didn't quite have a word for.
+
+"Ready?" said Dad.
+
+Maya didn't answer. She just started walking.
+
+The track wound upward through scribbly gum and bottlebrush, the bark peeling back from the trunks in long pale ribbons. Her boots made a satisfying crunch on the gravel. Her legs ached in that specific way that meant she was working for something worth having. Every few minutes she stopped, turned around, and looked at where she'd come from. Each time, there was more sky above her, and more valley falling away below.
+
+At a wide clearing partway up, Maya stopped properly and looked back at the Sunshine Coast laid out below.
+
+She could see all of it — Caloundra's headland curving south, Mooloolaba's beach a pale gold strip in the morning light, the Noosa hinterland rolling north in shades of green so deep they were almost blue. And running through all of it, everywhere she looked, water: the rivers threading silver through the flat land, and beyond them the Pacific, wide and blue and stretching to the edge of the world.
+
+"The Jinibara people have cared for this country for tens of thousands of years," Dad said quietly beside her. "This has always been home."
+
+Maya didn't say anything for a long time. She thought about what it would mean to know a place that deeply — every bird call, every shadow, every shift of light across the valley through every season of every year. To have the mountain not as a destination but as a neighbour. To walk up it because it was simply where you lived.
+
+She got out her sketchbook and drew the view, trying to get the mountains right. She couldn't. Their shapes were too strange, too old, too particular for her pencil to capture. But she tried anyway, pressing hard on the page, because some things were worth trying even when you already knew you couldn't do them perfectly.
+
+At the summit, the wind was sharp and clean and seemed to come from every direction at once.
+
+Maya stood with her arms out and her face tilted to the sky and felt two things at exactly the same moment: impossibly small, and completely alive. She thought those two feelings might actually go together. She thought that might be what mountains were for.
+
+Below her the other peaks spread in every direction — Beerwah and Coonowrin and the smaller ones whose names she was still learning — each one watching over the Sunshine Coast in its own patient, enduring way. They had been standing here for twenty-five million years. They had seen ice ages and floods and everything in between. They would be here long after Maya was gone, long after everyone she knew was gone.
+
+She thought that should make her feel small. Instead, it made her feel very calm.
+
+On the way down she counted three bluetongue lizards, two yellow butterflies, and one green tree snake that appeared on a rock beside the path and then disappeared in the time it took her to blink.
+
+She didn't mention the snake to Dad until they were nearly back at the car.
+
+"Maya."
+
+"It was fine. It went really quickly."
+
+Dad shook his head. Maya smiled and kept walking.
+
+She would come back. She already knew that. Some places get into your bones like that — quietly, without asking — and just stay there.`,
+];
+
+// ── Audio engine ─────────────────────────────────────────────────────────────
+let sAudio = { el: null, playing: false, hasAudio: false, loadedIdx: null };
+let sCache = {};
+let sCurrentTab = 0;
+
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60), ss = Math.floor(s % 60);
+  return `${m}:${ss.toString().padStart(2, '0')}`;
+}
+
+function sUpdateScrubber(idx, cur, dur) {
+  const pct = (dur && isFinite(dur)) ? (cur / dur * 100) : 0;
+  const sc  = document.getElementById(`sac-scrub-${idx}`);
+  const cEl = document.getElementById(`sac-cur-${idx}`);
+  const dEl = document.getElementById(`sac-dur-${idx}`);
+  if (sc)  { sc.value = pct; sc.style.setProperty('--pct', pct + '%'); }
+  if (cEl) cEl.textContent = fmtTime(cur);
+  if (dEl && isFinite(dur)) dEl.textContent = fmtTime(dur);
+}
+
+function sResetScrubber(idx) {
+  const row = document.getElementById(`sac-prog-${idx}`);
+  const sc  = document.getElementById(`sac-scrub-${idx}`);
+  const cEl = document.getElementById(`sac-cur-${idx}`);
+  const dEl = document.getElementById(`sac-dur-${idx}`);
+  if (row) row.style.display = 'none';
+  if (sc)  { sc.value = 0; sc.style.setProperty('--pct', '0%'); }
+  if (cEl) cEl.textContent = '0:00';
+  if (dEl) dEl.textContent = '—:——';
+}
+
+function sSeekAudio(pct) {
+  if (!sAudio.el || !isFinite(sAudio.el.duration)) return;
+  sAudio.el.currentTime = (pct / 100) * sAudio.el.duration;
+}
+
+function sSetStatus(idx, msg, cls) {
+  const el = document.getElementById(`sac-status-${idx}`);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'sac-status' + (cls ? ' ' + cls : '');
+  const hint = document.getElementById(`sac-hint-${idx}`);
+  if (!hint) return;
+  if (cls === 'loading') {
+    if (!sSetStatus._timers) sSetStatus._timers = {};
+    if (!sSetStatus._timers[idx]) {
+      sSetStatus._timers[idx] = setTimeout(() => { hint.style.display = 'block'; }, 4000);
+    }
+  } else {
+    if (sSetStatus._timers?.[idx]) { clearTimeout(sSetStatus._timers[idx]); delete sSetStatus._timers[idx]; }
+    hint.style.display = 'none';
   }
+}
+
+function sUpdateBtn(idx, playing) {
+  const btn = document.getElementById(`sac-btn-${idx}`);
+  if (btn) btn.textContent = playing ? '⏸' : '▶';
+}
+
+function sStopAll() {
+  if (sAudio.el) {
+    sAudio.el.pause();
+    sAudio.el.ontimeupdate = null;
+    sAudio.el.onloadedmetadata = null;
+    sAudio.el.onended = null;
+    sAudio.el.onerror = null;
+    sAudio.el.src = '';
+  }
+  const prev = sAudio.loadedIdx;
+  sAudio = { el: null, playing: false, hasAudio: false, loadedIdx: null };
+  if (prev !== null) {
+    sUpdateBtn(prev, false);
+    sResetScrubber(prev);
+  }
+}
+
+function sStartFromUrl(idx, url) {
+  sStopAll();
+  const el = new Audio();
+  sAudio = { el, playing: true, hasAudio: true, loadedIdx: idx };
+  let settled = false;
+  const done = (autoplay) => {
+    if (settled) return; settled = true;
+    sAudio.playing = false;
+    sUpdateBtn(idx, false);
+    sSetStatus(idx, autoplay ? 'Tap ▶ to listen' : 'Narration unavailable — try again', autoplay ? '' : 'error');
+  };
+  el.onloadedmetadata = () => {
+    const row = document.getElementById(`sac-prog-${idx}`);
+    if (row) row.style.display = 'flex';
+    sUpdateScrubber(idx, 0, el.duration);
+  };
+  el.ontimeupdate = () => { sUpdateScrubber(idx, el.currentTime, el.duration); };
+  el.onended = () => {
+    sAudio.playing = false; sAudio.hasAudio = false;
+    sUpdateBtn(idx, false);
+    sSetStatus(idx, 'Story complete ✨', '');
+    sResetScrubber(idx);
+  };
+  el.onerror = () => { if (sAudio.playing) done(false); };
+  el.src = url;
+  el.play().catch(err => done(err?.name === 'NotAllowedError' || err?.name === 'AbortError'));
+  sUpdateBtn(idx, true);
+  sSetStatus(idx, 'Playing…', '');
+}
+
+function sToggle(idx) {
+  if (sAudio.loadedIdx === idx) {
+    if (sAudio.playing) {
+      sAudio.el.pause();
+      sAudio.playing = false;
+      sUpdateBtn(idx, false);
+      sSetStatus(idx, 'Tap ▶ to continue', '');
+    } else if (sAudio.hasAudio) {
+      sAudio.el.play().catch(() => {});
+      sAudio.playing = true;
+      sUpdateBtn(idx, true);
+      sSetStatus(idx, 'Playing…', '');
+    } else {
+      sPlay(idx);
+    }
+  } else {
+    sPlay(idx);
+  }
+}
+
+async function sPlay(idx) {
+  if (sCache[idx]) { sStartFromUrl(idx, sCache[idx]); return; }
+
+  // Stop any other playing first
+  const prevIdx = sAudio.loadedIdx;
+  if (prevIdx !== null && prevIdx !== idx) {
+    sStopAll();
+    sSetStatus(prevIdx, 'Tap ▶ to listen to this story', '');
+  }
+
+  sUpdateBtn(idx, false);
+  sSetStatus(idx, 'Loading narration…', 'loading');
+
+  try {
+    const res = await fetch('/api/narrate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: SAMPLE_TEXT[idx], token: 'samples', storyIdx: idx }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const bytes = atob(data.audioBase64);
+    const buf = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+    const blob = new Blob([buf], { type: data.mimeType });
+    sCache[idx] = URL.createObjectURL(blob);
+
+    const dlBtn = document.getElementById(`sac-dl-${idx}`);
+    if (dlBtn) dlBtn.style.display = 'block';
+
+    sStartFromUrl(idx, sCache[idx]);
+  } catch (e) {
+    sAudio.playing = false;
+    sUpdateBtn(idx, false);
+    sSetStatus(idx, 'Narration unavailable — please try again', 'error');
+  }
+}
+
+function sDownload(idx) {
+  const url = sCache[idx];
+  if (!url) return;
+  const names = ['lily-mooloolaba-beach', 'oscar-noosa-national-park', 'maya-glass-house-mountains'];
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${names[idx] || 'story'}-${idx + 1}.mp3`;
+  a.click();
+}
+
+// ── Tab switching ────────────────────────────────────────────────────────────
+function showTab(id, tabIdx, btn) {
+  // Stop audio on the tab we're leaving
+  if (sAudio.loadedIdx !== null && sAudio.loadedIdx !== tabIdx) {
+    const prevIdx = sAudio.loadedIdx;
+    sStopAll();
+    // Reset that story's status text
+    if (sCache[prevIdx]) {
+      sSetStatus(prevIdx, 'Tap ▶ to listen to this story', '');
+    } else {
+      sSetStatus(prevIdx, 'Tap ▶ to listen to this story', '');
+    }
+  }
+  sCurrentTab = tabIdx;
+  document.querySelectorAll('.story-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
 </script>
 </body>
 </html>
