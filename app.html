@@ -467,6 +467,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 
 
 
+  <!-- Friends field (optional) -->
+  <div class="panel">
+    <div class="panel-title">👫 Friends to include <span style="font-size:12px;font-weight:400;color:var(--text-low);font-style:italic;">(optional)</span></div>
+    <p style="font-size:13px;color:var(--text-mid);margin-bottom:12px;line-height:1.6;">Add any friends, cousins, or mates — we'll weave them into the stories as supporting characters.</p>
+    <div class="name-row">
+      <input class="f-input" id="friendInput" placeholder="e.g. Mia, Jake…" onkeydown="if(event.key==='Enter')addFriend()">
+      <button class="btn btn-sun btn-sm" onclick="addFriend()">Add</button>
+    </div>
+    <div id="friendChips" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;"></div>
+  </div>
+
   <!-- Step 3: Locations -->
   <div class="panel">
     <div class="panel-title">🌊 Favourite places</div>
@@ -797,6 +808,7 @@ for(let i=0;i<40;i++){
 const ST = {
   children: [],
   ages: [],
+  friends: [],
   vibe: 'gentle and sleepy',
   selectedLocations: [],
   blueprints: [],
@@ -991,6 +1003,31 @@ function quickAddInterest(childName, val){
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FRIENDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function addFriend(){
+  const inp=document.getElementById('friendInput');
+  const n=inp.value.trim();
+  if(!n||ST.friends.includes(n)){inp.value='';return;}
+  ST.friends.push(n);
+  inp.value='';
+  renderFriendChips();
+}
+function removeFriend(name){
+  ST.friends=ST.friends.filter(f=>f!==name);
+  renderFriendChips();
+}
+function renderFriendChips(){
+  const el=document.getElementById('friendChips');
+  if(!el)return;
+  el.innerHTML=ST.friends.map(f=>`
+    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(64,219,225,.12);border:1px solid rgba(64,219,225,.3);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--ocean-deep);">
+      👫 ${f}
+      <button onclick="removeFriend('${f}')" style="background:none;border:none;color:var(--text-low);font-size:14px;line-height:1;cursor:pointer;padding:0;margin-left:2px;">×</button>
+    </span>`).join('');
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    CHIPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function toggleChip(el,cls){
@@ -1047,13 +1084,28 @@ function buildBlueprints(){
     ? ST.selectedLocations
     : [{name:'the Sunshine Coast', area:'', emoji:'🌊', desc:'The beautiful Sunshine Coast of Queensland'}];
 
+  // Build costar pool: siblings first, then friends
+  // Friends appear as costars in roughly every 3rd story (slots 2,5,8)
+  const siblings = children.length > 1 ? children.map(c=>c.name) : [];
+  const friends  = ST.friends || [];
+
   const blueprints = [];
+  let friendIdx = 0;
   for(let i=0;i<NUM;i++){
     const childIdx    = i % children.length;
     const interestIdx = i % interestPairs.length;
     const locIdx      = i % locs.length;
-    const costarIdx   = (childIdx + 1) % children.length;
-    const costar      = children.length > 1 ? children[costarIdx].name : null;
+
+    let costar = null;
+    if(siblings.length > 1){
+      // Sibling costar in most stories
+      costar = siblings[(childIdx + 1) % siblings.length];
+    }
+    // Swap in a friend every ~3rd story if friends exist
+    if(friends.length > 0 && i % 3 === 2){
+      costar = friends[friendIdx % friends.length];
+      friendIdx++;
+    }
 
     blueprints.push({
       storyNum: i+1,
@@ -1258,6 +1310,7 @@ async function submitForm(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         children:ST.children,
+        friends:ST.friends,
         selectedLocations:ST.selectedLocations,
         vibe:ST.vibe,
         storyLength:'5min',
@@ -1384,7 +1437,7 @@ Generate exactly ${n} short stories. You have been given a specific brief for EA
 
 FAMILY PROFILE:
 - Children: ${ST.children.map(c=>`${c.name} (loves: ${c.interests.join(', ')||'exploring'})`).join('; ')}
-- Children & ages: ${agesStr}
+- Children & ages: ${agesStr}${ST.friends.length?`\n- Friends who may appear as costars: ${ST.friends.join(', ')} (use naturally — a friend at the beach, a mate on the trail, a cousin at the market)`:''}
 
 PER-STORY BRIEFS (follow exactly):
 ${storyBriefs}
@@ -2384,6 +2437,7 @@ async function handlePaymentReturn(sessionId){
     }
     const {formData}=await res.json();
     ST.children=formData.children||[];
+    ST.friends=formData.friends||[];
     ST.selectedLocations=formData.selectedLocations||[];
     ST.vibe=formData.vibe||'gentle and sleepy';
     ST.pendingSessionId=sessionId;

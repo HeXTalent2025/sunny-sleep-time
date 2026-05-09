@@ -5,11 +5,11 @@ const redis = new Redis({ url: process.env.KV_REST_API_URL, token: process.env.K
 // ── Content moderation ──────────────────────────────────────────────────────
 // Runs before Stripe session creation so we never take payment for content
 // we can't generate. Uses Claude Haiku — fast, cheap, nuanced.
-async function moderateInputs(children, selectedLocations, vibe) {
+async function moderateInputs(children, selectedLocations, vibe, friends = []) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return { safe: true }; // fail open if key missing
 
-  const names     = children.map(c => c.name).filter(Boolean).join(', ');
+  const names     = [...children.map(c => c.name), ...(friends || [])].filter(Boolean).join(', ');
   const interests = children.map(c => (c.interests || []).join(', ')).filter(Boolean).join('; ');
   const locations = (selectedLocations || []).join(', ');
 
@@ -62,11 +62,11 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { children, selectedLocations, vibe, storyLength } = req.body;
+  const { children, friends, selectedLocations, vibe, storyLength } = req.body;
   if (!children?.length) return res.status(400).json({ error: 'No children provided' });
 
   // ── Moderate inputs before touching Stripe ──────────────────────────────
-  const moderation = await moderateInputs(children, selectedLocations, vibe);
+  const moderation = await moderateInputs(children, selectedLocations, vibe, friends);
   if (!moderation.safe) {
     return res.status(400).json({
       error: 'moderation',
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
 
   // Save form data temporarily — retrieved after Stripe redirects back
   const tempKey = `form_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  await redis.set(tempKey, { children, selectedLocations, vibe, storyLength, bundleUpgrade: true }, { ex: 7200 });
+  await redis.set(tempKey, { children, friends: friends || [], selectedLocations, vibe, storyLength, bundleUpgrade: true }, { ex: 7200 });
 
   const childNames = children.map(c => c.name).filter(Boolean).join(' & ') || 'your child';
 
