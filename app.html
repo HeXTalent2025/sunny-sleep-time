@@ -152,6 +152,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .bp-swap-hint{display:none;background:rgba(64,219,225,.1);border:1px solid rgba(64,219,225,.35);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--ocean-deep);margin-bottom:10px;text-align:center;line-height:1.5;}
 .bp-reshuffle-btn{background:none;border:1px solid rgba(56,162,194,.25);border-radius:8px;color:var(--ocean);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;transition:all .15s;margin-left:auto;flex-shrink:0;}
 .bp-reshuffle-btn:hover{background:rgba(56,162,194,.08);border-color:rgba(56,162,194,.45);}
+.bp-arc-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:8px;border:1.5px solid rgba(180,140,20,.22);background:rgba(255,238,187,.4);color:#7a5c00;cursor:pointer;transition:all .15s;user-select:none;margin-bottom:0;font-style:italic;}
+.bp-arc-chip:hover{border-color:rgba(180,140,20,.5);background:rgba(255,238,187,.7);}
+.bp-arc-chip.open{border-color:rgba(180,140,20,.6);background:rgba(255,238,187,.8);}
+.bp-arc-picker{margin-top:7px;padding-top:7px;border-top:1px solid rgba(180,140,20,.15);display:flex;flex-direction:column;gap:4px;}
+.bp-arc-option{font-size:11px;padding:4px 8px;border-radius:7px;border:1px solid transparent;cursor:pointer;transition:all .12s;color:#7a5c00;background:rgba(255,238,187,.3);}
+.bp-arc-option:hover{background:rgba(255,238,187,.9);border-color:rgba(180,140,20,.35);}
+.bp-arc-option.active{background:rgba(255,238,187,.9);border-color:rgba(180,140,20,.5);font-weight:700;}
 
 /* EXPLORER */
 .explorer-header{display:flex;align-items:center;gap:10px;padding:14px 0 16px;}
@@ -523,7 +530,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   <!-- Blueprint preview (shows when enough info entered) -->
   <div class="blueprint-preview hidden" id="blueprintPreview">
     <div class="bp-title">🗂️ Your story blueprint <button class="bp-reshuffle-btn" onclick="bpReshuffle()">🔀 Re-shuffle</button></div>
-    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;line-height:1.6;">Tap any <span style="color:var(--ocean);font-weight:600;">location</span> or <span style="color:var(--terracotta);font-weight:600;">activity</span> to swap it with another story.</p>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;line-height:1.6;">Tap any <span style="color:var(--ocean);font-weight:600;">location</span> or <span style="color:var(--terracotta);font-weight:600;">activity</span> to swap between stories. Tap an <span style="color:#7a5c00;font-weight:600;">arc</span> to change the story shape.</p>
     <div class="bp-swap-hint" id="bpSwapHint"></div>
     <div class="bp-grid" id="bpGrid"></div>
     <button id="bpCollapseBtn" onclick="toggleBpExpand()" style="display:none;width:100%;margin-top:8px;padding:8px;background:none;border:1px solid rgba(56,162,194,.2);border-radius:10px;color:var(--ocean);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">↑ Show less</button>
@@ -1139,22 +1146,43 @@ function buildBlueprints(){
    BLUEPRINT SWAP INTERACTION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 let bpSwap = { type: null, idx: null };
+let bpArcOpen = null;
 
 function bpCardHtml(bp, i){
-  const bps = ST.blueprints;
   const selLoc = bpSwap.type === 'loc' && bpSwap.idx === i;
   const selInt = bpSwap.type === 'int' && bpSwap.idx === i;
   const isTarget = bpSwap.idx !== null && bpSwap.idx !== i;
+  const arcOpen = bpArcOpen === i;
+  const arcPicker = arcOpen ? `
+    <div class="bp-arc-picker">
+      ${ARCS.map((a,ai)=>`<div class="bp-arc-option${bp.arc.name===a.name?' active':''}" onclick="bpSetArc(${i},${ai})">📖 ${a.name}</div>`).join('')}
+    </div>` : '';
   return `
     <div class="bp-story">
       <div class="bp-story-num">Story ${bp.storyNum}</div>
       <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
       <div class="bp-swap-chip bp-loc-chip${selLoc?' bp-chip-selected':''}${isTarget&&bpSwap.type==='loc'?' bp-chip-target':''}" onclick="bpSelectChip(${i},'loc')">📍 ${bp.location.name}</div>
       <div class="bp-swap-chip bp-int-chip${selInt?' bp-chip-selected':''}${isTarget&&bpSwap.type==='int'?' bp-chip-target':''}" onclick="bpSelectChip(${i},'int')">💛 ${bp.interest}</div>
+      <div class="bp-arc-chip${arcOpen?' open':''}" onclick="bpToggleArc(${i})">📖 ${bp.arc.name}</div>
+      ${arcPicker}
     </div>`;
 }
 
+function bpToggleArc(i){
+  bpSwap = { type: null, idx: null }; // clear any pending swap
+  bpArcOpen = bpArcOpen === i ? null : i;
+  updateBpSwapHint();
+  renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
+}
+
+function bpSetArc(i, arcIdx){
+  ST.blueprints[i].arc = ARCS[arcIdx];
+  bpArcOpen = null;
+  renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
+}
+
 function bpSelectChip(idx, type){
+  bpArcOpen = null; // close any open arc picker
   if(bpSwap.type === type && bpSwap.idx !== null){
     if(bpSwap.idx === idx){
       // Tap same chip → deselect
@@ -1183,6 +1211,7 @@ function bpDoSwap(fromIdx, toIdx, type){
 
 function bpReshuffle(){
   bpSwap = { type: null, idx: null };
+  bpArcOpen = null;
   ST.blueprints = buildBlueprints();
   updateBpSwapHint();
   renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
@@ -1230,18 +1259,7 @@ function updateBlueprintPreview(){
   const isExpanded = document.getElementById('bpGrid')?.dataset.expanded === 'true';
   renderBpCards(bps, isExpanded);
 
-  // Generate a plain-English note about the distribution
-  const childNames = ST.children.map(c=>c.name);
-  const locCount = ST.selectedLocations.length;
-  const intCount = ST.children.reduce((sum,c)=>sum+c.interests.length,0);
-
-  let note = `Every child appears in multiple stories. `;
-  if(locCount > 0 && locCount < 10) note += `Your ${locCount} location${locCount>1?'s are':' is'} each used in ${Math.ceil(10/locCount)} stories. `;
-  if(locCount >= 10) note += `Each of your ${locCount} locations gets its own story. `;
-  if(intCount > 0) note += `All interests are woven in throughout. `;
-  note += `No story will leave any child out.`;
-
-  document.getElementById('bpNote').textContent = note;
+  document.getElementById('bpNote').textContent = 'Tap any location, activity or arc to customise. Happy with it? Hit the button below to get your stories.';
   preview.classList.remove('hidden');
   updateFormLocations();
 }
