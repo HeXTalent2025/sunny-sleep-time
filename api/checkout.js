@@ -70,7 +70,7 @@ export default async function handler(req, res) {
   if (!moderation.safe) {
     return res.status(400).json({
       error: 'moderation',
-      message: moderation.reason || 'One or more inputs contain content that isn't suitable for children\'s stories. Please review what you\'ve entered and try again.',
+      message: moderation.reason || 'One or more inputs contain content that isn\'t suitable for children\'s stories. Please review what you\'ve entered and try again.',
     });
   }
 
