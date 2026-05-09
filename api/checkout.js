@@ -11,7 +11,7 @@ async function moderateInputs(children, selectedLocations, vibe, friends = []) {
 
   const names     = [...children.map(c => c.name), ...(friends || [])].filter(Boolean).join(', ');
   const interests = children.map(c => (c.interests || []).join(', ')).filter(Boolean).join('; ');
-  const locations = (selectedLocations || []).join(', ');
+  const locations = (selectedLocations || []).map(l => l.name || l).filter(Boolean).join(', ');
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
