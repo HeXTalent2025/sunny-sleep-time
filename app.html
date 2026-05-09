@@ -139,6 +139,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .bp-story-loc{font-size:11px;color:var(--ocean);margin-bottom:2px;}
 .bp-story-interest{font-size:11px;color:var(--terracotta);}
 .bp-note{font-size:12px;color:var(--text-soft);margin-top:10px;line-height:1.6;font-style:italic;}
+/* ── Blueprint swap interaction ── */
+.bp-swap-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:8px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;user-select:none;margin-bottom:3px;}
+.bp-swap-chip:active{transform:scale(.95);}
+.bp-loc-chip{background:rgba(56,162,194,.1);border-color:rgba(56,162,194,.22);color:var(--ocean);}
+.bp-loc-chip:hover{border-color:rgba(56,162,194,.5);}
+.bp-int-chip{background:rgba(216,110,89,.07);border-color:rgba(216,110,89,.18);color:var(--terracotta);}
+.bp-int-chip:hover{border-color:rgba(216,110,89,.4);}
+.bp-chip-selected{border-color:var(--ocean-bright)!important;background:rgba(64,219,225,.2)!important;color:var(--ocean-deep)!important;animation:bpPulse 1.4s ease-in-out infinite;}
+.bp-chip-target{border-style:dashed!important;opacity:.75;}
+@keyframes bpPulse{0%,100%{box-shadow:0 0 0 2px rgba(64,219,225,.2)}50%{box-shadow:0 0 0 4px rgba(64,219,225,.38)}}
+.bp-swap-hint{display:none;background:rgba(64,219,225,.1);border:1px solid rgba(64,219,225,.35);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--ocean-deep);margin-bottom:10px;text-align:center;line-height:1.5;}
+.bp-reshuffle-btn{background:none;border:1px solid rgba(56,162,194,.25);border-radius:8px;color:var(--ocean);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;transition:all .15s;margin-left:auto;flex-shrink:0;}
+.bp-reshuffle-btn:hover{background:rgba(56,162,194,.08);border-color:rgba(56,162,194,.45);}
 
 /* EXPLORER */
 .explorer-header{display:flex;align-items:center;gap:10px;padding:14px 0 16px;}
@@ -509,8 +522,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 
   <!-- Blueprint preview (shows when enough info entered) -->
   <div class="blueprint-preview hidden" id="blueprintPreview">
-    <div class="bp-title">🗂️ Your story blueprint</div>
-    <p style="font-size:12px;color:var(--text-soft);margin-bottom:12px;line-height:1.6;">Here's exactly how your inputs will be spread across the 10 stories — every child and every location gets featured:</p>
+    <div class="bp-title">🗂️ Your story blueprint <button class="bp-reshuffle-btn" onclick="bpReshuffle()">🔀 Re-shuffle</button></div>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;line-height:1.6;">Tap any <span style="color:var(--ocean);font-weight:600;">location</span> or <span style="color:var(--terracotta);font-weight:600;">activity</span> to swap it with another story.</p>
+    <div class="bp-swap-hint" id="bpSwapHint"></div>
     <div class="bp-grid" id="bpGrid"></div>
     <button id="bpCollapseBtn" onclick="toggleBpExpand()" style="display:none;width:100%;margin-top:8px;padding:8px;background:none;border:1px solid rgba(56,162,194,.2);border-radius:10px;color:var(--ocean);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">↑ Show less</button>
     <div class="bp-note" id="bpNote"></div>
@@ -1122,42 +1136,99 @@ function buildBlueprints(){
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BLUEPRINT SWAP INTERACTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+let bpSwap = { type: null, idx: null };
+
+function bpCardHtml(bp, i){
+  const bps = ST.blueprints;
+  const selLoc = bpSwap.type === 'loc' && bpSwap.idx === i;
+  const selInt = bpSwap.type === 'int' && bpSwap.idx === i;
+  const isTarget = bpSwap.idx !== null && bpSwap.idx !== i;
+  return `
+    <div class="bp-story">
+      <div class="bp-story-num">Story ${bp.storyNum}</div>
+      <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
+      <div class="bp-swap-chip bp-loc-chip${selLoc?' bp-chip-selected':''}${isTarget&&bpSwap.type==='loc'?' bp-chip-target':''}" onclick="bpSelectChip(${i},'loc')">📍 ${bp.location.name}</div>
+      <div class="bp-swap-chip bp-int-chip${selInt?' bp-chip-selected':''}${isTarget&&bpSwap.type==='int'?' bp-chip-target':''}" onclick="bpSelectChip(${i},'int')">💛 ${bp.interest}</div>
+    </div>`;
+}
+
+function bpSelectChip(idx, type){
+  if(bpSwap.type === type && bpSwap.idx !== null){
+    if(bpSwap.idx === idx){
+      // Tap same chip → deselect
+      bpSwap = { type: null, idx: null };
+    } else {
+      // Tap different card → swap
+      bpDoSwap(bpSwap.idx, idx, type);
+      bpSwap = { type: null, idx: null };
+    }
+  } else {
+    bpSwap = { type, idx };
+  }
+  const expanded = document.getElementById('bpGrid')?.dataset.expanded === 'true';
+  renderBpCards(ST.blueprints, expanded);
+  updateBpSwapHint();
+}
+
+function bpDoSwap(fromIdx, toIdx, type){
+  const bps = ST.blueprints;
+  if(type === 'loc'){
+    [bps[fromIdx].location, bps[toIdx].location] = [bps[toIdx].location, bps[fromIdx].location];
+  } else {
+    [bps[fromIdx].interest, bps[toIdx].interest] = [bps[toIdx].interest, bps[fromIdx].interest];
+  }
+}
+
+function bpReshuffle(){
+  bpSwap = { type: null, idx: null };
+  ST.blueprints = buildBlueprints();
+  updateBpSwapHint();
+  renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
+}
+
+function updateBpSwapHint(){
+  const hint = document.getElementById('bpSwapHint');
+  if(!hint) return;
+  if(bpSwap.idx !== null){
+    const bp = ST.blueprints[bpSwap.idx];
+    const val = bpSwap.type === 'loc' ? bp.location.name : bp.interest;
+    const label = bpSwap.type === 'loc' ? 'location' : 'activity';
+    hint.innerHTML = `✨ <strong>"${val}"</strong> selected — tap another ${label} to swap, or tap it again to cancel`;
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function renderBpCards(bps, expanded){
+  const remaining = bps.length - 6;
+  const shown = expanded ? bps : bps.slice(0,6);
+  document.getElementById('bpGrid').innerHTML = shown.map((bp,i) => bpCardHtml(bp, i)).join('')
+    + (bps.length > 6 && !expanded
+      ? `<div class="bp-story" style="display:flex;align-items:center;justify-content:center;min-height:80px;cursor:pointer;border:1.5px dashed rgba(56,162,194,.25);" onclick="toggleBpExpand()">
+          <span style="color:var(--ocean);font-size:13px;font-weight:600;">+ ${remaining} more stories — tap to see all</span>
+         </div>` : '');
+  document.getElementById('bpGrid').dataset.expanded = expanded ? 'true' : 'false';
+  const collapseBtn = document.getElementById('bpCollapseBtn');
+  if(collapseBtn) collapseBtn.style.display = expanded && bps.length > 6 ? 'block' : 'none';
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    BLUEPRINT PREVIEW (in form)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function updateBlueprintPreview(){
   const preview = document.getElementById('blueprintPreview');
   const hasChildren = ST.children.length > 0;
-  const hasLocations = ST.selectedLocations.length > 0;
 
   if(!hasChildren){ preview.classList.add('hidden'); return; }
 
   const bps = buildBlueprints();
   ST.blueprints = bps;
 
-  // State: track whether expanded
   const isExpanded = document.getElementById('bpGrid')?.dataset.expanded === 'true';
-
-  function renderBpGrid(expanded) {
-    const shown = expanded ? bps : bps.slice(0,6);
-    const remaining = bps.length - 6;
-    document.getElementById('bpGrid').innerHTML = shown.map(bp=>`
-      <div class="bp-story">
-        <div class="bp-story-num">Story ${bp.storyNum}</div>
-        <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
-        <div class="bp-story-loc">📍 ${bp.location.name}</div>
-        <div class="bp-story-interest">💛 ${bp.interest}</div>
-      </div>`).join('')
-    + (bps.length > 6 && !expanded
-      ? `<div class="bp-story" style="display:flex;align-items:center;justify-content:center;min-height:80px;cursor:pointer;border:1.5px dashed rgba(56,162,194,.25);" onclick="toggleBpExpand()">
-          <span style="color:var(--ocean);font-size:13px;font-weight:600;">+ ${remaining} more stories — tap to see all</span>
-         </div>` : '');
-    document.getElementById('bpGrid').dataset.expanded = expanded ? 'true' : 'false';
-    // Update collapse button
-    const collapseBtn = document.getElementById('bpCollapseBtn');
-    if(collapseBtn) collapseBtn.style.display = expanded && bps.length > 6 ? 'block' : 'none';
-  }
-
-  renderBpGrid(isExpanded);
+  renderBpCards(bps, isExpanded);
 
   // Generate a plain-English note about the distribution
   const childNames = ST.children.map(c=>c.name);
@@ -1181,25 +1252,7 @@ function updateBlueprintPreview(){
 function toggleBpExpand(){
   const grid = document.getElementById('bpGrid');
   const expanded = grid.dataset.expanded === 'true';
-  updateBlueprintPreview._forceExpand = !expanded;
-  // Re-render with toggled state
-  const bps = ST.blueprints;
-  const nowExpanded = !expanded;
-  const remaining = bps.length - 6;
-  grid.innerHTML = (nowExpanded ? bps : bps.slice(0,6)).map(bp=>`
-    <div class="bp-story">
-      <div class="bp-story-num">Story ${bp.storyNum}</div>
-      <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
-      <div class="bp-story-loc">📍 ${bp.location.name}</div>
-      <div class="bp-story-interest">💛 ${bp.interest}</div>
-    </div>`).join('')
-  + (bps.length > 6 && !nowExpanded
-    ? `<div class="bp-story" style="display:flex;align-items:center;justify-content:center;min-height:80px;cursor:pointer;border:1.5px dashed rgba(56,162,194,.25);" onclick="toggleBpExpand()">
-        <span style="color:var(--ocean);font-size:13px;font-weight:600;">+ ${remaining} more stories — tap to see all</span>
-       </div>` : '');
-  grid.dataset.expanded = nowExpanded ? 'true' : 'false';
-  const collapseBtn = document.getElementById('bpCollapseBtn');
-  if(collapseBtn) collapseBtn.style.display = nowExpanded && bps.length > 6 ? 'block' : 'none';
+  renderBpCards(ST.blueprints, !expanded);
 }
 function updateFormLocations(){
   const bar=document.getElementById('selLocBar');
