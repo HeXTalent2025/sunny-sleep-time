@@ -530,7 +530,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   <!-- Blueprint preview (shows when enough info entered) -->
   <div class="blueprint-preview hidden" id="blueprintPreview">
     <div class="bp-title">🗂️ Your story blueprint <button class="bp-reshuffle-btn" onclick="bpReshuffle()">🔀 Re-shuffle</button></div>
-    <p style="font-size:12px;color:var(--text-soft);margin-bottom:10px;line-height:1.6;">Tap any <span style="color:var(--ocean);font-weight:600;">location</span> or <span style="color:var(--terracotta);font-weight:600;">activity</span> to swap between stories. Tap an <span style="color:#7a5c00;font-weight:600;">arc</span> to change the story shape.</p>
+    <div style="background:linear-gradient(135deg,rgba(64,219,225,.12),rgba(56,162,194,.1));border:1px solid rgba(64,219,225,.35);border-radius:10px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;">
+      <span style="font-size:16px;flex-shrink:0;">✏️</span>
+      <div style="font-size:12px;color:var(--ocean-deep);line-height:1.5;"><strong>Customise before you pay.</strong> Tap any <span style="color:var(--ocean);font-weight:600;">location</span>, <span style="color:var(--terracotta);font-weight:600;">activity</span>, <span style="color:#7a5c00;font-weight:600;">arc</span> or <span style="font-weight:600;">character</span> below to adjust it — or hit Re-shuffle for a fresh mix.</div>
+    </div>
     <div class="bp-swap-hint" id="bpSwapHint"></div>
     <div class="bp-grid" id="bpGrid"></div>
     <button id="bpCollapseBtn" onclick="toggleBpExpand()" style="display:none;width:100%;margin-top:8px;padding:8px;background:none;border:1px solid rgba(56,162,194,.2);border-radius:10px;color:var(--ocean);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">↑ Show less</button>
@@ -964,7 +967,7 @@ function removeInterest(childName, interest){
   updateBlueprintPreview();
 }
 
-const INTEREST_SUGGESTIONS=['surfing','animals','dinosaurs','magic','pirates','fairies','superheroes','space','trucks','dancing','art','cooking','sharks','horses','robots','princesses','dragons','music'];
+const INTEREST_SUGGESTIONS=['surfing','dinosaurs','magic','space','dancing','art','cooking','sharks','horses','robots','dragons','music','building sandcastles','chasing crabs','drawing and painting','collecting shells','spotting wildlife','playing in rock pools','riding bikes','baking with Mum'];
 
 function renderChildBlocks(){
   const noEl=document.getElementById('noChildren');
@@ -987,10 +990,11 @@ function renderChildBlocks(){
             ${a}
           </button>`).join('')}
       </div>
-      <label class="f-label">What does ${child.name} love?</label>
+      <label class="f-label">Describe what ${child.name} loves <span style="font-weight:400;color:var(--text-low)">(phrases work great — up to 5 words each)</span></label>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <input class="f-input" id="int-inp-${child.name}" placeholder="e.g. dinosaurs, surfing, magic…"
+        <input class="f-input" id="int-inp-${child.name}" placeholder="e.g. building sandcastles, space rockets, chasing crabs…"
           style="margin-bottom:0;flex:1;"
+          maxlength="40"
           onkeydown="if(event.key==='Enter')addInterest('${child.name}')">
         <button class="btn btn-sun btn-sm" onclick="addInterest('${child.name}')">Add</button>
       </div>
@@ -1147,29 +1151,55 @@ function buildBlueprints(){
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 let bpSwap = { type: null, idx: null };
 let bpArcOpen = null;
+let bpCharOpen = null;
+
+function bpCostarPool(heroName){
+  // All children except the hero, plus all friends — these can appear as costar
+  const others = ST.children.filter(c=>c.name!==heroName).map(c=>c.name);
+  const friends = ST.friends || [];
+  return [...others, ...friends];
+}
 
 function bpCardHtml(bp, i){
   const selLoc = bpSwap.type === 'loc' && bpSwap.idx === i;
   const selInt = bpSwap.type === 'int' && bpSwap.idx === i;
   const isTarget = bpSwap.idx !== null && bpSwap.idx !== i;
   const arcOpen = bpArcOpen === i;
+  const charOpen = bpCharOpen === i;
+  const pool = bpCostarPool(bp.hero);
+
   const arcPicker = arcOpen ? `
     <div class="bp-arc-picker">
       ${ARCS.map((a,ai)=>`<div class="bp-arc-option${bp.arc.name===a.name?' active':''}" onclick="bpSetArc(${i},${ai})">📖 ${a.name}</div>`).join('')}
     </div>` : '';
+
+  const charChip = pool.length > 0 ? `
+    <div class="bp-arc-chip${charOpen?' open':''}" style="background:rgba(217,187,255,.35);border-color:rgba(150,100,220,.25);color:#5a2a9a;font-style:normal;" onclick="bpToggleChar(${i})">
+      👥 ${bp.costar || 'Solo story'}
+    </div>` : '';
+
+  const charPicker = charOpen && pool.length > 0 ? `
+    <div class="bp-arc-picker" style="border-top-color:rgba(150,100,220,.15);">
+      <div class="bp-arc-option${!bp.costar?' active':''}" style="color:#5a2a9a;background:rgba(217,187,255,.2);" onclick="bpSetCostar(${i},null)">👤 Solo story</div>
+      ${pool.map(name=>`<div class="bp-arc-option${bp.costar===name?' active':''}" style="color:#5a2a9a;background:rgba(217,187,255,.2);" onclick="bpSetCostar(${i},'${name}')">👥 ${name}</div>`).join('')}
+    </div>` : '';
+
   return `
     <div class="bp-story">
       <div class="bp-story-num">Story ${bp.storyNum}</div>
-      <div class="bp-story-hero">⭐ ${bp.hero}${bp.costar ? ` & ${bp.costar}` : ''}</div>
+      <div class="bp-story-hero">⭐ ${bp.hero}</div>
       <div class="bp-swap-chip bp-loc-chip${selLoc?' bp-chip-selected':''}${isTarget&&bpSwap.type==='loc'?' bp-chip-target':''}" onclick="bpSelectChip(${i},'loc')">📍 ${bp.location.name}</div>
       <div class="bp-swap-chip bp-int-chip${selInt?' bp-chip-selected':''}${isTarget&&bpSwap.type==='int'?' bp-chip-target':''}" onclick="bpSelectChip(${i},'int')">💛 ${bp.interest}</div>
       <div class="bp-arc-chip${arcOpen?' open':''}" onclick="bpToggleArc(${i})">📖 ${bp.arc.name}</div>
       ${arcPicker}
+      ${charChip}
+      ${charPicker}
     </div>`;
 }
 
 function bpToggleArc(i){
-  bpSwap = { type: null, idx: null }; // clear any pending swap
+  bpSwap = { type: null, idx: null };
+  bpCharOpen = null;
   bpArcOpen = bpArcOpen === i ? null : i;
   updateBpSwapHint();
   renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
@@ -1181,8 +1211,23 @@ function bpSetArc(i, arcIdx){
   renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
 }
 
+function bpToggleChar(i){
+  bpSwap = { type: null, idx: null };
+  bpArcOpen = null;
+  bpCharOpen = bpCharOpen === i ? null : i;
+  updateBpSwapHint();
+  renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
+}
+
+function bpSetCostar(i, name){
+  ST.blueprints[i].costar = name;
+  bpCharOpen = null;
+  renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
+}
+
 function bpSelectChip(idx, type){
-  bpArcOpen = null; // close any open arc picker
+  bpArcOpen = null;
+  bpCharOpen = null;
   if(bpSwap.type === type && bpSwap.idx !== null){
     if(bpSwap.idx === idx){
       // Tap same chip → deselect
@@ -1212,6 +1257,7 @@ function bpDoSwap(fromIdx, toIdx, type){
 function bpReshuffle(){
   bpSwap = { type: null, idx: null };
   bpArcOpen = null;
+  bpCharOpen = null;
   ST.blueprints = buildBlueprints();
   updateBpSwapHint();
   renderBpCards(ST.blueprints, document.getElementById('bpGrid')?.dataset.expanded === 'true');
