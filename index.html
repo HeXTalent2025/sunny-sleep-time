@@ -300,6 +300,19 @@
     }
     .floating-badge strong { display: block; font-size: 1.2rem; }
 
+    .hero-compat {
+      display: flex; align-items: center; gap: 8px; margin-top: 0.75rem; flex-wrap: wrap;
+    }
+    .hero-compat-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(56,162,194,0.1); border: 1px solid rgba(56,162,194,0.25);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.72rem; font-weight: 600; color: var(--ocean);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .hero-compat-badge:hover { background: rgba(56,162,194,0.18); }
+
     /* ── HOW IT WORKS ──────────────────────────── */
     .section { padding: 6rem 3rem; max-width: 1200px; margin: 0 auto; }
     .section-full { padding: 6rem 3rem; }
@@ -819,6 +832,11 @@
         <a href="#stories" class="btn-ghost">See sample stories</a>
       </div>
       <p class="hero-price">10 personalised audio stories · <strong>$25</strong> · delivered instantly</p>
+      <div class="hero-compat">
+        <a href="https://au.yotoplay.com/make-your-own" target="_blank" rel="noopener" class="hero-compat-badge">
+          📻 Yoto compatible
+        </a>
+      </div>
     </div>
 
     <div class="hero-card-wrap">
@@ -1001,7 +1019,7 @@
           <div class="yoto-step"><div class="yoto-step-num">2</div><span>Upload to Yoto via <strong style="color:white;">yotoplay.com/create</strong> using their Make Your Own card feature</span></div>
           <div class="yoto-step"><div class="yoto-step-num">3</div><span>Your child hears their own stories on Yoto — no screen, no parent required</span></div>
         </div>
-        <a href="https://au.yotoplay.com/pages/make-your-own" target="_blank" rel="noopener" class="yoto-link">
+        <a href="https://au.yotoplay.com/make-your-own" target="_blank" rel="noopener" class="yoto-link">
           Learn about Yoto Make Your Own cards →
         </a>
         <div class="yoto-compat" style="margin-top:1rem;">Sunny Stories is an independent product and is not affiliated with Yoto. Yoto and Make Your Own are trademarks of Yoto Ltd.</div>
@@ -1117,7 +1135,7 @@
       <div class="faq-item reveal">
         <div class="faq-q"><span class="faq-icon">📻</span>Can I use these on a Yoto player?</div>
         <div class="faq-a">
-          Yes — and it works brilliantly. Once your stories are generated, use the <strong>Download All MP3s</strong> button to save all 10 stories at once. Then upload them to your Yoto player using Yoto's <strong>Make Your Own</strong> card feature at <a href="https://au.yotoplay.com/pages/make-your-own" target="_blank" rel="noopener" style="color:var(--ocean);text-decoration:underline;">yotoplay.com/create</a>. Your child gets fully screen-free, on-demand access to their own personalised stories — completely independently.
+          Yes — and it works brilliantly. Once your stories are generated, use the <strong>Download All MP3s</strong> button to save all 10 stories at once. Then upload them to your Yoto player using Yoto's <strong>Make Your Own</strong> card feature at <a href="https://au.yotoplay.com/make-your-own" target="_blank" rel="noopener" style="color:var(--ocean);text-decoration:underline;">yotoplay.com/make-your-own</a>. Your child gets fully screen-free, on-demand access to their own personalised stories — completely independently.
         </div>
       </div>
 
