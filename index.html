@@ -372,6 +372,17 @@
       color: var(--text-soft);
     }
 
+    .privacy-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 0.85rem;
+      background: rgba(48,108,164,0.06); border: 1px solid rgba(48,108,164,0.18);
+      border-radius: 20px; padding: 5px 13px;
+      font-size: 0.73rem; font-weight: 600; color: var(--ocean-deep);
+      text-decoration: none; line-height: 1.4;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .privacy-badge:hover { background: rgba(48,108,164,0.12); border-color: rgba(48,108,164,0.3); }
+
     /* Connector dots between steps */
     .steps-wrapper { position: relative; }
     .step-connector {
@@ -886,8 +897,9 @@
       <div class="steps">
         <div class="step reveal">
           <div class="step-num ocean">1</div>
-          <h3>Tell us about your child</h3>
-          <p>Their name, age, favourite Sunshine Coast spots, hobbies, and the vibe you want — calming, adventurous, silly, or magical. Thirty seconds to fill in.</p>
+          <h3>Enter your story details</h3>
+          <p>Their first name, age, favourite Sunshine Coast spots, hobbies, and the vibe you want — calming, adventurous, silly, or magical. Thirty seconds to fill in.</p>
+          <a href="#faq-privacy" class="privacy-badge">🔒 Your details are used only to write your stories — never shared or sold</a>
         </div>
         <div class="step reveal reveal-delay-1">
           <div class="step-num gold">2</div>
@@ -1138,7 +1150,7 @@
         </div>
       </div>
 
-      <div class="faq-item reveal">
+      <div id="faq-privacy" class="faq-item reveal">
         <div class="faq-q"><span class="faq-icon">🔒</span>What do you do with my information?</div>
         <div class="faq-a">
           The details you enter (names, interests, locations) are used <strong>only to generate your stories</strong> and are stored securely. We don't sell, share, or use them for marketing. Payment is handled entirely by Stripe — we never see your card details. You can read the full picture in our <a href="/legal" style="color:var(--ocean);text-decoration:underline;">Privacy Policy</a>.
