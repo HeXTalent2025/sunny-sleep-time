@@ -300,18 +300,18 @@
     }
     .floating-badge strong { display: block; font-size: 1.2rem; }
 
-    .hero-compat {
-      display: flex; align-items: center; gap: 8px; margin-top: 0.75rem; flex-wrap: wrap;
+    .floating-badge-yoto {
+      position: absolute; top: -1.5rem; left: 2rem;
+      background: var(--ocean);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 14px;
+      font-size: 0.8rem; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(56,162,194,0.35);
+      text-decoration: none;
+      display: block;
     }
-    .hero-compat-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(56,162,194,0.1); border: 1px solid rgba(56,162,194,0.25);
-      border-radius: 20px; padding: 4px 12px;
-      font-size: 0.72rem; font-weight: 600; color: var(--ocean);
-      letter-spacing: 0.06em; text-transform: uppercase;
-      text-decoration: none; transition: background 0.2s;
-    }
-    .hero-compat-badge:hover { background: rgba(56,162,194,0.18); }
+    .floating-badge-yoto strong { display: block; font-size: 1.2rem; }
 
     /* ── HOW IT WORKS ──────────────────────────── */
     .section { padding: 6rem 3rem; max-width: 1200px; margin: 0 auto; }
@@ -832,11 +832,6 @@
         <a href="#stories" class="btn-ghost">See sample stories</a>
       </div>
       <p class="hero-price">10 personalised audio stories · <strong>$25</strong> · delivered instantly</p>
-      <div class="hero-compat">
-        <a href="https://au.yotoplay.com/make-your-own" target="_blank" rel="noopener" class="hero-compat-badge">
-          📻 Yoto compatible
-        </a>
-      </div>
     </div>
 
     <div class="hero-card-wrap">
@@ -844,6 +839,10 @@
         <strong>$25</strong>
         10 audio stories
       </div>
+      <a href="https://au.yotoplay.com/make-your-own" target="_blank" rel="noopener" class="floating-badge-yoto">
+        <strong>📻 Yoto</strong>
+        compatible
+      </a>
       <div class="story-card">
         <div class="card-label">Your Story DNA</div>
         <div class="card-child-name">Oscar's Stories</div>
