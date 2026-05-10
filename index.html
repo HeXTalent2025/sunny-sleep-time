@@ -646,6 +646,27 @@
     .testimonial-author span { color: var(--ocean); }
 
     /* ── FOOTER ─────────────────────────────────── */
+    /* Yoto section */
+    .yoto-section { background: linear-gradient(135deg, #1a3a4a 0%, #0d2535 100%); color: white; }
+    .yoto-inner { max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; }
+    .yoto-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(64,219,225,.15); border: 1px solid rgba(64,219,225,.3); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 700; color: var(--ocean-bright); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; }
+    .yoto-heading { font-family: 'Fraunces', serif; font-size: clamp(1.6rem, 3vw, 2rem); font-weight: 700; color: white; line-height: 1.25; margin-bottom: 1rem; }
+    .yoto-heading em { color: var(--ocean-bright); font-style: italic; }
+    .yoto-body { font-size: 1rem; color: rgba(255,255,255,0.75); line-height: 1.75; margin-bottom: 1.25rem; }
+    .yoto-steps { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .yoto-step { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: rgba(255,255,255,0.85); }
+    .yoto-step-num { background: var(--ocean-bright); color: #0d2535; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+    .yoto-link { display: inline-flex; align-items: center; gap: 6px; color: var(--ocean-bright); font-size: 0.85rem; font-weight: 600; text-decoration: none; opacity: 0.9; transition: opacity .2s; }
+    .yoto-link:hover { opacity: 1; }
+    .yoto-device { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
+    .yoto-player-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 2rem 1.5rem; text-align: center; width: 100%; }
+    .yoto-player-icon { font-size: 3.5rem; margin-bottom: 0.75rem; }
+    .yoto-player-label { font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.4rem; }
+    .yoto-player-title { font-family: 'Fraunces', serif; font-size: 1.1rem; color: white; margin-bottom: 0.3rem; }
+    .yoto-player-sub { font-size: 0.8rem; color: rgba(255,255,255,.5); }
+    .yoto-compat { font-size: 0.75rem; color: rgba(255,255,255,.4); margin-top: 0.5rem; }
+    @media(max-width: 700px){ .yoto-inner { grid-template-columns: 1fr; gap: 2rem; } .yoto-device { display: none; } }
+
     footer {
       background: var(--ocean-deep);
       padding: 4rem 3rem 2rem;
@@ -853,8 +874,8 @@
         </div>
         <div class="step reveal reveal-delay-1">
           <div class="step-num gold">2</div>
-          <h3>We build your Story DNA</h3>
-          <p>Your child becomes the hero. Their real favourite places become the setting. Their interests become the plot. You see exactly what's in each story before it's written.</p>
+          <h3>Customise your Story DNA</h3>
+          <p>Your child becomes the hero. Add friends or cousins as characters. Then customise — swap locations, activities, narrative arcs, and costars across your 10 stories before anything is written.</p>
         </div>
         <div class="step reveal reveal-delay-2">
           <div class="step-num dusk">3</div>
@@ -967,6 +988,37 @@
   </div>
 </section>
 
+<!-- YOTO -->
+<section class="section-full yoto-section">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <div class="yoto-inner">
+      <div class="yoto-content reveal">
+        <div class="yoto-badge">🎵 Screen-free listening</div>
+        <h2 class="yoto-heading">Plays beautifully on a <em>Yoto Player</em></h2>
+        <p class="yoto-body">A growing number of Sunny Stories families are downloading their stories and loading them straight onto a Yoto player — giving their kids a completely screen-free, on-demand story experience they can control themselves.</p>
+        <div class="yoto-steps">
+          <div class="yoto-step"><div class="yoto-step-num">1</div><span>Download all 10 stories as MP3s from your story collection</span></div>
+          <div class="yoto-step"><div class="yoto-step-num">2</div><span>Upload to Yoto via <strong style="color:white;">yotoplay.com/create</strong> using their Make Your Own card feature</span></div>
+          <div class="yoto-step"><div class="yoto-step-num">3</div><span>Your child hears their own stories on Yoto — no screen, no parent required</span></div>
+        </div>
+        <a href="https://au.yotoplay.com/pages/make-your-own" target="_blank" rel="noopener" class="yoto-link">
+          Learn about Yoto Make Your Own cards →
+        </a>
+        <div class="yoto-compat" style="margin-top:1rem;">Sunny Stories is an independent product and is not affiliated with Yoto. Yoto and Make Your Own are trademarks of Yoto Ltd.</div>
+      </div>
+      <div class="yoto-device reveal reveal-delay-1">
+        <div class="yoto-player-card">
+          <div class="yoto-player-icon">📻</div>
+          <div class="yoto-player-label">Now playing</div>
+          <div class="yoto-player-title">Lily and the Pink Shell</div>
+          <div class="yoto-player-sub">Kings Beach · Wonder arc</div>
+        </div>
+        <div style="font-size:0.78rem;color:rgba(255,255,255,.4);text-align:center;line-height:1.6;">Download all 10 stories as MP3s<br>and load them onto your Yoto player</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PRICING -->
 <section id="pricing" class="section-full pricing-bg">
   <div class="section" style="padding-top:0;padding-bottom:0;">
@@ -983,9 +1035,10 @@
         <li>10 original audio stories starring your child by name</li>
         <li>Narrated in a warm Australian accent — listen anywhere</li>
         <li>Set in your family's favourite Sunshine Coast locations</li>
-        <li>Personalised to your child's age, interests &amp; vibe</li>
+        <li>Add friends, cousins &amp; siblings as story characters</li>
+        <li>Customise Story DNA — locations, activities, arcs &amp; costars</li>
         <li>Story DNA card so you know exactly what's in each one</li>
-        <li>Download each story as an mp3 — perfect for the car</li>
+        <li>Download all stories as MP3s — load onto a Yoto player</li>
         <li>Delivered instantly — listen today</li>
         <li>Yours to keep, re-listen to, and treasure forever</li>
         <li>Every story written fresh — never reused, never recycled</li>
@@ -1057,7 +1110,14 @@
       <div class="faq-item reveal reveal-delay-1">
         <div class="faq-q"><span class="faq-icon">✏️</span>Can I customise what goes into the stories?</div>
         <div class="faq-a">
-          Quite a lot, yes. You tell us your child's name, age, what they love (dinosaurs, surfing, dogs — anything), which Sunshine Coast locations they know and love, and the overall vibe you're after (adventurous, silly, dreamy, and so on). We handle the rest. Each of the 10 stories uses a different combination of those details so the collection feels genuinely varied, not repetitive.
+          More than you might expect. You tell us your child's name, age, what they love, favourite Sunshine Coast locations, and the vibe you're after. You can also <strong>add friends, cousins, or siblings as characters</strong>. Before payment, we show you a full Story DNA preview — and you can tap any location, activity, narrative arc, or character to swap it before a single word is written.
+        </div>
+      </div>
+
+      <div class="faq-item reveal">
+        <div class="faq-q"><span class="faq-icon">📻</span>Can I use these on a Yoto player?</div>
+        <div class="faq-a">
+          Yes — and it works brilliantly. Once your stories are generated, use the <strong>Download All MP3s</strong> button to save all 10 stories at once. Then upload them to your Yoto player using Yoto's <strong>Make Your Own</strong> card feature at <a href="https://au.yotoplay.com/pages/make-your-own" target="_blank" rel="noopener" style="color:var(--ocean);text-decoration:underline;">yotoplay.com/create</a>. Your child gets fully screen-free, on-demand access to their own personalised stories — completely independently.
         </div>
       </div>
 
