@@ -636,6 +636,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   </div>
   <div id="storyList"></div>
 
+  <!-- Download all MP3s -->
+  <div id="dlAllWrap" style="display:none;margin:4px 0 16px;">
+    <button id="dlAllBtn" onclick="downloadAllMp3s()" style="width:100%;padding:13px;background:var(--bg-soft);border:1.5px solid rgba(56,162,194,.25);border-radius:14px;color:var(--ocean-deep);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;">
+      ⬇ Download All MP3s
+    </button>
+    <div id="dlAllProgress" style="display:none;margin-top:10px;background:#fff;border:1px solid rgba(56,162,194,.15);border-radius:12px;padding:12px 14px;">
+      <div style="font-size:12px;font-weight:600;color:var(--ocean-deep);margin-bottom:8px;" id="dlAllMsg">Preparing your stories…</div>
+      <div style="background:rgba(56,162,194,.1);border-radius:6px;height:6px;overflow:hidden;">
+        <div id="dlAllBar" style="height:100%;background:var(--ocean);border-radius:6px;width:0%;transition:width .4s;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Video upsell card — shown after stories are generated -->
   <div id="videoUpsellCard" class="video-upsell-card" style="display:none;">
     <div class="panel-title">🎬 Bring the stories to life</div>
@@ -1696,6 +1709,9 @@ function renderStoryList(){
       <div class="pill-arrow">${inSelectMode&&isSelected?'✓':'›'}</div>
     </div>`;
   }).join('');
+  // Show Download All button whenever there are stories
+  const dlWrap = document.getElementById('dlAllWrap');
+  if(dlWrap) dlWrap.style.display = ST.stories.length ? 'block' : 'none';
   renderVideoUpsell();
 }
 
@@ -2117,6 +2133,95 @@ async function prefetchNarration(storyIdx){
       audioSetStatus('Narration unavailable — tap to retry','error');
     }
   }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DOWNLOAD ALL MP3s
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function downloadAllMp3s(){
+  const btn = document.getElementById('dlAllBtn');
+  const progress = document.getElementById('dlAllProgress');
+  const msg = document.getElementById('dlAllMsg');
+  const bar = document.getElementById('dlAllBar');
+
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Preparing download…';
+  progress.style.display = 'block';
+
+  // Load JSZip on-demand
+  if(!window.JSZip){
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  const zip = new window.JSZip();
+  const total = ST.stories.length;
+  let failed = 0;
+
+  for(let i = 0; i < total; i++){
+    const s = ST.stories[i];
+    const pct = Math.round((i / total) * 100);
+    bar.style.width = pct + '%';
+    const slug = (s.title || `Story ${i+1}`).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    msg.textContent = `Fetching ${i+1} of ${total}: ${s.title || `Story ${i+1}`}…`;
+
+    try{
+      let arrayBuf;
+      if(ST.audioCache[i]){
+        // Already loaded — fetch the blob URL back as ArrayBuffer
+        const r = await fetch(ST.audioCache[i]);
+        arrayBuf = await r.arrayBuffer();
+      } else {
+        // Not yet loaded — fetch from narrate API (Redis-first)
+        const fullText = s.pages.join('\n\n');
+        const res = await fetch('/api/narrate',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:fullText,token:ST.storyToken||undefined,storyIdx:i}),
+        });
+        const data = await res.json();
+        if(data.error) throw new Error(data.error);
+        // Decode base64 → ArrayBuffer
+        const bytes = atob(data.audioBase64);
+        const buf = new Uint8Array(bytes.length);
+        for(let j=0;j<bytes.length;j++) buf[j]=bytes.charCodeAt(j);
+        arrayBuf = buf.buffer;
+        // Populate cache so player works instantly too
+        const blob = new Blob([buf],{type:'audio/mpeg'});
+        ST.audioCache[i] = URL.createObjectURL(blob);
+        markStoryCached(i);
+      }
+      zip.file(`${String(i+1).padStart(2,'0')}-${slug}.mp3`, arrayBuf);
+    } catch(e){
+      console.error(`Story ${i+1} failed:`, e);
+      failed++;
+    }
+  }
+
+  bar.style.width = '100%';
+  msg.textContent = 'Creating zip file…';
+
+  try{
+    const blob = await zip.generateAsync({type:'blob', compression:'STORE'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const familyName = ST.children.map(c=>c.name).join('-') || 'sunny-stories';
+    a.download = `${familyName}-stories.zip`;
+    a.click();
+    msg.textContent = failed ? `Done! ${total - failed} of ${total} stories downloaded.` : `All ${total} stories ready — check your downloads!`;
+    btn.innerHTML = '✅ Downloaded';
+  } catch(e){
+    msg.textContent = 'Something went wrong creating the zip. Please try again.';
+    btn.innerHTML = '⬇ Download All MP3s';
+    btn.disabled = false;
+  }
+
+  // Re-enable after a short pause
+  setTimeout(()=>{ btn.disabled=false; btn.innerHTML='⬇ Download All MP3s'; },4000);
 }
 
 function downloadNarration(){
