@@ -2415,6 +2415,16 @@ function clearHighlights(){
   AUDIO.alignment=null;
 }
 
+// Auto-scroll lock — set when user touches/wheels so we don't fight their scroll
+let _scrollLock=false, _scrollLockTimer=null;
+function _lockScroll(){
+  _scrollLock=true;
+  clearTimeout(_scrollLockTimer);
+  _scrollLockTimer=setTimeout(()=>{ _scrollLock=false; }, 2000);
+}
+document.addEventListener('touchstart', _lockScroll, {passive:true});
+document.addEventListener('wheel',      _lockScroll, {passive:true});
+
 function highlightWord(t){
   const al=AUDIO.alignment;
   if(!al||!al.length) return;
@@ -2438,10 +2448,12 @@ function highlightWord(t){
   const el=document.querySelector(`.tts-word[data-wi="${found}"]`);
   if(!el) return;
   el.classList.add('active');
-  // Auto-scroll: only nudge if word has drifted past 65% of viewport
-  const rect=el.getBoundingClientRect();
-  if(rect.top>window.innerHeight*0.65||rect.bottom<0){
-    el.scrollIntoView({behavior:'smooth',block:'center'});
+  // Auto-scroll only if user isn't manually scrolling
+  if(!_scrollLock){
+    const rect=el.getBoundingClientRect();
+    if(rect.top>window.innerHeight*0.65||rect.bottom<0){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+    }
   }
 }
 
