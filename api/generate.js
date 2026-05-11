@@ -22,6 +22,16 @@ export default async function handler(req, res) {
       body: JSON.stringify({ ...req.body, stream: true }),
     });
 
+    // If Anthropic returned an error, surface it properly rather than streaming garbage
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Anthropic API error ${response.status}:`, errorBody);
+      return res.status(response.status).json({
+        error: `Anthropic API error ${response.status}`,
+        detail: errorBody,
+      });
+    }
+
     // Stream the Anthropic SSE response straight through to the client
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -37,6 +47,7 @@ export default async function handler(req, res) {
     }
     res.end();
   } catch (err) {
+    console.error('Generate handler error:', err.message);
     if (!res.headersSent) {
       res.status(500).json({ error: err.message });
     } else {

@@ -1526,10 +1526,11 @@ async function runGeneration(){
     clearInterval(stepTimer);clearInterval(msgTimer);
     if(e.message==='No API key') return;
     console.error('Generation error:', e);
-    const msg = e.message?.includes('401') ? 'API key invalid or expired.' :
-                e.message?.includes('429') ? 'Rate limit hit — wait a moment then try again.' :
-                e.message?.includes('Failed to fetch') ? 'Network error — check your internet connection and try again.' :
-                'Something went wrong generating your stories.';
+    const msg = e.message?.includes('401') ? 'API key invalid or expired — please contact support.' :
+                e.message?.includes('429') ? 'Our AI is a little busy right now. Wait 30 seconds and tap Try again.' :
+                e.message?.includes('529') ? 'Our AI is under high load right now. Wait 30 seconds and tap Try again.' :
+                e.message?.includes('Failed to fetch') ? 'Network error — check your connection and tap Try again.' :
+                'Something went wrong generating your stories. Your payment is safe — tap Try again and it should work.';
     stopElapsedTimer();
     if(ST.pendingSessionId){
       document.getElementById('genErrorMsg').textContent = msg;
