@@ -860,6 +860,7 @@ const ST = {
   giftRecipient: '',
   giftToken: null,
   audioCache: {},
+  audioDuration: {},   // server-calculated durations keyed by story index
   illustrationCache: {},
   pageDir: 0,
   childPhotos: {},
@@ -2122,12 +2123,19 @@ async function prefetchNarration(storyIdx){
     const blob=new Blob([buf],{type:data.mimeType});
     const url=URL.createObjectURL(blob);
     ST.audioCache[storyIdx]=url;
+    if(data.durationSeconds) ST.audioDuration[storyIdx]=data.durationSeconds;
     markStoryCached(storyIdx);
     const dlBtn=document.getElementById('audioDlBtn');
     if(dlBtn)dlBtn.style.display='block';
     // Only update status if this is still the current story and user hasn't tapped play
     if(ST.currentStory===storyIdx&&!AUDIO.playing){
       audioSetStatus('Tap ▶ to listen to this story','');
+      // Pre-populate duration so it shows immediately without waiting for browser metadata
+      if(data.durationSeconds){
+        const row=document.getElementById('audioProgressRow');
+        if(row)row.style.display='flex';
+        updateScrubber(0, data.durationSeconds);
+      }
     }
   }catch(e){
     if(ST.currentStory===storyIdx&&!AUDIO.playing){
@@ -2244,7 +2252,7 @@ async function playFullStory(){
   if(!s)return;
 
   if(ST.audioCache[storyIdx]){
-    startAudioFromUrl(ST.audioCache[storyIdx]);
+    startAudioFromUrl(ST.audioCache[storyIdx], ST.audioDuration[storyIdx]);
     return;
   }
 
@@ -2270,11 +2278,12 @@ async function playFullStory(){
     const blob=new Blob([buf],{type:data.mimeType});
     const url=URL.createObjectURL(blob);
     ST.audioCache[storyIdx]=url;
+    if(data.durationSeconds) ST.audioDuration[storyIdx]=data.durationSeconds;
     ST.narrateRetry[storyIdx]=0;
     markStoryCached(storyIdx);
     const dlBtn=document.getElementById('audioDlBtn');
     if(dlBtn)dlBtn.style.display='block';
-    startAudioFromUrl(url);
+    startAudioFromUrl(url, data.durationSeconds);
   }catch(e){
     AUDIO.playing=false;
     ST.narrateRetry[storyIdx]=(retries+1);
@@ -2319,7 +2328,7 @@ function seekAudio(pct){
   AUDIO.audioEl.currentTime=(pct/100)*AUDIO.audioEl.duration;
 }
 
-function startAudioFromUrl(url){
+function startAudioFromUrl(url, knownDuration){
   // Always create a fresh element — avoids stuck error state from a previous attempt
   if(AUDIO.audioEl){AUDIO.audioEl.pause();AUDIO.audioEl.onended=null;AUDIO.audioEl.onerror=null;AUDIO.audioEl.src='';}
   const el=AUDIO.audioEl=new Audio();
@@ -2332,17 +2341,30 @@ function startAudioFromUrl(url){
     updatePlayBtn();
   };
 
+  // Pre-populate duration from server-calculated value immediately — before the browser
+  // reads metadata. This fixes iOS Safari which often won't update duration for
+  // concatenated MP3 chunks.
+  if(knownDuration){
+    const row=document.getElementById('audioProgressRow');
+    if(row)row.style.display='flex';
+    updateScrubber(0, knownDuration);
+  }
+
   el.onloadedmetadata=()=>{
     const row=document.getElementById('audioProgressRow');
     if(row)row.style.display='flex';
-    updateScrubber(0, el.duration);
+    // Only use browser duration if it's longer than what we know (more accurate scan)
+    const dur = (isFinite(el.duration) && el.duration > (knownDuration||0)) ? el.duration : (knownDuration || el.duration);
+    updateScrubber(0, dur);
   };
-  // Concatenated MP3 chunks cause the browser to initially report only the first
-  // chunk's duration. durationchange fires again as it discovers the full length.
+  // durationchange fires as browser refines its estimate — only accept if longer
   el.ondurationchange=()=>{
-    if(isFinite(el.duration)) updateScrubber(el.currentTime, el.duration);
+    if(isFinite(el.duration) && el.duration > (knownDuration||0)) updateScrubber(el.currentTime, el.duration);
   };
-  el.ontimeupdate=()=>updateScrubber(el.currentTime, el.duration);
+  el.ontimeupdate=()=>{
+    const dur = (isFinite(el.duration) && el.duration > (knownDuration||0)) ? el.duration : (knownDuration || el.duration);
+    updateScrubber(el.currentTime, dur);
+  };
   el.onended=()=>{
     AUDIO.playing=false;AUDIO.hasAudio=false;
     audioSetStatus('Story complete ✨','');

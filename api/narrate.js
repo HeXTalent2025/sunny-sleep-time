@@ -80,7 +80,9 @@ export default async function handler(req, res) {
     try {
       const cached = await redis.get(cacheKey);
       if (cached) {
-        return res.status(200).json({ audioBase64: cached, mimeType: 'audio/mpeg', cached: true });
+        // base64 length × 3/4 ≈ original bytes; 128kbps = 16,000 bytes/sec
+        const durationSeconds = Math.round((cached.length * 3 / 4) / 16000);
+        return res.status(200).json({ audioBase64: cached, mimeType: 'audio/mpeg', cached: true, durationSeconds });
       }
     } catch (e) {
       console.error('Redis cache read error (non-fatal):', e);
@@ -106,6 +108,9 @@ export default async function handler(req, res) {
     const audioBuffer = Buffer.concat(buffers);
     const audioBase64 = audioBuffer.toString('base64');
 
+    // 128kbps = 16,000 bytes/sec — calculate duration from buffer size
+    const durationSeconds = Math.round(audioBuffer.length / 16000);
+
     // Persist to Redis — fail silently so the audio is always returned even if caching fails
     if (cacheKey) {
       redis.set(cacheKey, audioBase64, { ex: 31536000 }).catch(e =>
@@ -113,7 +118,7 @@ export default async function handler(req, res) {
       );
     }
 
-    return res.status(200).json({ audioBase64, mimeType: 'audio/mpeg' });
+    return res.status(200).json({ audioBase64, mimeType: 'audio/mpeg', durationSeconds });
   } catch (e) {
     console.error('Narration error:', e);
     return res.status(500).json({ error: 'Could not generate narration — please try again' });
