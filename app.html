@@ -2337,6 +2337,11 @@ function startAudioFromUrl(url){
     if(row)row.style.display='flex';
     updateScrubber(0, el.duration);
   };
+  // Concatenated MP3 chunks cause the browser to initially report only the first
+  // chunk's duration. durationchange fires again as it discovers the full length.
+  el.ondurationchange=()=>{
+    if(isFinite(el.duration)) updateScrubber(el.currentTime, el.duration);
+  };
   el.ontimeupdate=()=>updateScrubber(el.currentTime, el.duration);
   el.onended=()=>{
     AUDIO.playing=false;AUDIO.hasAudio=false;
@@ -2756,15 +2761,7 @@ function showEmailBanner(email){
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 renderChildBlocks();
 
-// Swipe gestures for bundle reader
-let _touchX=0,_touchY=0;
-document.addEventListener('touchstart',e=>{_touchX=e.touches[0].clientX;_touchY=e.touches[0].clientY;},{passive:true});
-document.addEventListener('touchend',e=>{
-  if(document.getElementById('s-reader')?.classList.contains('hidden'))return;
-  const dx=e.changedTouches[0].clientX-_touchX;
-  const dy=e.changedTouches[0].clientY-_touchY;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>48) changePage(dx<0?1:-1);
-},{passive:true});
+// Swipe gestures removed — reader is now scroll-based, not paginated.
 
 // Route based on URL params
 (function initRoute(){
