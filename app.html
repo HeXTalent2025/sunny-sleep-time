@@ -286,6 +286,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .story-body{font-family:'Fraunces',serif;font-size:17px;line-height:1.9;color:var(--text-dark);font-weight:400;}
 .story-body strong{color:var(--ocean-deep);font-weight:700;}
 .story-body em{color:var(--terracotta);font-style:normal;font-weight:600;}
+.tts-word{border-radius:3px;transition:background 0.15s;}
+.tts-word.active{background:rgba(64,219,225,0.32);box-shadow:0 0 0 1px rgba(64,219,225,0.2);}
 .the-end-wrap{text-align:center;padding:28px 0;}
 .the-end-icon{font-size:64px;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;}
 .the-end-title{font-family:'Fraunces',serif;font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--ocean),var(--ocean-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
@@ -860,7 +862,8 @@ const ST = {
   giftRecipient: '',
   giftToken: null,
   audioCache: {},
-  audioDuration: {},   // server-calculated durations keyed by story index
+  audioDuration: {},     // server-calculated durations keyed by story index
+  audioAlignment: {},    // word-level timing arrays keyed by story index
   illustrationCache: {},
   pageDir: 0,
   childPhotos: {},
@@ -1948,7 +1951,7 @@ function renderPage(){
       document.getElementById('readerNav').style.display='none';
     } else {
       const formatted=fmtText(s.pages[p],s);
-      panel.innerHTML=`<div class="story-page-block"><div class="story-body" id="storyBodyEl">${wrapWords(formatted)}</div></div>`;
+      panel.innerHTML=`<div class="story-page-block"><div class="story-body" id="storyBodyEl">${wrapWords(formatted).html}</div></div>`;
       audioSetStatus('Tap ▶ to listen to this page','');
       document.getElementById('readerNav').style.display='flex';
       document.getElementById('prevBtn').style.display=p===0?'none':'block';
@@ -2010,10 +2013,12 @@ function stopElapsedTimer(){
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    WORD WRAPPER — for TTS highlighting
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function wrapWords(html){
+// startIdx: first data-wi value to use (for continuity across pages in scrolling reader)
+// returns { html, nextIdx } so callers can chain offsets
+function wrapWords(html, startIdx=0){
   const tpl=document.createElement('div');
   tpl.innerHTML=html;
-  let wi=0;
+  let wi=startIdx;
   function walk(node){
     if(node.nodeType===3){
       const parts=node.textContent.split(/(\s+)/);
@@ -2033,13 +2038,13 @@ function wrapWords(html){
     }
   }
   Array.from(tpl.childNodes).forEach(walk);
-  return tpl.innerHTML;
+  return { html: tpl.innerHTML, nextIdx: wi };
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    AUDIO ENGINE — ElevenLabs narration
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const AUDIO={playing:false,autoAdvancing:false,rate:1.0,audioEl:null,hasAudio:false};
+const AUDIO={playing:false,autoAdvancing:false,rate:1.0,audioEl:null,hasAudio:false,alignment:null,_lastWi:-1};
 
 async function generateIllustration(storyIdx){
   const story=ST.stories[storyIdx];
@@ -2094,9 +2099,12 @@ function renderScrollingReader(s){
 
   const panel=document.getElementById('textPanel');
   panel.style.opacity=1;
+  let wordOffset=0;
   panel.innerHTML=s.pages.map(page=>{
     const formatted=fmtText(page,s);
-    return`<div class="story-page-block" style="margin-bottom:16px;"><div class="story-body">${wrapWords(formatted)}</div></div>`;
+    const {html,nextIdx}=wrapWords(formatted,wordOffset);
+    wordOffset=nextIdx;
+    return`<div class="story-page-block" style="margin-bottom:16px;"><div class="story-body">${html}</div></div>`;
   }).join('')+`<div class="the-end-wrap">
     <span class="the-end-icon">✨</span>
     <div class="the-end-title">The End</div>
@@ -2124,13 +2132,13 @@ async function prefetchNarration(storyIdx){
     const url=URL.createObjectURL(blob);
     ST.audioCache[storyIdx]=url;
     if(data.durationSeconds) ST.audioDuration[storyIdx]=data.durationSeconds;
+    if(data.wordAlignment) ST.audioAlignment[storyIdx]=data.wordAlignment;
     markStoryCached(storyIdx);
     const dlBtn=document.getElementById('audioDlBtn');
     if(dlBtn)dlBtn.style.display='block';
     // Only update status if this is still the current story and user hasn't tapped play
     if(ST.currentStory===storyIdx&&!AUDIO.playing){
       audioSetStatus('Tap ▶ to listen to this story','');
-      // Pre-populate duration so it shows immediately without waiting for browser metadata
       if(data.durationSeconds){
         const row=document.getElementById('audioProgressRow');
         if(row)row.style.display='flex';
@@ -2252,7 +2260,7 @@ async function playFullStory(){
   if(!s)return;
 
   if(ST.audioCache[storyIdx]){
-    startAudioFromUrl(ST.audioCache[storyIdx], ST.audioDuration[storyIdx]);
+    startAudioFromUrl(ST.audioCache[storyIdx], ST.audioDuration[storyIdx], ST.audioAlignment[storyIdx]);
     return;
   }
 
@@ -2279,11 +2287,12 @@ async function playFullStory(){
     const url=URL.createObjectURL(blob);
     ST.audioCache[storyIdx]=url;
     if(data.durationSeconds) ST.audioDuration[storyIdx]=data.durationSeconds;
+    if(data.wordAlignment) ST.audioAlignment[storyIdx]=data.wordAlignment;
     ST.narrateRetry[storyIdx]=0;
     markStoryCached(storyIdx);
     const dlBtn=document.getElementById('audioDlBtn');
     if(dlBtn)dlBtn.style.display='block';
-    startAudioFromUrl(url, data.durationSeconds);
+    startAudioFromUrl(url, data.durationSeconds, data.wordAlignment);
   }catch(e){
     AUDIO.playing=false;
     ST.narrateRetry[storyIdx]=(retries+1);
@@ -2328,9 +2337,12 @@ function seekAudio(pct){
   AUDIO.audioEl.currentTime=(pct/100)*AUDIO.audioEl.duration;
 }
 
-function startAudioFromUrl(url, knownDuration){
+function startAudioFromUrl(url, knownDuration, alignment){
   // Always create a fresh element — avoids stuck error state from a previous attempt
   if(AUDIO.audioEl){AUDIO.audioEl.pause();AUDIO.audioEl.onended=null;AUDIO.audioEl.onerror=null;AUDIO.audioEl.src='';}
+  clearHighlights();
+  AUDIO.alignment = alignment || null;
+  AUDIO._lastWi = -1;
   const el=AUDIO.audioEl=new Audio();
   let settled=false;
 
@@ -2364,6 +2376,7 @@ function startAudioFromUrl(url, knownDuration){
   el.ontimeupdate=()=>{
     const dur = (isFinite(el.duration) && el.duration > (knownDuration||0)) ? el.duration : (knownDuration || el.duration);
     updateScrubber(el.currentTime, dur);
+    if(AUDIO.alignment) highlightWord(el.currentTime);
   };
   el.onended=()=>{
     AUDIO.playing=false;AUDIO.hasAudio=false;
@@ -2388,8 +2401,48 @@ function audioStop(){
   AUDIO.playing=false;
   AUDIO.hasAudio=false;
   AUDIO.autoAdvancing=false;
+  clearHighlights();
   resetScrubber();
   updatePlayBtn();
+}
+
+function clearHighlights(){
+  if(AUDIO._lastWi>=0){
+    const prev=document.querySelector(`.tts-word[data-wi="${AUDIO._lastWi}"]`);
+    if(prev) prev.classList.remove('active');
+    AUDIO._lastWi=-1;
+  }
+  AUDIO.alignment=null;
+}
+
+function highlightWord(t){
+  const al=AUDIO.alignment;
+  if(!al||!al.length) return;
+  // Binary search: find last word whose start <= t
+  let lo=0,hi=al.length-1,found=-1;
+  while(lo<=hi){
+    const mid=(lo+hi)>>1;
+    if(al[mid].start<=t){found=mid;lo=mid+1;}
+    else hi=mid-1;
+  }
+  // If the found word has already ended (gap between words), show nothing
+  if(found>=0 && al[found].end < t-0.05) found=-1;
+  if(found===AUDIO._lastWi) return;
+  // Clear previous
+  if(AUDIO._lastWi>=0){
+    const prev=document.querySelector(`.tts-word[data-wi="${AUDIO._lastWi}"]`);
+    if(prev) prev.classList.remove('active');
+  }
+  AUDIO._lastWi=found;
+  if(found<0) return;
+  const el=document.querySelector(`.tts-word[data-wi="${found}"]`);
+  if(!el) return;
+  el.classList.add('active');
+  // Auto-scroll: only nudge if word has drifted past 65% of viewport
+  const rect=el.getBoundingClientRect();
+  if(rect.top>window.innerHeight*0.65||rect.bottom<0){
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  }
 }
 
 function audioToggle(){
