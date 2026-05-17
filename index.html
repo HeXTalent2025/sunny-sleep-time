@@ -300,7 +300,7 @@
     }
     .floating-badge strong { display: block; font-size: 1.2rem; }
 
-    .floating-badge-yoto {
+    .floating-badge-single {
       position: absolute; top: -1.5rem; left: 2rem;
       background: var(--ocean);
       color: white;
@@ -311,7 +311,12 @@
       text-decoration: none;
       display: block;
     }
-    .floating-badge-yoto strong { display: block; font-size: 1.2rem; }
+    .floating-badge-single strong { display: block; font-size: 1.2rem; }
+    .hero-yoto-hint {
+      text-align: center; margin-top: 0.75rem;
+      font-size: 0.75rem; color: var(--text-soft);
+    }
+    .hero-yoto-hint a { color: var(--ocean); text-decoration: underline; }
 
     /* ── HOW IT WORKS ──────────────────────────── */
     .section { padding: 6rem 3rem; max-width: 1200px; margin: 0 auto; }
@@ -901,7 +906,7 @@
     <a href="#pricing" class="btn-ghost-nav">Pricing</a>
     <a href="/give" class="btn-ghost-nav">🎁 Gifting</a>
     <a href="#faq" class="btn-ghost-nav">FAQ</a>
-    <a href="/app" class="btn-nav">Create yours — $25</a>
+    <a href="/app" class="btn-nav">Create yours</a>
   </div>
 </nav>
 
@@ -923,7 +928,7 @@
       </p>
       <div class="hero-cta">
         <a href="/app" class="btn-primary">
-          Get 10 audio stories — $25
+          Create your stories
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
         <a href="#stories" class="btn-ghost">See sample stories</a>
@@ -936,9 +941,9 @@
         <strong>$25</strong>
         10 audio stories
       </div>
-      <a href="#yoto" class="floating-badge-yoto">
-        <strong>📻 Yoto</strong>
-        compatible
+      <a href="/app?plan=single" class="floating-badge-single">
+        <strong>$4.99</strong>
+        try 1 story
       </a>
       <div class="story-card">
         <div class="card-label">Your Story DNA</div>
@@ -963,6 +968,7 @@
           <span style="font-size:0.78rem;color:var(--gold);font-weight:500">★ Story 3 of 10</span>
         </div>
       </div>
+      <div class="hero-yoto-hint">📻 <a href="#yoto">Works on Yoto players</a></div>
     </div>
   </div>
 
