@@ -119,6 +119,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
 .interest-input-row input{flex:1;margin-bottom:0;}
 .no-interests{font-size:12px;color:var(--text-low);font-style:italic;padding:4px 0;}
 
+/* PLAN PICKER */
+.plan-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+.plan-card{border:2px solid rgba(56,162,194,.2);border-radius:16px;padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s;background:#fff;position:relative;}
+.plan-card:hover{border-color:var(--ocean);background:rgba(56,162,194,.04);}
+.plan-card.selected{border-color:var(--ocean);background:rgba(56,162,194,.08);box-shadow:0 0 0 3px rgba(56,162,194,.15);}
+.plan-badge{display:inline-block;background:var(--terracotta);color:#fff;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border-radius:20px;padding:2px 8px;margin-bottom:8px;}
+.plan-label{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ocean-deep);margin-bottom:2px;}
+.plan-count{font-size:12px;color:var(--text-soft);margin-bottom:8px;}
+.plan-price{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ocean-deep);}
+.plan-price sup{font-size:13px;font-weight:400;}
+.plan-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;border:2px solid rgba(56,162,194,.3);display:flex;align-items:center;justify-content:center;font-size:11px;}
+.plan-card.selected .plan-check{background:var(--ocean);border-color:var(--ocean);color:#fff;}
+
 /* LOCATIONS */
 .sel-locations-bar{background:rgba(56,162,194,.08);border:1px solid rgba(56,162,194,.2);border-radius:14px;padding:12px 15px;margin-bottom:14px;}
 .sel-loc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
@@ -459,6 +472,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
     <button class="nav-btn" onclick="go('s-list')"><span class="ni">📚</span>My Books</button>
   </div>
 
+  <!-- Plan picker -->
+  <div class="panel">
+    <div class="panel-title">✨ Choose your plan</div>
+    <div class="plan-picker">
+      <div class="plan-card" id="planSingle" onclick="selectPlan('single')">
+        <div class="plan-check" id="planSingleCheck"></div>
+        <div class="plan-label">Try it out</div>
+        <div class="plan-count">1 audio story</div>
+        <div class="plan-price"><sup>$</sup>4.99</div>
+      </div>
+      <div class="plan-card selected" id="planBundle" onclick="selectPlan('bundle')">
+        <div class="plan-badge">Best value</div>
+        <div class="plan-check" id="planBundleCheck">✓</div>
+        <div class="plan-label">Full Collection</div>
+        <div class="plan-count">10 audio stories</div>
+        <div class="plan-price"><sup>$</sup>25</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Gift mode banner -->
   <div id="giftBanner" style="display:none;background:linear-gradient(135deg,#d86e59,#e8956a);color:#fff;padding:14px 18px;border-radius:14px;margin:14px 14px 0;display:none;align-items:center;gap:12px;">
     <span style="font-size:26px;">🎁</span>
@@ -503,7 +536,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   <!-- Step 3: Locations -->
   <div class="panel">
     <div class="panel-title">🌊 Favourite places</div>
-    <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;line-height:1.6;">Pick as few as 1 or as many as you like — we'll spread them across your 10 stories so each one feels different.</p>
+    <p id="locPanelText" style="font-size:13px;color:var(--text-mid);margin-bottom:14px;line-height:1.6;">Pick as few as 1 or as many as you like — we'll spread them across your 10 stories so each one feels different.</p>
     <div class="sel-locations-bar" id="selLocBar" style="display:none">
       <div class="sel-loc-header">
         <span class="sel-loc-count" id="selLocCount">0 places selected</span>
@@ -543,8 +576,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
   </div>
 
   <div class="price-card">
-    <div class="price-num"><sup>$</sup>25</div>
-    <div class="price-stories">10 personalised audio stories</div>
+    <div class="price-num" id="priceSummaryNum"><sup>$</sup>25</div>
+    <div class="price-stories" id="priceSummaryStories">10 personalised audio stories</div>
     <div class="price-detail">Each story narrated in an Australian accent — listen in the car, at bedtime, anywhere</div>
   </div>
   <button class="btn btn-sun" id="submitBtn" onclick="submitForm()">✨ Get My Audio Stories · $25</button>
@@ -609,7 +642,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-primary);col
       <div style="font-size:13px;color:var(--text-soft);">⏱ Time elapsed</div>
       <div id="elapsedTimer" style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ocean-deep);">0:00</div>
     </div>
-    <p style="font-size:12px;color:var(--text-soft);text-align:center;margin-top:12px;line-height:1.6;">Writing 10 unique stories takes around 3–5 minutes.<br>Please keep this page open ✨</p>
+    <p id="loadingTimeHint" style="font-size:12px;color:var(--text-soft);text-align:center;margin-top:12px;line-height:1.6;">Writing 10 unique stories takes around 3–5 minutes.<br>Please keep this page open ✨</p>
     <div id="genError" style="display:none;margin-top:18px;background:#fff8f7;border:1px solid rgba(216,110,89,.25);border-radius:14px;padding:18px 20px;text-align:center;">
       <div style="font-size:15px;font-weight:700;color:#c0412c;margin-bottom:6px;">✨ Something went wrong</div>
       <div id="genErrorMsg" style="font-size:13px;color:var(--text-soft);margin-bottom:14px;line-height:1.6;"></div>
@@ -845,6 +878,7 @@ for(let i=0;i<40;i++){
    STATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 const ST = {
+  plan: 'bundle',          // 'single' ($4.99 · 1 story) | 'bundle' ($25 · 10 stories)
   children: [],
   ages: [],
   friends: [],
@@ -1107,7 +1141,7 @@ const ARCS = [
 ];
 
 function buildBlueprints(){
-  const NUM = 10;
+  const NUM = ST.plan === 'single' ? 1 : 10;
   const children = ST.children.length > 0
     ? ST.children
     : [{name:'Your child', interests:[], age:null}];
@@ -1448,6 +1482,7 @@ async function submitForm(){
         selectedLocations:ST.selectedLocations,
         vibe:ST.vibe,
         storyLength:'5min',
+        plan:ST.plan||'bundle',
       })
     });
     const data=await res.json();
@@ -1470,10 +1505,44 @@ async function submitForm(){
   }
 }
 
+function selectPlan(p){
+  ST.plan=p;
+  const isSingle=p==='single';
+  // Card highlight
+  document.getElementById('planSingle').classList.toggle('selected',isSingle);
+  document.getElementById('planBundle').classList.toggle('selected',!isSingle);
+  document.getElementById('planSingleCheck').textContent=isSingle?'✓':'';
+  document.getElementById('planBundleCheck').textContent=!isSingle?'✓':'';
+  // Locations hint
+  const locText=document.getElementById('locPanelText');
+  if(locText) locText.textContent=isSingle
+    ? 'Pick a place your family loves — we\'ll set your story there.'
+    : 'Pick as few as 1 or as many as you like — we\'ll spread them across your 10 stories so each one feels different.';
+  // Price summary card
+  const priceNum=document.getElementById('priceSummaryNum');
+  const priceStories=document.getElementById('priceSummaryStories');
+  if(priceNum) priceNum.innerHTML=isSingle?'<sup>$</sup>4.99':'<sup>$</sup>25';
+  if(priceStories) priceStories.textContent=isSingle?'1 personalised audio story':'10 personalised audio stories';
+  // Submit button + loading hint
+  updateSubmitBtn();
+  const hint=document.getElementById('loadingTimeHint');
+  if(hint) hint.innerHTML=isSingle
+    ? 'Writing your personalised story takes around 1 minute.<br>Please keep this page open ✨'
+    : 'Writing 10 unique stories takes around 3–5 minutes.<br>Please keep this page open ✨';
+  // Rebuild blueprints
+  updateBlueprintPreview();
+}
+
 function updateSubmitBtn(){
   const btn=document.getElementById('submitBtn');
   if(!btn)return;
-  btn.textContent=ST.giftMode?'🎁 Create Gift Audio Stories · $25':'✨ Get My Audio Stories · $25';
+  const isSingle=ST.plan==='single';
+  const price=isSingle?'$4.99':'$25';
+  if(ST.giftMode){
+    btn.textContent=`🎁 Create Gift Story${isSingle?'':' Collection'} · ${price}`;
+  } else {
+    btn.textContent=`✨ Get My ${isSingle?'Story':'Audio Stories'} · ${price}`;
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1716,7 +1785,7 @@ function renderStoryList(){
   }).join('');
   // Show Download All button whenever there are stories
   const dlWrap = document.getElementById('dlAllWrap');
-  if(dlWrap) dlWrap.style.display = ST.stories.length ? 'block' : 'none';
+  if(dlWrap) dlWrap.style.display = (ST.stories.length > 1) ? 'block' : 'none';
   renderVideoUpsell();
 }
 
@@ -2755,6 +2824,8 @@ async function handlePaymentReturn(sessionId){
     ST.friends=formData.friends||[];
     ST.selectedLocations=formData.selectedLocations||[];
     ST.vibe=formData.vibe||'gentle and sleepy';
+    ST.plan=formData.plan||'bundle';
+    selectPlan(ST.plan); // updates UI hints
     ST.pendingSessionId=sessionId;
     ST.blueprints=buildBlueprints();
     renderChildBlocks();
@@ -2856,6 +2927,10 @@ renderChildBlocks();
   const token=p.get('token');
   const session=p.get('session');
   const gift=p.get('gift');
+
+  // Pre-select plan from URL param (e.g. /app?plan=single from landing page)
+  const planParam=p.get('plan');
+  if(planParam==='single'||planParam==='bundle') selectPlan(planParam);
 
   // Activate gift mode from URL param or restored from localStorage after Stripe redirect
   const savedGift=localStorage.getItem('sst_gift_mode');

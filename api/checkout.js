@@ -62,8 +62,9 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { children, friends, selectedLocations, vibe, storyLength } = req.body;
+  const { children, friends, selectedLocations, vibe, storyLength, plan } = req.body;
   if (!children?.length) return res.status(400).json({ error: 'No children provided' });
+  const isSingle = plan === 'single';
 
   // ── Moderate inputs before touching Stripe ──────────────────────────────
   const moderation = await moderateInputs(children, selectedLocations, vibe, friends);
@@ -79,20 +80,24 @@ export default async function handler(req, res) {
 
   // Save form data temporarily — retrieved after Stripe redirects back
   const tempKey = `form_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  await redis.set(tempKey, { children, friends: friends || [], selectedLocations, vibe, storyLength, bundleUpgrade: true }, { ex: 7200 });
+  await redis.set(tempKey, { children, friends: friends || [], selectedLocations, vibe, storyLength, plan: plan || 'bundle' }, { ex: 7200 });
 
   const childNames = children.map(c => c.name).filter(Boolean).join(' & ') || 'your child';
+
+  const productName = isSingle
+    ? 'Sunny Stories — 1 Personalised Audio Story'
+    : 'Sunny Stories — 10 Personalised Audio Stories';
+  const productDesc = isSingle
+    ? `A personalised audio story for ${childNames}, set in their favourite Sunshine Coast spot — narrated in an Australian accent.`
+    : `10 personalised audio stories for ${childNames}, set in their favourite Sunshine Coast spots — narrated in an Australian accent.`;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [{
       price_data: {
         currency: 'aud',
-        product_data: {
-          name: 'Sunny Stories — 10 Personalised Audio Stories',
-          description: `10 personalised audio stories for ${childNames}, set in their favourite Sunshine Coast spots — narrated in an Australian accent.`,
-        },
-        unit_amount: 2500,
+        product_data: { name: productName, description: productDesc },
+        unit_amount: isSingle ? 499 : 2500,
       },
       quantity: 1,
     }],

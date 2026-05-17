@@ -590,6 +590,92 @@
       font-size: 0.8rem; color: var(--text-soft);
     }
 
+    /* Two-tier pricing grid */
+    .pricing-plans {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 820px;
+      margin: 3rem auto 0;
+      align-items: start;
+    }
+    .pricing-plan {
+      background: white;
+      border-radius: 24px;
+      padding: 2.25rem 2rem;
+      box-shadow: 0 8px 40px rgba(48,108,164,0.1);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .pricing-plan::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--ocean), var(--ocean-bright));
+    }
+    .pricing-plan.featured {
+      border: 2px solid var(--ocean);
+      box-shadow: 0 12px 60px rgba(48,108,164,0.18);
+    }
+    .pricing-plan.featured::after { height: 4px; }
+    .plan-recommended {
+      display: inline-block;
+      background: var(--ocean);
+      color: white;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      border-radius: 20px; padding: 3px 12px;
+      margin-bottom: 1.25rem;
+    }
+    .plan-type-label {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--text-soft);
+      margin-bottom: 0.4rem;
+    }
+    .plan-price-main {
+      font-family: 'Fraunces', serif;
+      font-size: 3.5rem; font-weight: 600;
+      line-height: 1; color: var(--ocean-deep);
+    }
+    .plan-price-main span { font-size: 1.5rem; vertical-align: top; padding-top: 0.5rem; display: inline-block; }
+    .plan-per { font-size: 0.82rem; color: var(--text-soft); margin: 0.35rem 0 1.5rem; }
+    .plan-features {
+      list-style: none; text-align: left;
+      margin-bottom: 1.75rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+    .plan-features li {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      font-size: 0.85rem; color: var(--text-soft); line-height: 1.4;
+    }
+    .plan-features li::before {
+      content: '✓';
+      width: 18px; height: 18px;
+      background: var(--pastel-green); color: #2a6a20;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 700;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .btn-secondary-large {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%;
+      background: transparent;
+      color: var(--ocean);
+      border: 2px solid var(--ocean);
+      font-size: 0.95rem; font-weight: 600;
+      padding: 0.9rem 1.5rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-secondary-large:hover { background: var(--ocean); color: white; }
+    @media (max-width: 640px) {
+      .pricing-plans { grid-template-columns: 1fr; }
+      .pricing-plan.featured { order: -1; }
+    }
+
     .gift-card {
       max-width: 500px;
       margin: 1.5rem auto 0;
@@ -1052,31 +1138,56 @@
 <section id="pricing" class="section-full pricing-bg">
   <div class="section" style="padding-top:0;padding-bottom:0;">
     <div class="pricing-center reveal">
-      <div class="section-label" style="justify-content:center;">Simple, generous pricing</div>
-      <h2>Everything, for <em>$25</em></h2>
-      <p>Ten original audio stories. Every Sunshine Coast spot your family loves. Your child's name woven through every page. Delivered in minutes, listen whenever the moment feels right.</p>
+      <div class="section-label" style="justify-content:center;">Simple, honest pricing</div>
+      <h2>Try one, or get the <em>full collection</em></h2>
+      <p>Start with a single story to see what your family thinks — or go straight to the full collection and get 10 stories for $2.50 each.</p>
     </div>
 
-    <div class="price-card reveal">
-      <div class="price-amount"><span>$</span>25</div>
-      <div class="price-desc">for 10 personalised audio stories</div>
-      <ul class="price-features">
-        <li>10 original audio stories starring your child by name</li>
-        <li>Narrated in a warm Australian accent — listen anywhere</li>
-        <li>Set in your family's favourite Sunshine Coast locations</li>
-        <li>Add friends, cousins &amp; siblings as story characters</li>
-        <li>Customise Story DNA — locations, activities, arcs &amp; costars</li>
-        <li>Story DNA card so you know exactly what's in each one</li>
-        <li>Download all stories as MP3s — load onto a Yoto player</li>
-        <li>Delivered instantly — listen today</li>
-        <li>Yours to keep, re-listen to, and treasure forever</li>
-        <li>Every story written fresh — never reused, never recycled</li>
-      </ul>
-      <a href="/app" class="btn-primary-large">
-        Get your family's audio stories
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <div class="price-note">No subscription. No account required. One price, everything included.</div>
+    <div class="pricing-plans">
+
+      <!-- Single story -->
+      <div class="pricing-plan reveal">
+        <div class="plan-type-label">Try it out</div>
+        <div class="plan-price-main"><span>$</span>4.99</div>
+        <div class="plan-per">1 personalised audio story</div>
+        <ul class="plan-features">
+          <li>1 original story starring your child by name</li>
+          <li>Australian-accented narration</li>
+          <li>Set in your favourite Sunshine Coast spot</li>
+          <li>Customisable Story DNA before you pay</li>
+          <li>Downloadable MP3 — works on Yoto</li>
+          <li>Yours to keep forever</li>
+        </ul>
+        <a href="/app?plan=single" class="btn-secondary-large">
+          Start with one story
+        </a>
+        <div class="price-note">No account required · delivered in ~1 minute</div>
+      </div>
+
+      <!-- Bundle -->
+      <div class="pricing-plan featured reveal reveal-delay-1">
+        <div class="plan-recommended">Best value</div>
+        <div class="plan-type-label">Full Collection</div>
+        <div class="plan-price-main"><span>$</span>25</div>
+        <div class="plan-per">10 stories · <strong style="color:var(--ocean-deep);">$2.50 each</strong></div>
+        <ul class="plan-features">
+          <li>10 original stories starring your child by name</li>
+          <li>Australian-accented narration on every story</li>
+          <li>53 real Sunshine Coast locations to choose from</li>
+          <li>Add friends, cousins &amp; siblings as characters</li>
+          <li>Customise Story DNA — swap locations, arcs &amp; costars</li>
+          <li>Words highlight as each story is narrated</li>
+          <li>Download all as MP3s — works on Yoto players</li>
+          <li>Gift a collection with a shareable reveal link</li>
+          <li>Yours to keep, re-listen to, and treasure forever</li>
+        </ul>
+        <a href="/app" class="btn-primary-large">
+          Get the full collection
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="price-note">No subscription · no account required · everything included</div>
+      </div>
+
     </div>
 
     <div class="gift-card reveal">
